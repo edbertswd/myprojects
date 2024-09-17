@@ -1,0 +1,67 @@
+{
+  "layout": "level1.txt",
+  "waves": [
+    {
+      "duration": 8,
+      "pre_wave_pause": 0.5,
+	  "monsters": [
+        {
+          "type": "gremlin",
+          "hp": 100,
+          "speed": 1,
+          "armour": 0.5,
+          "mana_gained_on_kill": 10,
+          "quantity": 10
+        }
+	  ]
+    },
+    {
+      "duration": 5,
+      "pre_wave_pause": 10,
+      "monsters": [
+        {
+          "type": "gremlin",
+          "hp": 50,
+          "speed": 2.5,
+          "armour": 0.7,
+          "mana_gained_on_kill": 20,
+          "quantity": 15
+        }
+      ]
+    },
+    {
+      "duration": 5,
+      "pre_wave_pause": 10,
+      "monsters": [
+        {
+          "type": "gremlin",
+          "hp": 150,
+          "speed": 1.0,
+          "armour": 0.7,
+          "mana_gained_on_kill": 70,
+          "quantity": 25
+        },
+        {
+          "type": "gremlin",
+          "hp": 70,
+          "speed": 2.0,
+          "armour": 0.7,
+          "mana_gained_on_kill": 10,
+          "quantity": 15
+        }
+      ]
+    }
+  ],
+  "initial_tower_range": 96,
+  "initial_tower_firing_speed": 1.5,
+  "initial_tower_damage": 40,
+  "initial_mana": 200,
+  "initial_mana_cap": 1000,
+  "initial_mana_gained_per_second": 2,
+  "tower_cost": 100,
+  "mana_pool_spell_initial_cost": 100,
+  "mana_pool_spell_cost_increase_per_use": 150,
+  "mana_pool_spell_cap_multiplier": 1.5,
+  "mana_pool_spell_mana_gained_multiplier": 1.1
+}
+
