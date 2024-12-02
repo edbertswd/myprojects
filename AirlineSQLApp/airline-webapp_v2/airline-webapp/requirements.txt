@@ -1,4 +1,0 @@
-flask
-werkzeug
-flask_bcrypt
-pg8000
