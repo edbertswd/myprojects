@@ -89,7 +89,7 @@ body {
 .project-card {
   width: 300px;
   height: 350px;
-  background: #ffffff; /* Clean white background */
+  background: #ffffff;
   border-radius: 10px;
   text-align: center;
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
@@ -120,6 +120,28 @@ body {
 
 .project-card.project-3:hover {
   background-image: url('/public/pacman01.png');
+}
+
+.project-card.project-4:hover {
+  background-image: url('/public/KNN.png');
+}
+
+.project-card h3 {
+  font-size: 1.4rem; /* Adjusted title font size */
+  margin-bottom: 10px;
+  color: #4A90E2; /* Matching theme color */
+}
+
+.project-card p {
+  font-size: 1rem; /* Adjusted description font size */
+  margin-bottom: 10px;
+  color: #333; /* Consistent text color */
+}
+
+.project-card ul li {
+  font-size: 0.9rem; /* Adjusted list font size */
+  line-height: 1.4;
+  color: #555;
 }
 
 .project-content {
@@ -214,7 +236,6 @@ body {
 .experience-card:hover .card-animation {
   opacity: 0.8;
 }
-
 
 /* Skills Section */
 .skills-section {
