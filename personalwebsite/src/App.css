@@ -3,8 +3,8 @@ body {
   font-family: 'Poppins', sans-serif;
   margin: 0;
   padding: 0;
-  background-color: #f9f9f9; /* Light white-ish background */
-  color: #333; /* Dark text for readability */
+  background: url('/public/pipes.webp') repeat; /* Use the pattern image */
+  color: #333; /* Ensure text is readable */
   line-height: 1.6;
 }
 
@@ -20,9 +20,9 @@ body {
   align-items: center;
   justify-content: space-between;
   padding: 100px 20px;
-  background-color: #ffffff; /* Clean white background */
-  color: #333; /* Dark text */
-  border-bottom: 3px solid #eaeaea; /* Subtle divider */
+  background: linear-gradient(90deg, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.6)); /* Overlay gradient for readability */
+  color: #ffffff; /* White text for contrast */
+  border-bottom: 3px solid #ccc; /* Subtle divider */
 }
 
 .hero-content {
@@ -31,21 +31,21 @@ body {
 
 .hero-title {
   font-size: 3.5rem;
-  color: #4A90E2; /* Fun and friendly blue */
+  color: #F5A623; /* Bright color for emphasis */
 }
 
 .hero-subtitle {
   font-size: 1.5rem;
   margin: 20px 0;
-  color: #555; /* Softer grey for the subtitle */
+  color: #E0E0E0; /* Softer white for the subtitle */
 }
 
 .cta-button {
   display: inline-block;
   padding: 10px 20px;
   margin-top: 20px;
-  color: white;
-  background-color: #F5A623; /* Bright orange for a pop of fun */
+  color: #ffffff;
+  background-color: #F5A623; /* Bright orange */
   border-radius: 5px;
   text-decoration: none;
   font-weight: bold;
@@ -54,26 +54,29 @@ body {
 
 .cta-button:hover {
   background-color: #F78C1F; /* Slightly darker orange on hover */
-  transform: scale(1.05); /* Adds a fun interaction */
+  transform: scale(1.05);
 }
 
 .hero-image img {
-  max-width: 100%;
-  border-radius: 10px;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1); /* Light shadow for a clean look */
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+  object-fit: cover;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+  border: 3px solid #F5A623; /* Match theme color */
 }
 
 /* Projects Section */
 .projects-section {
   padding: 50px 20px;
-  background-color: #f5f7fa; /* Subtle off-white background */
+  background: rgba(255, 255, 255, 0.9); /* Semi-transparent white overlay */
 }
 
 .section-title {
   text-align: center;
   font-size: 2.5rem;
   margin-bottom: 30px;
-  color: #4A90E2; /* Matching blue for titles */
+  color: #F5A623; /* Matching theme color */
 }
 
 .projects-grid {
@@ -84,30 +87,53 @@ body {
 }
 
 .project-card {
-  background: white;
+  width: 300px;
+  height: 350px;
+  background: #ffffff; /* Clean white background */
   border-radius: 10px;
   text-align: center;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1); /* Soft shadow */
-  padding: 20px;
-  transition: transform 0.3s, box-shadow 0.3s;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  position: relative;
+  transition: transform 0.3s, box-shadow 0.3s, background-image 0.3s;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 }
 
 .project-card:hover {
   transform: translateY(-10px);
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2); /* Larger shadow on hover */
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
 }
 
-.project-card img {
-  width: 100%;
-  height: 200px;
-  object-fit: cover;
-  border-radius: 5px;
+.project-card.project-1:hover {
+  background-image: url('/public/towerdefense.png');
+}
+
+.project-card.project-2:hover {
+  background-image: url('/public/reactlogo.png');
+}
+
+.project-card.project-3:hover {
+  background-image: url('/public/pacman01.png');
+}
+
+.project-content {
+  z-index: 1;
+  position: relative;
+  background: rgba(255, 255, 255, 0.9);
+  padding: 10px 20px;
+  border-radius: 10px;
 }
 
 .view-button {
   margin-top: 10px;
   padding: 10px;
-  background: #4A90E2; /* Blue button */
+  background: #F5A623;
   color: white;
   border: none;
   border-radius: 5px;
@@ -117,34 +143,83 @@ body {
 }
 
 .view-button:hover {
-  background: #3B78D8; /* Slightly darker blue */
+  background: #F78C1F;
   transform: scale(1.05);
 }
 
-/* About Section */
-.about-section {
+/* Work Experience Section */
+.work-experience-section {
   padding: 50px 20px;
-  text-align: center;
-  background-color: #ffffff; /* White background for clarity */
+  background: rgba(255, 255, 255, 0.9); /* Semi-transparent white */
 }
 
-.about-content p {
-  font-size: 1.2rem;
-  color: #555; /* Softer grey for body text */
+.experience-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  justify-content: center;
 }
 
-.about-image {
-  width: 150px;
-  height: 150px;
-  border-radius: 50%;
-  margin-top: 20px;
+.experience-card {
+  width: 300px;
+  padding: 20px;
+  background: white;
+  border-radius: 10px;
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  position: relative;
+  transition: transform 0.3s, box-shadow 0.3s;
+  overflow: hidden;
 }
+
+.experience-card:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+}
+
+.experience-card h3 {
+  font-size: 1.5rem;
+  color: #4A90E2; /* Blue header */
+}
+
+.experience-card p {
+  font-size: 1rem;
+  color: #555;
+  margin-bottom: 10px;
+}
+
+.experience-card ul {
+  list-style: none;
+  padding: 0;
+}
+
+.experience-card ul li {
+  font-size: 0.9rem;
+  color: #666;
+  margin-bottom: 5px;
+}
+
+/* Add Animated Background Overlay */
+.card-animation {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(120deg, rgba(255, 200, 200, 0.5), rgba(200, 200, 255, 0.5));
+  z-index: 0;
+  opacity: 0.4;
+  transition: opacity 0.5s ease;
+}
+
+.experience-card:hover .card-animation {
+  opacity: 0.8;
+}
+
 
 /* Skills Section */
 .skills-section {
   padding: 50px 20px;
-  background-color: #f5f7fa; /* Matches the projects section */
+  background: rgba(255, 255, 255, 0.9);
 }
 
 .skills-grid {
@@ -159,18 +234,18 @@ body {
   padding: 20px;
   border-radius: 10px;
   text-align: center;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
 }
 
 .progress-wrapper {
-  background: #eaeaea; /* Light grey background */
+  background: #eaeaea;
   border-radius: 10px;
   overflow: hidden;
   margin-top: 10px;
 }
 
 .progress-bar {
-  background: #F5A623; /* Fun orange progress bar */
+  background: #F5A623;
   height: 10px;
   line-height: 10px;
   transition: width 0.5s;
@@ -180,18 +255,18 @@ body {
 .footer {
   text-align: center;
   padding: 20px;
-  background: #ffffff; /* Clean white footer */
-  color: #555; /* Soft grey text */
-  border-top: 3px solid #eaeaea; /* Subtle top border */
+  background: rgba(0, 0, 0, 0.8);
+  color: #ffffff;
+  border-top: 3px solid #ccc;
 }
 
 .footer .social-links a {
   margin: 0 10px;
-  color: #4A90E2; /* Blue links */
+  color: #F5A623;
   text-decoration: none;
   transition: color 0.3s;
 }
 
 .footer .social-links a:hover {
-  color: #3B78D8; /* Darker blue on hover */
+  color: #F78C1F;
 }
