@@ -3,16 +3,19 @@ import './App.css';
 
 const App = () => {
   const [skills] = useState([
-    { name: 'JavaScript', level: 85 },
-    { name: 'React', level: 80 },
-    { name: 'Node.js', level: 75 },
-    { name: 'UI/UX Design', level: 70 },
+    { name: 'Java', level: 80 },
+    { name: 'Python', level: 70 },
+    { name: 'JavaScript', level: 50 },
+    { name: 'React', level: 50 },
+    { name: 'Node.js', level: 35 },
+    { name: 'UI/UX Design', level: 50 },
   ]);
 
   const projectLinks = {
     TowerDefense: 'https://github.com/edbertswd/myprojects/tree/main/TowerDefense',
     portfolioWebsite: 'https://github.com/edbertswd/myprojects/tree/main/personalwebsite',
     pacmanGame: 'https://github.com/edbertswd/myprojects/tree/main/PacmanGame',
+    MLmodel: 'https://github.com/edbertswd/myprojects/tree/main/MLLungCancerPredictor',
   };
 
   useEffect(() => {
@@ -109,6 +112,26 @@ const App = () => {
                 </button>
               </div>
             </div>
+            <div className="project-card project-4 fade-in">
+              <div className="project-content">
+                <h3>ML Model for Predicting Lung Cancer Survivability</h3>
+                <p>Developed a machine learning model to predict lung cancer survivability using real-world medical datasets.</p>
+                <ul>
+                  <li>
+                    <strong>Things Learned:</strong> Machine learning concepts, feature engineering, and model evaluation techniques.
+                  </li>
+                  <li>
+                    <strong>Utilities:</strong> Python, scikit-learn, Jupyter Notebooks, Pandas, Matplotlib
+                  </li>
+                </ul>
+                <button
+                  className="view-button"
+                  onClick={() => window.open(projectLinks.MLmodel, '_blank')}
+                >
+                  View Project
+                </button>
+              </div>
+            </div>
           </div>
         </section>
 
@@ -146,7 +169,6 @@ const App = () => {
                     className="progress-bar"
                     style={{ width: `${skill.level}%` }}
                   >
-                    <span>{skill.level}%</span>
                   </div>
                 </div>
               </div>
