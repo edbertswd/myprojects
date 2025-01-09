@@ -1,68 +1,3 @@
-/* General */
-body {
-  font-family: 'Poppins', sans-serif;
-  margin: 0;
-  padding: 0;
-  background-color: #f9f9f9; /* Light white-ish background */
-  color: #333; /* Dark text for readability */
-  line-height: 1.6;
-}
-
-.portfolio-container {
-  max-width: 1200px;
-  margin: auto;
-  padding: 0 20px;
-}
-
-/* Hero Section */
-.hero-section {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 100px 20px;
-  background-color: #ffffff; /* Clean white background */
-  color: #333; /* Dark text */
-  border-bottom: 3px solid #eaeaea; /* Subtle divider */
-}
-
-.hero-content {
-  flex: 1;
-}
-
-.hero-title {
-  font-size: 3.5rem;
-  color: #4A90E2; /* Fun and friendly blue */
-}
-
-.hero-subtitle {
-  font-size: 1.5rem;
-  margin: 20px 0;
-  color: #555; /* Softer grey for the subtitle */
-}
-
-.cta-button {
-  display: inline-block;
-  padding: 10px 20px;
-  margin-top: 20px;
-  color: white;
-  background-color: #F5A623; /* Bright orange for a pop of fun */
-  border-radius: 5px;
-  text-decoration: none;
-  font-weight: bold;
-  transition: background 0.3s, transform 0.2s;
-}
-
-.cta-button:hover {
-  background-color: #F78C1F; /* Slightly darker orange on hover */
-  transform: scale(1.05); /* Adds a fun interaction */
-}
-
-.hero-image img {
-  max-width: 100%;
-  border-radius: 10px;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1); /* Light shadow for a clean look */
-}
-
 /* Projects Section */
 .projects-section {
   padding: 50px 20px;
@@ -90,6 +25,10 @@ body {
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1); /* Soft shadow */
   padding: 20px;
   transition: transform 0.3s, box-shadow 0.3s;
+  position: relative; /* Needed for background position adjustments */
+  overflow: hidden; /* Prevent content from spilling */
+  background-size: cover; /* Ensure the background image covers the entire card */
+  background-position: center; /* Center the background image */
 }
 
 .project-card:hover {
@@ -97,11 +36,12 @@ body {
   box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2); /* Larger shadow on hover */
 }
 
-.project-card img {
-  width: 100%;
-  height: 200px;
-  object-fit: cover;
-  border-radius: 5px;
+.project-card .project-content {
+  background: rgba(255, 255, 255, 0.8); /* Add a semi-transparent white background */
+  padding: 20px;
+  border-radius: 10px;
+  position: relative; /* Content stays above the background */
+  z-index: 1;
 }
 
 .view-button {
@@ -119,79 +59,4 @@ body {
 .view-button:hover {
   background: #3B78D8; /* Slightly darker blue */
   transform: scale(1.05);
-}
-
-/* About Section */
-.about-section {
-  padding: 50px 20px;
-  text-align: center;
-  background-color: #ffffff; /* White background for clarity */
-}
-
-.about-content p {
-  font-size: 1.2rem;
-  color: #555; /* Softer grey for body text */
-}
-
-.about-image {
-  width: 150px;
-  height: 150px;
-  border-radius: 50%;
-  margin-top: 20px;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-}
-
-/* Skills Section */
-.skills-section {
-  padding: 50px 20px;
-  background-color: #f5f7fa; /* Matches the projects section */
-}
-
-.skills-grid {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 20px;
-  justify-content: center;
-}
-
-.skill-card {
-  background: white;
-  padding: 20px;
-  border-radius: 10px;
-  text-align: center;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1); /* Subtle shadow */
-}
-
-.progress-wrapper {
-  background: #eaeaea; /* Light grey background */
-  border-radius: 10px;
-  overflow: hidden;
-  margin-top: 10px;
-}
-
-.progress-bar {
-  background: #F5A623; /* Fun orange progress bar */
-  height: 10px;
-  line-height: 10px;
-  transition: width 0.5s;
-}
-
-/* Footer */
-.footer {
-  text-align: center;
-  padding: 20px;
-  background: #ffffff; /* Clean white footer */
-  color: #555; /* Soft grey text */
-  border-top: 3px solid #eaeaea; /* Subtle top border */
-}
-
-.footer .social-links a {
-  margin: 0 10px;
-  color: #4A90E2; /* Blue links */
-  text-decoration: none;
-  transition: color 0.3s;
-}
-
-.footer .social-links a:hover {
-  color: #3B78D8; /* Darker blue on hover */
 }
