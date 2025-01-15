@@ -3,10 +3,10 @@
 Welcome to my repository, where I share my projects, experiments, and learning journey in software engineering, game development, and AI.
 
 ## **Current Project**
-The main project I'm working on right now is a **Unity Game**. This project combines creativity and technical skills to build an engaging and interactive experience. Here's a quick overview:
+The main project I'm working on right now is a **CAPYBARA UNITY GAME**. This project combines creativity and technical skills to build an engaging and interactive experience. Here's a quick overview:
 
 ### **Project Highlights**
-- **Core Concept**: A dynamic and immersive game world with interactive elements to keep players engaged.
+- **Core Concept**: Capybaras.
 - **Technologies Used**:
   - **Unity**: For game development and design.
   - **C#**: For scripting game mechanics and interactions.
