@@ -1,5 +1,16 @@
-html {
-  scroll-behavior: smooth; 
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+
+
+html, body {
+  width: 100%;
+  overflow-x: hidden; /* Prevent horizontal scroll */
+  scroll-behavior: smooth;
 }
 
 /* Navigation Header */
@@ -7,22 +18,20 @@ html {
   position: fixed;
   top: 0;
   left: 0;
-  width: 100%;
-  background: rgba(0, 0, 0, 0.9); /* Semi-transparent black */
+  width: 100%; /* Full width */
+  background: rgba(0, 0, 0, 0.9);
   color: #ffffff;
   z-index: 1000;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
-  transition: background 0.3s ease-in-out;
 }
-
 .nav-container {
   display: flex;
-  justify-content: space-between; 
+  justify-content: space-between;
   align-items: center;
-  width: 100%; 
-  margin: 0 auto;
+  max-width: 100%; /* Ensure no overflow */
   padding: 10px 20px;
 }
+
 
 /* Logo Styling */
 .logo {
@@ -53,7 +62,6 @@ html {
   list-style: none;
   margin: 0;
   padding: 10px 20px;
-  padding-right: 350px; 
   gap: 30px;
   font-family: 'Roboto', sans-serif; 
 }
@@ -164,24 +172,20 @@ html {
 
 @media (max-width: 768px) {
   .nav-links {
-    display: none; /* Hide nav links initially */
+    display: none; /* Hidden by default */
     flex-direction: column;
-    background: rgba(0, 0, 0, 0.95); /* Dropdown background */
     position: absolute;
     top: 60px;
     right: 0;
-    width: 200px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
-    padding: 20px 10px;
+    width: 100%; /* Full width for mobile */
+    background: rgba(0, 0, 0, 0.95);
+    padding: 20px;
     border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
   }
 
   .nav-links.show {
     display: flex;
-  }
-
-  .nav-links li {
-    margin: 10px 0;
   }
 
   .hamburger-menu {
@@ -209,7 +213,6 @@ body {
 }
 
 .portfolio-container {
-  max-width: 100%;
   margin: auto;
   width: 100%; /* Explicitly set width to 100% */
 }
@@ -232,7 +235,9 @@ body {
   align-items: center;
   justify-content: space-between;
   padding: 100px 20px;
-  padding-left: 200px;
+  padding-left: 200px; /* Keep left padding for offset alignment */
+  max-width: 100%; /* Prevent overflow */
+  overflow: hidden; /* Hide any overflowing content */
   background: linear-gradient(
               135deg,
               rgba(0, 0, 0, 0.7),
@@ -245,7 +250,13 @@ body {
   animation: hero-gradient-animation 12s ease infinite;
   color: #ffffff; /* White text for contrast */
   position: relative;
-  overflow: hidden;
+  box-sizing: border-box; /* Ensure padding fits inside */
+}
+
+.hero-content {
+  max-width: calc(100% - 220px); /* Ensure content stays within screen width */
+  overflow-wrap: break-word; /* Prevent text from overflowing */
+  word-wrap: break-word; /* Ensure long words are wrapped */
 }
 
 .hero-section::before {
@@ -267,11 +278,6 @@ body {
   height: 100%;
   background: rgba(0, 0, 0, 0.05); /* Adds subtle depth */
   z-index: 0;
-}
-
-.hero-content {
-  flex: 1;
-  z-index: 1; 
 }
 
 .hero-title {
@@ -521,6 +527,8 @@ body {
   animation: work-gradient-animation 6s ease infinite;
   position: relative;
   color: #ffffff; /* Text is white for visibility */
+  overflow-x: hidden; /* Prevent horizontal overflow */
+  box-sizing: border-box; /* Ensure padding is included in the width */
 }
 
 .work-experience-section::before {
@@ -579,17 +587,21 @@ body {
   flex-direction: column;
   gap: 30px;
   margin: auto;
+  max-width: 100%; /* Prevent content from exceeding the container */
+  padding: 0 15px; /* Add padding to avoid content touching edges */
+  overflow-x: hidden; /* Ensure no horizontal scrollbars */
 }
 
-/* Flat Style for Experience Items */
 .experience-item {
   display: flex;
   align-items: center; /* Vertically align items */
-  gap: 20px; /* Add spacing between logo and content */
-  padding: 15px 0; /* Optional padding for cleaner layout */
-  border-bottom: 1px solid rgba(255, 255, 255, 0.2); /* Optional divider */
+  gap: 20px; /* Space between the logo and text */
+  padding: 15px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
   transition: background-color 0.3s ease;
+  width: 100%;
 }
+
 
 .experience-item:last-child {
   border-bottom: none; /* Remove border for the last item */
@@ -599,6 +611,23 @@ body {
   background-color: rgba(255, 255, 255, 0.1); /* Highlight row on hover */
 }
 
+
+@media (max-width: 768px) {
+  .experience-item {
+    flex-direction: row; /* Keep logo next to text */
+    align-items: flex-start; /* Align logo with the top of the text */
+  }
+
+  .company-logo {
+    width: 50px; /* Slightly smaller for mobile */
+    height: 50px;
+  }
+
+  .experience-details {
+    text-align: left;
+    margin-left: 10px; /* Adjust spacing for better appearance */
+  }
+}
 /* Logo Wrapper */
 .logo-wrapper {
   display: flex;
@@ -609,13 +638,14 @@ body {
 
 /* Logo Styling */
 .company-logo {
-  width: 80px;
-  height: 80px;
-  object-fit: contain;
-  border-radius: 10%; /* Slightly rounded edges */
-  transition: transform 0.3s ease;
-  margin-left: 200px;
+  width: 60px; /* Adjust size to your preference */
+  height: 60px; /* Ensure consistent aspect ratio */
+  object-fit: contain; /* Maintain aspect ratio without stretching */
+  border-radius: 5px; /* Optional: Rounded edges */
+  margin: 0; /* Remove any margin to align properly */
 }
+
+
 
 .company-name {
   font-size: 1.5rem;
@@ -812,4 +842,58 @@ body {
 
 .footer .social-links a:hover {
   color: #F78C1F;
+}
+
+@media (max-width: 768px) {
+  .nav-container, .hero-section, .work-experience-section {
+    padding: 15px;
+  }
+
+  .hero-section {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: nowrap; /* Prevent stacking */
+    gap: 10px; /* Add some space between elements */
+  }
+
+  .hero-title {
+    font-size: 2.5rem; /* Smaller title for mobile */
+    word-break: break-word; /* Prevent text overflow */
+  }
+
+  .hero-subtitle {
+    font-size: 1rem; /* Adjust subtitle size */
+  }
+
+  .hero-content {
+    flex: 1; /* Ensure content scales properly */
+    padding: 10px; /* Add some breathing room */
+    max-width: 60%; /* Limit the content width */
+  }
+
+  .hero-image {
+    flex: 0 0 auto; /* Prevent image from shrinking */
+    max-width: 30%; /* Scale the image */
+    padding: 0; /* Remove padding for better alignment */
+    text-align: right; /* Align image to the side */
+  }
+
+  .hero-image img {
+    max-width: 100%;
+    height: auto; /* Maintain aspect ratio */
+    border-radius: 50%;
+    object-fit: cover;
+  }
+
+  .experience-item {
+    flex-direction: row; /* Keep items in a row */
+    gap: 10px; /* Adjust spacing */
+  }
+
+
+
+  .navigation-header, .nav-container {
+    align-items: center;
+  }
 }
