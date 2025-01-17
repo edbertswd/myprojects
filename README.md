@@ -23,4 +23,5 @@ This project is helping me sharpen my skills in game design, optimisation, and u
 Feel free to check out the other repositories in this repo. 
 
 If you have any feedback, suggestions, or just want to connect, don't hesitate to reach out. 
+https://edbertsuwandi.com/
 https://www.linkedin.com/in/edbert-suwandi/
