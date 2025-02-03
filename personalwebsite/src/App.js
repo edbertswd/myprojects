@@ -1,5 +1,6 @@
 import React, {useEffect } from 'react';
 import './App.css';
+import ValentineModal from "./ValentineModal";
 
 const App = () => {
   const projectLinks = {
@@ -213,6 +214,13 @@ const App = () => {
             ))}
           </div>
         </section>
+      
+      {/*Valentines Extension */}
+      <div className="App">
+        <ValentineModal />
+      </div>
+
+      
       {/*Get to Know Me */}
       <section className="get-to-know-section">
         <h2 className="get-to-know-title">Get to Know Me</h2>
