@@ -1,6 +1,6 @@
 import React, {useEffect } from 'react';
 import './App.css';
-import ValentineModal from "./ValentineModal";
+import ValentineModal from './ValentineModal';  
 
 const App = () => {
   const projectLinks = {
@@ -41,8 +41,12 @@ const App = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  return (  
+  return (
     <div className="portfolio-container">
+
+      {/* Floating Hearts (ValentineModal) */}
+      <ValentineModal />
+
       {/* Navigation Panel */}
       <nav className="navigation-header">
         <div className="nav-container">
@@ -215,11 +219,6 @@ const App = () => {
           </div>
         </section>
       
-      {/*Valentines Extension */}
-      <div className="App">
-        <ValentineModal />
-      </div>
-
       
       {/*Get to Know Me */}
       <section className="get-to-know-section">
