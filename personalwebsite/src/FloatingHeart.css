@@ -2,57 +2,74 @@
 
 /* Floating heart animation styling */
 .floating-heart {
-    font-size: 3rem; /* Adjust the size of the heart */
-    position: fixed; /* Keep it fixed in place */
-    top: 50%; /* Center vertically */
-    left: 50%; /* Center horizontally */
-    transform: translate(-50%, -50%); /* Adjust for perfect centering */
-    cursor: pointer;
-    z-index: 999; /* Ensure heart is on top of everything else */
-    transition: transform 0.2s ease-in-out;
+  font-size: 3rem; /* Adjust the size of the heart */
+  position: fixed; /* Keep it fixed in place */
+  top: 50%; /* Center vertically */
+  left: 50%; /* Center horizontally */
+  transform: translate(-50%, -50%); /* Adjust for perfect centering */
+  cursor: pointer;
+  z-index: 999; /* Ensure heart is on top of everything else */
+  transition: transform 0.2s ease-in-out;
+}
+
+/* Modal overlay styling */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5); /* Semi-transparent black background */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000; /* Ensure the modal is above everything else */
+}
+
+/* Modal content styling */
+.modal-content {
+  background-color: white;
+  padding: 20px;
+  border-radius: 10px;
+  text-align: center;
+  width: 300px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.modal-buttons {
+  display: flex;
+  justify-content: space-around;
+  margin-top: 20px;
+}
+
+.modal-buttons button {
+  background-color: #ff3b30;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  font-size: 16px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.modal-buttons button:hover {
+  background-color: #ff6f61;
+}
+
+/* Face popup styling */
+.face-popup {
+  margin-top: 20px;
+  font-size: 4rem; /* Larger face emoji */
+  animation: fadeIn 0.5s ease-out;
+  opacity: 0;
+  animation-fill-mode: forwards;
+}
+
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
   }
-  
-  /* Modal overlay styling */
-  .modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.5); /* Semi-transparent black background */
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000; /* Ensure the modal is above everything else */
+  100% {
+    opacity: 1;
   }
-  
-  /* Modal content styling */
-  .modal-content {
-    background-color: white;
-    padding: 20px;
-    border-radius: 10px;
-    text-align: center;
-    width: 300px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-  }
-  
-  .modal-buttons {
-    display: flex;
-    justify-content: space-around;
-    margin-top: 20px;
-  }
-  
-  .modal-buttons button {
-    background-color: #ff3b30;
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    font-size: 16px;
-    border-radius: 5px;
-    cursor: pointer;
-  }
-  
-  .modal-buttons button:hover {
-    background-color: #ff6f61;
-  }
-  
+}
