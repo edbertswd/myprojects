@@ -1,0 +1,269 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Personal Website Design System - Warm & Inviting Color Palette */
+
+@layer base {
+  :root {
+    --background: 35 25% 98%;
+    --foreground: 25 15% 25%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 25 15% 25%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 25 15% 25%;
+
+    /* Warm terracotta/coral primary - more personal and approachable */
+    --primary: 15 75% 58%;
+    --primary-foreground: 0 0% 100%;
+    --primary-light: 18 85% 75%;
+    --primary-dark: 12 65% 48%;
+
+    /* Soft warm neutrals */
+    --secondary: 30 20% 92%;
+    --secondary-foreground: 25 15% 25%;
+
+    --muted: 35 15% 94%;
+    --muted-foreground: 25 12% 55%;
+
+    --accent: 45 40% 88%;
+    --accent-foreground: 25 15% 25%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 30 15% 88%;
+    --input: 30 15% 88%;
+    --ring: 15 75% 58%;
+
+    /* Custom personal website colors */
+    --warm-coral: 15 75% 58%;
+    --warm-coral-light: 18 85% 75%;
+    --warm-peach: 25 60% 85%;
+    --warm-cream: 40 25% 94%;
+    --warm-sand: 35 20% 82%;
+    --warm-brown: 25 20% 45%;
+    --warm-charcoal: 25 15% 25%;
+
+    /* Accent colors for variety */
+    --sage-green: 85 25% 65%;
+    --dusty-rose: 350 35% 75%;
+    --golden-yellow: 45 85% 70%;
+
+    /* Gradients */
+    --gradient-warm-coral: linear-gradient(135deg, hsl(var(--warm-coral)), hsl(var(--warm-coral-light)));
+    --gradient-warm-sunset: linear-gradient(180deg, hsl(var(--warm-peach)), hsl(var(--warm-cream)));
+    --gradient-neutral: linear-gradient(180deg, hsl(var(--background)), hsl(var(--warm-cream)));
+
+    /* Shadows - softer and more natural */
+    --shadow-soft: 0 4px 20px hsl(var(--warm-coral) / 0.12);
+    --shadow-card: 0 2px 12px hsl(25 15% 25% / 0.06);
+    --shadow-hover: 0 8px 25px hsl(var(--warm-coral) / 0.15);
+
+    /* Animations */
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-spring: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    --transition-bounce: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+
+    --radius: 0.75rem;
+
+    /* Sidebar styling */
+    --sidebar-background: 35 15% 96%;
+    --sidebar-foreground: 25 15% 25%;
+    --sidebar-primary: 15 75% 58%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 30 20% 90%;
+    --sidebar-accent-foreground: 25 15% 25%;
+    --sidebar-border: 30 15% 85%;
+    --sidebar-ring: 15 75% 58%;
+  }
+
+  .dark {
+    --background: 25 15% 8%;
+    --foreground: 35 20% 92%;
+
+    --card: 25 15% 10%;
+    --card-foreground: 35 20% 92%;
+
+    --popover: 25 15% 10%;
+    --popover-foreground: 35 20% 92%;
+
+    /* Slightly muted coral for dark mode - easier on the eyes */
+    --primary: 15 65% 55%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 25 12% 15%;
+    --secondary-foreground: 35 20% 92%;
+
+    --muted: 25 12% 15%;
+    --muted-foreground: 35 15% 68%;
+
+    --accent: 25 12% 18%;
+    --accent-foreground: 35 20% 92%;
+
+    --destructive: 0 70% 58%;
+    --destructive-foreground: 35 20% 92%;
+
+    --border: 25 12% 18%;
+    --input: 25 12% 18%;
+    --ring: 15 65% 55%;
+
+    /* Dark mode warm colors */
+    --warm-cream: 25 12% 12%;
+    --warm-sand: 25 15% 22%;
+    --warm-brown: 35 15% 68%;
+    --warm-charcoal: 35 20% 92%;
+
+    --gradient-neutral: linear-gradient(180deg, hsl(var(--background)), hsl(var(--warm-cream)));
+    --shadow-card: 0 2px 12px hsl(0 0% 0% / 0.25);
+
+    /* Dark sidebar */
+    --sidebar-background: 25 15% 8%;
+    --sidebar-foreground: 35 20% 92%;
+    --sidebar-primary: 15 65% 55%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 25 12% 15%;
+    --sidebar-accent-foreground: 35 20% 92%;
+    --sidebar-border: 25 12% 18%;
+    --sidebar-ring: 15 65% 55%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+
+  /* Improved typography for personal websites */
+  h1, h2, h3, h4, h5, h6 {
+    color: hsl(var(--warm-charcoal));
+  }
+
+  .dark h1, .dark h2, .dark h3, .dark h4, .dark h5, .dark h6 {
+    color: hsl(var(--foreground));
+  }
+}
+
+/* Enhanced animations for personal touch */
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-8px); }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slide-up {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes warm-glow {
+  0%, 100% { 
+    box-shadow: 0 0 20px hsl(var(--warm-coral) / 0.1); 
+  }
+  50% { 
+    box-shadow: 0 0 30px hsl(var(--warm-coral) / 0.2); 
+  }
+}
+
+@keyframes gentle-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.8; }
+}
+
+@layer utilities {
+  /* Enhanced trail effect with warm tones */
+  .trail-effect {
+    @apply absolute inset-y-0 left-[-120%] w-[120%] pointer-events-none;
+  }
+  .trail-effect::after {
+    content: "";
+    position: absolute;
+    inset: 35% 0 35% 0;
+    background: linear-gradient(to left, 
+      hsla(var(--warm-coral), 0), 
+      hsla(var(--warm-coral), 0.15), 
+      hsla(var(--warm-coral), 0)
+    );
+    filter: blur(8px);
+    transform: translateX(-30%);
+  }
+
+  /* Warm button hover effects */
+  .btn-warm {
+    @apply bg-[hsl(var(--warm-coral))] text-white transition-all duration-300;
+  }
+  .btn-warm:hover {
+    @apply bg-[hsl(var(--primary-dark))] shadow-[var(--shadow-hover)] scale-105;
+  }
+
+  /* Card with warm styling */
+  .card-warm {
+    @apply bg-card border border-[hsl(var(--warm-sand))] rounded-xl shadow-[var(--shadow-card)];
+    transition: var(--transition-smooth);
+  }
+  .card-warm:hover {
+    @apply shadow-[var(--shadow-hover)] -translate-y-1;
+  }
+
+  /* Warm accent backgrounds */
+  .bg-warm-gradient {
+    background: var(--gradient-warm-coral);
+  }
+
+  .bg-warm-sunset {
+    background: var(--gradient-warm-sunset);
+  }
+
+  .bg-sage { background-color: hsl(var(--sage-green)); }
+  .bg-dusty-rose { background-color: hsl(var(--dusty-rose)); }
+  .bg-golden { background-color: hsl(var(--golden-yellow)); }
+
+  .text-warm-coral { color: hsl(var(--warm-coral)); }
+  .text-warm-brown { color: hsl(var(--warm-brown)); }
+
+  /* Animation utilities */
+  .animate-float { animation: float 3s ease-in-out infinite; }
+  .animate-fade-in { animation: fade-in 0.6s ease-out; }
+  .animate-slide-up { animation: slide-up 0.8s ease-out; }
+  .animate-warm-glow { animation: warm-glow 2s ease-in-out infinite; }
+  .animate-gentle-pulse { animation: gentle-pulse 2s ease-in-out infinite; }
+
+  /* Reduce motion for accessibility */
+  @media (prefers-reduced-motion: reduce) {
+    .animate-fly-horizontal,
+    .animate-float,
+    .animate-fade-in,
+    .animate-slide-up,
+    .animate-warm-glow,
+    .animate-gentle-pulse { 
+      animation: none !important; 
+    }
+    .card-warm:hover {
+      @apply translate-y-0;
+    }
+  }
+
+  /* Focus states with warm colors */
+  .focus-warm:focus {
+    @apply outline-none ring-2 ring-[hsl(var(--warm-coral))] ring-opacity-50;
+  }
+
+  /* Gradient text effect */
+  .text-gradient-warm {
+    background: linear-gradient(135deg, hsl(var(--warm-coral)), hsl(var(--golden-yellow)));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+}
