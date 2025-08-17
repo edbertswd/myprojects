@@ -89,29 +89,6 @@ export default {
           from: { height: "var(--radix-accordion-content-height)" },
           to: { height: "0" },
         },
-		"flight-distance": {
-			"0%":   { offsetDistance: "0%" },
-			"100%": { offsetDistance: "100%" },
-		},
-		"wing-flap": {
-			"0%, 100%": { transform: "translateY(0) rotate(0deg) scale(1)" },
-			"25%":      { transform: "translateY(-1px) rotate(1deg) scale(1.02)" },
-			"50%":      { transform: "translateY(0) rotate(0deg) scale(1)" },
-			"75%":      { transform: "translateY(1px) rotate(-1deg) scale(0.98)" },
-		},
-		"bird-across": {
-			"0%":   { transform: "translate3d(-15vw, 45vh, 0) rotate(6deg)" },
-			"10%":  { transform: "translate3d(-5vw, 43vh, 0) rotate(3deg)" },
-			"20%":  { transform: "translate3d(8vw, 42vh, 0) rotate(0deg)" },
-			"30%":  { transform: "translate3d(22vw, 46vh, 0) rotate(5deg)" },
-			"40%":  { transform: "translate3d(36vw, 52vh, 0) rotate(8deg)" },
-			"50%":  { transform: "translate3d(50vw, 59vh, 0) rotate(10deg)" },
-			"60%":  { transform: "translate3d(65vw, 66vh, 0) rotate(8deg)" },
-			"70%":  { transform: "translate3d(80vw, 73vh, 0) rotate(6deg)" },
-			"80%":  { transform: "translate3d(95vw, 80vh, 0) rotate(4deg)" },
-			"90%":  { transform: "translate3d(108vw, 84vh, 0) rotate(2deg)" },
-			"100%": { transform: "translate3d(115vw, 88vh, 0) rotate(0deg)" },
-		},
         float: {
           "0%, 100%": { transform: "translateY(0)" },
           "50%": { transform: "translateY(-8px)" },
@@ -119,6 +96,24 @@ export default {
         "fade-in": {
           "0%": { opacity: "0", transform: "translateY(6px)" },
           "100%": { opacity: "1", transform: "translateY(0)" },
+        },
+		/* --- car animations --- */
+        "wheel-spin": {
+          to: { transform: "rotate(360deg)" },
+        },
+        "car-bob": {
+          "0%, 100%": { transform: "translateY(0)" },
+          "50%": { transform: "translateY(-1.5px)" },
+        },
+        exhaust: {
+          "0%": {
+            transform: "translateX(-2px) scale(0.7)",
+            opacity: "0.7",
+          },
+          "100%": {
+            transform: "translateX(-18px) scale(1.3)",
+            opacity: "0",
+          },
         },
       },
       animation: {
@@ -130,6 +125,11 @@ export default {
         float: "float 3s ease-in-out infinite",
         "fade-in": "fade-in 0.6s ease-out forwards",
         "slide-up": "slide-up 0.6s ease-out forwards",
+		      /* --- car animations --- */
+		"wheel-spin": "wheel-spin 1.6s linear infinite",
+		"car-bob": "car-bob 2.4s ease-in-out infinite",
+		exhaust: "exhaust 1.1s linear infinite",
+
       },
       backgroundImage: {
         "gradient-warm": "var(--gradient-warm)",

@@ -10,7 +10,7 @@ const Navigation = () => {
         </div>
 
         {/* Navigation Links */}
-        <div className="mx-auto hidden md:flex items-center space-x-8">
+        <div className="hidden md:flex items-center space-x-8 max-w-6xl mx-auto px-6">
           <a href="#about" className="text-foreground hover:text-portfolio-orange transition-smooth">
             About
           </a>
@@ -24,6 +24,7 @@ const Navigation = () => {
             Contact
           </a>
         </div>
+
 
         {/* Social Links */}
         <div className="flex items-center space-x-3">

@@ -2,445 +2,455 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { animate } from "motion";
 import type { AnimationPlaybackControls } from "motion";
 
-
 type Checkpoint = {
-  t: number;        // 0..1 along the road centerline
+  t: number; // 0..1
   title: string;
   text: string;
+  imageSrc: string;
+  imageAlt: string;
+  id?: string;
 };
 
-const About = () => {
-  // 7 checkpoints across the S-road (0 -> 6); car stops at index 6 (the 7th)
+const clamp = (v: number, min = 0, max = 1) => Math.min(Math.max(v, min), max);
+
+const usePrefersReducedMotion = () => {
+  const [reduced, setReduced] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia?.("(prefers-reduced-motion: reduce)");
+    if (!mq) return;
+    const onChange = () => setReduced(mq.matches);
+    onChange();
+    mq.addEventListener?.("change", onChange);
+    return () => mq.removeEventListener?.("change", onChange);
+  }, []);
+  return reduced;
+};
+
+export default function AboutJourneyInfiniteRoad() {
+  // --- DATA ---
   const checkpoints: Checkpoint[] = useMemo(
     () => [
-      { t: 0.04, title: "Beginnings",   text: "Youngest kid—had to earn my stripes." },
-      { t: 0.16, title: "First Build",   text: "Shipped my first site—got hooked on shipping." },
-      { t: 0.30, title: "Design Lens",   text: "UX & accessibility started guiding everything." },
-      { t: 0.46, title: "Teamwork",      text: "Feedback → iterate → own it. Repeat." },
-      { t: 0.62, title: "Grit",          text: "Hard bugs taught calm and systems thinking." },
-      { t: 0.82, title: "Momentum",      text: "Build faster by building simpler." },
-      { t: 0.94, title: "What's next?",  text: "What's next for me… 🚀" }, // last bubble pops at end
+      { t: 0.04, id: "chapter-beginnings", title: "Beginnings", text: "Born in 2002, the youngest — learned to be heard.", imageSrc: "/images/journey/beginnings.webp", imageAlt: "Childhood sunset silhouette" },
+      { t: 0.16, id: "chapter-jakarta", title: "High School in Jakarta", text: "Tried everything — still searching for my thing.", imageSrc: "/images/journey/jakarta.webp", imageAlt: "Jakarta skyline and schoolyard" },
+      { t: 0.36, id: "chapter-atlanta", title: "Atlanta & Covid Era (2019–2022)", text: "Moved to Atlanta; taught myself to code. First Hello World.", imageSrc: "/images/journey/atlanta-desk.webp", imageAlt: "Laptop by a window in Atlanta" },
+      { t: 0.52, id: "chapter-sydney", title: "Sydney Chapter", text: "New culture, new resilience; grew as an engineer.", imageSrc: "/images/journey/sydney.webp", imageAlt: "Sydney skyline at dusk" },
+      { t: 0.66, id: "chapter-content", title: "Content Creation", text: "Built a Twitch community of 1.8k — learned to connect.", imageSrc: "/images/journey/twitch.webp", imageAlt: "Streamer desk with soft lighting" },
+      { t: 0.80, id: "chapter-gamedev", title: "Game Development", text: "Building little worlds; inspired by ConcernedApe.", imageSrc: "/images/journey/gamedev.webp", imageAlt: "Pixel art mockup and code editor" },
+      { t: 0.92, id: "chapter-next", title: "What's Next?", text: "Still writing the story — excited for the leap 🚀", imageSrc: "/images/journey/whats-next.webp", imageAlt: "Open highway into sunrise" },
     ],
     []
   );
 
-// Keep bubbles clear of the road (28px stroke) with a comfortable margin
-const ROAD_STROKE = 28;
-const BUBBLE_GAP = Math.round(ROAD_STROKE / 2 + 18); // ~32px
+  // --- STATE ---
+  const sectionRef = useRef<HTMLElement | null>(null);
+  const [progress, setProgress] = useState(0);               // 0..1 (drives world)
+  const [displayProgress, setDisplayProgress] = useState(0); // smoothed bar
+  const [hoverPause, setHoverPause] = useState(false);       
+  const [autoplayZone, setAutoplayZone] = useState(false);   // ≥30% visible
+  const controlsRef = useRef<AnimationPlaybackControls | null>(null);
+  const reducedMotion = usePrefersReducedMotion();
+  const playing = autoplayZone && !hoverPause && !reducedMotion;
 
+  const midpoints = useMemo(() => {
+    const mids: number[] = [Number.NEGATIVE_INFINITY];
+    for (let i = 0; i < checkpoints.length - 1; i++) {
+      mids.push((checkpoints[i].t + checkpoints[i + 1].t) / 2);
+    }
+    mids.push(Number.POSITIVE_INFINITY);
+    return mids;
+  }, [checkpoints]);
 
-  // S-road path (spans full width)
-  const pathD =
-    `
-      M 10 500
-      C 190 500, 190 80, 370 80
-      S 550 500, 730 500
-      S 910 80, 990 80
-    `;
+  const activeIndex = useMemo(() => {
+    for (let i = 0; i < checkpoints.length; i++) {
+      if (progress >= midpoints[i] && progress < midpoints[i + 1]) return i;
+    }
+    return undefined;
+  }, [progress, checkpoints, midpoints]);
 
-  const wrapRef = useRef<HTMLDivElement>(null);
-  const pathRef = useRef<SVGPathElement>(null);
-  const svgRef = useRef<SVGSVGElement>(null);
+  // --- Parallax world (subtle) ---
+  const PAN_X_FAR = -600;   
+  const PAN_X_NEAR = -1800; // near objects
+  const world = useMemo(() => {
+    const p = clamp(progress);
+    if (reducedMotion) return { farX: 0, nearX: 0, zoom: 1 };
+    return {
+      farX: p * PAN_X_FAR,
+      nearX: p * PAN_X_NEAR,
+      zoom: 1 - p * 0.03,
+    };
+  }, [progress, reducedMotion]);
 
-  const [len, setLen] = useState(1);
-  const [pts, setPts] = useState<{ x: number; y: number; angle: number }[]>([]);
-  const [progress, setProgress] = useState(0); // 0..tEnd
-  const [passed, setPassed] = useState<boolean[]>(() => checkpoints.map(() => false));
-  const [bubbleAnimating, setBubbleAnimating] = useState<boolean[]>(() => checkpoints.map(() => false));
-  const [hiddenBubbles, setHiddenBubbles] = useState<Set<number>>(new Set()); // Track manually hidden bubbles
-
-// animation control + running state
-const controlsRef = useRef<AnimationPlaybackControls | null>(null);
-const [isRunning, setIsRunning] = useState(false);
-
-
-const tEnd = checkpoints[6].t; // stop at checkpoint #6 (index 6)
-
-  // Compute length, checkpoint positions (centerline), and tangents (for bubble orientation)
+  // --- Visibility: start at ≥30%, stop at <15% ---
   useEffect(() => {
-    const compute = () => {
-      const p = pathRef.current;
-      const svg = svgRef.current;
-      if (!p || !svg) return;
-      
-      const L = p.getTotalLength();
-      setLen(L);
-
-      // Use SVG's built-in coordinate transformation
-      const svgPoint = svg.createSVGPoint();
-
-      const out = checkpoints.map(({ t }) => {
-        const s = L * t;
-        const pt = p.getPointAtLength(s);
-        
-        // Set the SVG point to the path coordinates
-        svgPoint.x = pt.x;
-        svgPoint.y = pt.y;
-        
-        // Transform to screen coordinates
-        const screenPoint = svgPoint.matrixTransform(svg.getScreenCTM());
-        
-        // Get the container's position to make coordinates relative to it
-        const containerRect = svg.getBoundingClientRect();
-        const x = screenPoint.x - containerRect.left;
-        const y = screenPoint.y - containerRect.top;
-        
-        // Calculate tangent for bubble positioning
-        const p1 = p.getPointAtLength(Math.max(0, s - 1));
-        const p2 = p.getPointAtLength(Math.min(L, s + 1));
-        const angle = Math.atan2(p2.y - p1.y, p2.x - p1.x); // radians
-        
-        return { x, y, angle };
-      });
-      setPts(out);
-    };
-
-    // Use requestAnimationFrame for better timing
-    const computeDelayed = () => {
-      requestAnimationFrame(compute);
-    };
-
-    computeDelayed();
-    const ro = new ResizeObserver(computeDelayed);
-    if (wrapRef.current) ro.observe(wrapRef.current);
-    window.addEventListener('resize', computeDelayed);
-    return () => {
-      ro.disconnect();
-      window.removeEventListener('resize', computeDelayed);
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    const el = sectionRef.current;
+    if (!el || typeof IntersectionObserver === "undefined") return;
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        const r = entry?.intersectionRatio ?? 0;
+        if (r >= 0.3) setAutoplayZone(true);
+        if (r < 0.15) setAutoplayZone(false);
+      },
+      { threshold: Array.from({ length: 101 }, (_, i) => i / 100) }
+    );
+    io.observe(el);
+    return () => io.disconnect();
   }, []);
 
-  // Start/stop the car animation when `isRunning` toggles
-useEffect(() => {
-  if (!isRunning) return;
+  // --- Autoplay loop: 0→1, wrap to 0 while playing ---
+  useEffect(() => {
+    controlsRef.current?.cancel();
+    controlsRef.current = null;
+    if (!playing) return;
 
-  // reset visual state at the moment we start
-  setProgress(0);
-  setPassed(checkpoints.map(() => false));
-  setBubbleAnimating(checkpoints.map(() => false));
-  setHiddenBubbles(new Set());
+    const baseDuration = 36; // seconds full cycle
 
-  const controls = animate(0, tEnd, {
-    duration: 16, //how fast the car moves
-    easing: "linear",
-    onUpdate: (v) => {
-      setProgress(v);
-      setPassed((prev) => {
-        const next = [...prev];
-        checkpoints.forEach((checkpoint, i) => {
-          const triggerOffset = 0.0;
-          if (!next[i] && v >= checkpoint.t - triggerOffset) {
-            next[i] = true;
-            setTimeout(() => {
-              setBubbleAnimating((prevAnimating) => {
-                const na = [...prevAnimating];
-                na[i] = true;
-                return na;
-              });
-              // auto-hide all except last
-              setTimeout(() => {
-                if (i !== checkpoints.length - 1) {
-                  setHiddenBubbles((prevHidden) => new Set([...prevHidden, i]));
-                }
-              }, 2000); //how many seconds
-            }, 50);
-          }
-        });
-        return next;
+    const run = () => {
+      const remaining = Math.max(0, 1 - progress);
+      const duration = Math.max(0.2, baseDuration * remaining);
+      const ctrl = animate(progress, 1, {
+        duration,
+        easing: (t) => t,
+        onUpdate: (v) => setProgress(v),
+        onComplete: () => {
+          setProgress(0);
+          if (playing) requestAnimationFrame(run);
+        },
       });
-    },
-    onComplete: () => {
-      setPassed((prev) => prev.map(() => true));
-      setBubbleAnimating((prev) => prev.map(() => true));
-      setIsRunning(false);
-    },
-  });
+      controlsRef.current = ctrl;
+    };
 
-  controlsRef.current = controls;
-  return () => controls.cancel();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-}, [isRunning, tEnd, checkpoints]);
-  // Car position (centerline) + rotation aligned to tangent
-  const car = useMemo(() => {
-    const p = pathRef.current;
-    const svg = svgRef.current;
-    if (!p || !svg) return null;
-    
-    const s = len * Math.min(Math.max(progress, 0), tEnd);
-    const pt = p.getPointAtLength(s);
-    
-    // Use SVG's built-in coordinate transformation
-    const svgPoint = svg.createSVGPoint();
-    svgPoint.x = pt.x;
-    svgPoint.y = pt.y;
-    
-    // Transform to screen coordinates
-    const screenPoint = svgPoint.matrixTransform(svg.getScreenCTM());
-    
-    // Get the container's position to make coordinates relative to it
-    const containerRect = svg.getBoundingClientRect();
-    const x = screenPoint.x - containerRect.left;
-    const y = screenPoint.y - containerRect.top;
-    
-    // Calculate rotation
-    const p1 = p.getPointAtLength(Math.max(0, s - 1));
-    const p2 = p.getPointAtLength(Math.min(len, s + 1));
-    const angleDeg = (Math.atan2(p2.y - p1.y, p2.x - p1.x) * 180) / Math.PI;
-    
-    return { x, y, angleDeg };
-  }, [len, progress, tEnd]);
+    run();
+    return () => controlsRef.current?.cancel();
+  }, [playing]);
 
-  // Progress stroke (color the road we've passed)
-  const dashOffset = useMemo(() => {
-    const progressed = len * Math.min(progress, tEnd);
-    return Math.max(0, len - progressed);
-  }, [len, progress, tEnd]);
+  // --- Smooth bar ---
+  useEffect(() => {
+    let raf = 0;
+    const stiffness = 0.18;
+    const loop = () => {
+      setDisplayProgress((d) => {
+        const target = progress;
+        const next = d + (target - d) * stiffness;
+        return Math.abs(next - target) < 0.001 ? target : next;
+      });
+      raf = requestAnimationFrame(loop);
+    };
+    raf = requestAnimationFrame(loop);
+    return () => cancelAnimationFrame(raf);
+  }, [progress]);
 
-  // Handle bubble hide on hover
-  const handleBubbleHover = (index: number) => {
-    setHiddenBubbles(prev => new Set([...prev, index]));
-  };
+  // --- Preload next image (wrap-aware) ---
+  useEffect(() => {
+    if (typeof activeIndex !== "number") return;
+    const next = checkpoints[(activeIndex + 1) % checkpoints.length];
+    const img = new Image();
+    img.src = next.imageSrc;
+  }, [activeIndex, checkpoints]);
 
-  // Bubble side based on road tangent (keeps arrows pointing at pins)
-  const sideForAngle = (angleRad: number): "top" | "bottom" => {
-    // Simple rule: if the path is trending downward (dy>0), put bubble on TOP; else BOTTOM.
-    // You can swap this if you prefer the opposite.
-    const dy = Math.sin(angleRad);
-    return dy > 0 ? "top" : "bottom";
-  };
-
-  const bubbleStyle = (side: "top" | "right" | "bottom" | "left") => {
-    switch (side) {
-      case "top":
-        return {
-          wrapTransform: "translate(-50%, calc(-100% - 12px))",
-          arrowStyle: { left: "50%", top: "100%", transform: "translate(-50%, -50%) rotate(45deg)" } as const,
-        };
-      case "bottom":
-        return {
-          wrapTransform: "translate(-50%, 12px)",
-          arrowStyle: { left: "50%", top: "0%", transform: "translate(-50%, -50%) rotate(45deg)" } as const,
-        };
-      case "right":
-        return {
-          wrapTransform: "translate(12px, -50%)",
-          arrowStyle: { left: "0%", top: "50%", transform: "translate(-50%, -50%) rotate(45deg)" } as const,
-        };
-      case "left":
-      default:
-        return {
-          wrapTransform: "translate(calc(-100% - 12px), -50%)",
-          arrowStyle: { left: "100%", top: "50%", transform: "translate(-50%, -50%) rotate(45deg)" } as const,
-        };
-    }
-  };
+  const cardVisible = typeof activeIndex === "number";
 
   return (
-    <section id="about" className="py-20 bg-background">
-      <div className="max-w-6xl mx-auto px-6">
-        <div className="text-center mb-12">
-          <h2 className="text-4xl font-bold text-portfolio-dark mb-3">My Journey</h2>
-          <p className="text-portfolio-gray text-lg max-w-2xl mx-auto">
-            A winding road—each checkpoint changed how I build and who I am.
-          </p>
-        </div>
-        <div className="mb-6 flex items-center justify-center gap-3">
-          <button
-            type="button"
-            onClick={() => {
-              // cancel any existing animation before starting fresh
-              controlsRef.current?.cancel();
-              setIsRunning(true);
-            }}
-            disabled={isRunning}
-            className="px-4 py-2 rounded-lg bg-primary text-primary-foreground disabled:opacity-60 shadow hover:shadow-md transition"
-          >
-            {isRunning ? "Driving..." : "Start"}
-          </button>
+    <section
+      ref={sectionRef}
+      id="about"
+      className="relative min-h-[680px] md:min-h-[720px] overflow-hidden"
+      aria-labelledby="journey-heading"
+    >
+      <h2 id="journey-heading" className="sr-only">Journey</h2>
 
-          {/* Optional: a Reset button if you want to jump back to the start instantly */}
-          <button
-            type="button"
-            onClick={() => {
-              controlsRef.current?.cancel();
-              setIsRunning(false);
-              setProgress(0);
-              setPassed(checkpoints.map(() => false));
-              setBubbleAnimating(checkpoints.map(() => false));
-              setHiddenBubbles(new Set());
-            }}
-            className="px-3 py-2 rounded-lg border border-muted text-foreground hover:bg-muted/30 transition"
-          >
-            Reset
-          </button>
-        </div>
+      {/* Local animations: road + skyline scroll (tile-perfect) */}
+      <style>{`
+        /* Road tiles (unchanged) */
+        @keyframes road-scroll { from { background-position-x: 0; } to { background-position-x: -480px; } }
 
-        <div ref={wrapRef} className="relative w-full max-w-6xl mx-auto">
-          {/* SVG: S-road full width */}
-          <svg 
-            ref={svgRef}
-            viewBox="0 0 1000 560" 
-            className="w-full h-[520px] block" 
-            aria-hidden
-            preserveAspectRatio="xMidYMid meet"
-          >
-            {/* Base road */}
-            <path
-              ref={pathRef}
-              d={pathD}
-              fill="none"
-              stroke="hsl(var(--muted))"
-              strokeWidth="28"
-              strokeLinecap="round"
-              className="drop-shadow-sm"
-            />
-            {/* Progress road overlay (colored) */}
-            <path
-              d={pathD}
-              fill="none"
-              stroke="hsl(var(--primary))"
-              strokeWidth="28"
-              strokeLinecap="round"
-              strokeDasharray={`${len} ${len}`}
-              strokeDashoffset={dashOffset}
-              style={{ transition: "none" }} // Remove transition to eliminate lag
-            />
-            {/* Center dashed line */}
-            <path
-              d={pathD}
-              fill="none"
-              stroke="hsl(var(--foreground))"
-              strokeWidth="3"
-              strokeDasharray="10 14"
-              strokeLinecap="round"
-              opacity="0.45"
-            />
-          </svg>
+        /* Generic loop that moves exactly one full tile width */
+        @keyframes tile-scroll { from { background-position-x: 0; } to { background-position-x: calc(var(--tile) * -1); } }
 
-          {/* Pins + bubbles on exact road centerline */}
-          <div className="absolute inset-0">
-            {pts.length === checkpoints.length &&
-              checkpoints.map((checkpoint, i) => {
-                const { x, y, angle } = pts[i];
-                const side = sideForAngle(angle);
-                const { wrapTransform, arrowStyle } = bubbleStyle(side);
-                const isShown = passed[i] && !hiddenBubbles.has(i);
-                const isAnimated = bubbleAnimating[i];
+        .animate-road { animation: road-scroll 22s linear infinite; }
 
-                return (
-                  <div
-                    key={i}
-                    className="group absolute"
-                    style={{ left: x, top: y, transform: "translate(-50%, -50%)" }}
-                    onMouseEnter={() => handleBubbleHover(i)}
-                  >
-                    {/* pin (center of road) */}
-                    <button
-                      className="relative w-6 h-6 rounded-full bg-primary ring-2 ring-background shadow outline-none focus:ring-4 focus:ring-primary/40"
-                      aria-label={checkpoint.title}
-                    >
-                      <span className="absolute inset-0 rounded-full animate-ping bg-primary/30" />
-                    </button>
+        /* Base for any repeating skyline/strip */
+        .strip {
+          animation: tile-scroll var(--duration,80s) linear infinite;
+          animation-play-state: paused;           /* only plays when .is-playing is added */
+          background-repeat: repeat-x;
+          background-size: var(--tile) 100%;
+          will-change: background-position;
+          pointer-events: none;
+        }
+        .strip.is-playing { animation-play-state: running; }
 
-                    {/* bubble */}
-                    <div
-                      className={[
-                        "absolute z-10 min-w-[14rem] max-w-[18rem] rounded-xl border border-muted",
-                        "bg-card text-foreground shadow-lg p-4 transition-all duration-300 ease-out",
-                        isShown && isAnimated 
-                          ? "opacity-100 scale-100 translate-y-0" 
-                          : "opacity-0 scale-75 translate-y-3",
-                        "group-hover:opacity-100 group-hover:scale-100 group-hover:translate-y-0", 
-                        "group-focus-within:opacity-100 group-focus-within:scale-100 group-focus-within:translate-y-0",
-                      ].join(" ")}
-                      style={{ transform: wrapTransform }}
-                    >
-                      <div className="text-sm font-semibold text-primary">{checkpoint.title}</div>
-                      <div className="text-sm text-muted-foreground mt-1">{checkpoint.text}</div>
-                      {/* arrow */}
-                      <div
-                        className="absolute w-3 h-3 bg-card border-l border-t border-muted"
-                        style={arrowStyle}
-                      />
-                    </div>
-                  </div>
-                );
-              })}
+        /* Optional subtle brightness twinkle (doesn't affect tiling math) */
+        @keyframes twinkle { 0%,100%{opacity:.12} 50%{opacity:.22} }
+        .twinkle::after{
+          content:""; position:absolute; inset:0; pointer-events:none;
+          background: radial-gradient(circle 1px at 10px 10px, rgba(255,255,255,.7) 99%, transparent) 0 0/20px 16px;
+          opacity:.16; animation: twinkle 3.6s ease-in-out infinite;
+        }
 
-            {/* Car (moves from cp0 to cp6, then stops) */}
-            {car && (
-              <div
-                className="absolute"
-                style={{
-                  left: car.x,
-                  top: car.y,
-                  transform: `translate(-50%, -50%) rotate(${car.angleDeg}deg)`,
-                }}
-                aria-hidden
-              >
-                {/* Better looking car */}
-                <svg width="72" height="36" viewBox="0 0 72 36" className="drop-shadow-lg">
-                  {/* Car body shadow */}
-                  <ellipse cx="36" cy="32" rx="28" ry="3" fill="black" opacity="0.2" />
-                  
-                  {/* Main car body */}
-                  <rect x="8" y="14" rx="6" ry="6" width="48" height="14" fill="hsl(var(--primary))" />
-                  
-                  {/* Car roof */}
-                  <rect x="20" y="8" rx="4" ry="4" width="24" height="10" fill="hsl(var(--primary))" />
-                  
-                  {/* Front and rear bumpers */}
-                  <rect x="4" y="16" rx="2" ry="2" width="6" height="10" fill="hsl(var(--primary))" />
-                  <rect x="62" y="16" rx="2" ry="2" width="6" height="10" fill="hsl(var(--primary))" />
-                  
-                  {/* Windows */}
-                  <rect x="22" y="10" width="8" height="6" rx="2" fill="hsl(var(--background))" opacity="0.9" />
-                  <rect x="34" y="10" width="8" height="6" rx="2" fill="hsl(var(--background))" opacity="0.9" />
-                  <rect x="46" y="10" width="8" height="6" rx="2" fill="hsl(var(--background))" opacity="0.9" />
-                  
-                  {/* Side windows */}
-                  <rect x="12" y="16" width="6" height="8" rx="1" fill="hsl(var(--background))" opacity="0.8" />
-                  <rect x="54" y="16" width="6" height="8" rx="1" fill="hsl(var(--background))" opacity="0.8" />
-                  
-                  {/* Wheels */}
-                  <circle cx="20" cy="30" r="6" fill="hsl(var(--foreground))" />
-                  <circle cx="52" cy="30" r="6" fill="hsl(var(--foreground))" />
-                  
-                  {/* Wheel rims */}
-                  <circle cx="20" cy="30" r="3" fill="hsl(var(--muted))" />
-                  <circle cx="52" cy="30" r="3" fill="hsl(var(--muted))" />
-                  
-                  {/* Headlights */}
-                  <circle cx="66" cy="18" r="2" fill="white" opacity="0.9" />
-                  <circle cx="66" cy="24" r="2" fill="white" opacity="0.9" />
-                  
-                  {/* Taillights */}
-                  <circle cx="6" cy="18" r="1.5" fill="red" opacity="0.8" />
-                  <circle cx="6" cy="24" r="1.5" fill="red" opacity="0.8" />
-                  
-                  {/* Car details */}
-                  <rect x="8" y="20" width="48" height="1" fill="hsl(var(--primary-foreground))" opacity="0.3" />
-                  <rect x="30" y="8" width="1" height="10" fill="hsl(var(--primary-foreground))" opacity="0.2" />
-                  <rect x="42" y="8" width="1" height="10" fill="hsl(var(--primary-foreground))" opacity="0.2" />
-                </svg>
-              </div>
-            )}
+        @media (prefers-reduced-motion: reduce) {
+          .animate-road { animation-play-state: paused !important; }
+          .strip       { animation-play-state: paused !important; }
+        }
+      `}</style>
+
+
+    {/* FAR SKY + subtle tint  */}
+    <div
+      className="absolute inset-0 pointer-events-none"
+      style={{
+        transform: `scale(${world.zoom})`,   // ok to keep scale for depth
+        transformOrigin: "center",
+        background:
+          "radial-gradient(1200px 600px at 50% -200px, hsl(var(--primary)/0.08), transparent), linear-gradient(to bottom, hsl(var(--background)), hsl(var(--background))/0.7)",
+      }}
+      aria-hidden
+    />
+
+    {/* FAR SKYLINE — very sparse, tallest silhouettes, slowest */}
+    <div
+      className={[
+        "strip absolute inset-x-0 top-[12%] h-[36%]",
+        playing && !reducedMotion ? "is-playing" : "",
+      ].join(" ")}
+      style={{
+        // Large tile to avoid obvious repetition
+        ["--tile" as any]: "1600px",
+        ["--duration" as any]: "130s",
+        backgroundImage:
+          "url(\"data:image/svg+xml;utf8," +
+          "<svg xmlns='http://www.w3.org/2000/svg' width='1600' height='288' viewBox='0 0 1600 288'>" +
+            // four spaced buildings + a couple antennas; low alpha so they sit back
+            "<rect x='90'   y='60'  width='160' height='228' fill='rgba(16,18,26,0.20)'/>" +
+            "<rect x='520'  y='86'  width='120' height='202' fill='rgba(16,18,26,0.22)'/>" +
+            "<rect x='980'  y='48'  width='180' height='240' fill='rgba(16,18,26,0.20)'/>" +
+            "<rect x='1380' y='104' width='110' height='184' fill='rgba(16,18,26,0.18)'/>" +
+            "<rect x='160'  y='28'  width='3'   height='32'  fill='rgba(16,18,26,0.30)'/>" +
+            "<rect x='1068' y='24'  width='3'   height='30'  fill='rgba(16,18,26,0.30)'/>" +
+          "</svg>\")",
+        maskImage: "linear-gradient(to top, transparent 0%, black 28%, black 92%, transparent 100%)",
+      }}
+      aria-hidden
+    />
+
+    {/* MID SKYLINE — slightly closer, a bit bolder, still sparse */}
+    <div
+      className={[
+        "strip absolute inset-x-0 top-[28%] h-[32%]",
+        playing && !reducedMotion ? "is-playing" : "",
+      ].join(" ")}
+      style={{
+        // Different tile to de-sync the pattern from the far layer
+        ["--tile" as any]: "1200px",
+        ["--duration" as any]: "95s",
+        backgroundImage:
+          "url(\"data:image/svg+xml;utf8," +
+          "<svg xmlns='http://www.w3.org/2000/svg' width='1200' height='256' viewBox='0 0 1200 256'>" +
+            // three buildings with varied tops (roof blocks)
+            "<g fill='rgba(22,24,32,0.42)'>" +
+              "<rect x='140' y='72'  width='150' height='184'/>" +
+              "<rect x='520' y='88'  width='130' height='168'/>" +
+              "<rect x='910' y='64'  width='170' height='192'/>" +
+            "</g>" +
+            "<g fill='rgba(255,255,255,0.06)'>" +
+              "<rect x='140' y='64'  width='46' height='8'/>" +   // roof details
+              "<rect x='520' y='80'  width='32' height='8'/>" +
+              "<rect x='910' y='56'  width='54' height='8'/>" +
+            "</g>" +
+            // sparse “window rows” as subtle lines that won’t cause seams
+            "<g fill='rgba(255,255,255,0.045)'>" +
+              "<rect x='140' y='128' width='150' height='2'/>" +
+              "<rect x='520' y='138' width='130' height='2'/>" +
+              "<rect x='910' y='120' width='170' height='2'/>" +
+              "<rect x='140' y='168' width='150' height='2'/>" +
+              "<rect x='520' y='176' width='130' height='2'/>" +
+              "<rect x='910' y='164' width='170' height='2'/>" +
+            "</g>" +
+          "</svg>\")",
+        maskImage: "linear-gradient(to top, transparent 0%, black 22%, black 92%, transparent 100%)",
+      }}
+      aria-hidden
+    />
+
+      {/* BUSH STRIP */}
+      <div
+        className={[
+          "strip absolute inset-x-0 bottom-44 h-16",
+          playing && !reducedMotion ? "is-playing" : "",
+        ].join(" ")}
+        style={{
+          ["--tile" as any]: "700px",
+          ["--duration" as any]: "48s",        // mid speed
+          backgroundImage:
+            "url(\"data:image/svg+xml;utf8," +
+            "<svg xmlns='http://www.w3.org/2000/svg' width='700' height='64' viewBox='0 0 700 64'>" +
+              /* bushes kept well inside tile edges to avoid seam pop */
+              "<ellipse cx='80'  cy='52' rx='44' ry='18' fill='rgba(16,32,18,0.35)'/>" +
+              "<ellipse cx='180' cy='50' rx='34' ry='14' fill='rgba(16,32,18,0.32)'/>" +
+              "<ellipse cx='300' cy='54' rx='42' ry='17' fill='rgba(16,32,18,0.34)'/>" +
+              "<ellipse cx='460' cy='53' rx='36' ry='16' fill='rgba(16,32,18,0.33)'/>" +
+              "<ellipse cx='590' cy='51' rx='38' ry='16' fill='rgba(16,32,18,0.33)'/>" +
+            "</svg>\")",
+          maskImage: "linear-gradient(to top, transparent 0%, black 40%, black 100%)",
+        }}
+        aria-hidden
+      />
+      {/* ROAD */}
+      <div className="absolute left-0 right-0 bottom-8 md:bottom-12 h-28 md:h-32 pointer-events-none" aria-hidden>
+        <div
+          className={`${playing && !reducedMotion ? "animate-road" : ""} absolute inset-x-[-200px] -inset-y-2 rounded-[18px]`}
+          style={{
+            backgroundImage: "url('/images/textures/asphalt-tile.png')",
+            backgroundRepeat: "repeat-x",
+            backgroundSize: "480px 100%",
+            filter: "contrast(0.98) brightness(0.95)",
+            boxShadow: "0 12px 36px rgba(0,0,0,0.28), inset 0 8px 28px rgba(0,0,0,0.35)",
+          }}
+        />
+        <div
+          className={`${playing && !reducedMotion ? "animate-road" : ""} absolute left-0 right-0 top-1/2 h-[3px] -translate-y-1/2`}
+          style={{
+            backgroundImage: "repeating-linear-gradient(90deg, hsl(var(--foreground)) 0 24px, transparent 24px 54px)",
+            opacity: 0.55,
+            mixBlendMode: "screen",
+            backgroundSize: "480px 100%",
+          }}
+        />
+        <div
+          className="absolute inset-0 rounded-[18px]"
+          style={{
+            maskImage: "linear-gradient(to bottom, transparent 0, black 40%, black 70%, transparent 100%)",
+            background: "linear-gradient(to bottom, transparent, rgba(0,0,0,0.25))",
+          }}
+        />
+      </div>
+      
+    
+
+      {/* CAR */}
+      <div className="absolute left-1/2 bottom-[88px] md:bottom-[112px] -translate-x-1/2 select-none" aria-hidden>
+        {/* Exhaust */}
+        {!reducedMotion && (
+          <div className="absolute right-full bottom-1/2 translate-y-1/2 pointer-events-none">
+            <span className="absolute w-1.5 h-1.5 bg-gray-300 rounded-full blur-sm animate-exhaust" />
+            <span className="absolute w-1.5 h-1.5 bg-gray-300 rounded-full blur-sm animate-exhaust [animation-delay:.45s]" />
+            <span className="absolute w-1.5 h-1.5 bg-gray-300 rounded-full blur-sm animate-exhaust [animation-delay:.9s]" />
           </div>
-        </div>
+        )}
 
-        {/* optional copy area */}
-        <div className="mt-10 grid lg:grid-cols-2 gap-8">
-          <p className="text-portfolio-gray leading-relaxed">
-            The road isn't straight—every bend came with a lesson worth keeping.
-          </p>
-          <p className="text-portfolio-gray leading-relaxed">
-            I'm focused on reliable, accessible tools that feel effortless. The journey continues.
-          </p>
+        {/* Headlight cone */}
+        <div
+          className="absolute left-[58px] top-1/2 -translate-y-1/2 pointer-events-none"
+          style={{
+            width: 120, height: 60,
+            background: "linear-gradient(0.25turn, rgba(255,255,220,.35), rgba(255,255,220,.08) 55%, transparent 70%)",
+            clipPath: "polygon(0% 45%, 100% 20%, 100% 80%, 0% 55%)",
+            filter: "blur(2px)",
+            mixBlendMode: "screen",
+            opacity: reducedMotion ? 0.5 : 1
+          }}
+        />
+
+        {/* Car SVG */}
+        <svg width="120" height="56" viewBox="0 0 120 56" className={`drop-shadow-xl opacity-95 ${reducedMotion ? "" : "animate-car-bob"}`}>
+          <defs>
+            <linearGradient id="paint" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0%" stopColor="hsl(var(--primary))" />
+              <stop offset="100%" stopColor="hsl(var(--primary)/0.75)" />
+            </linearGradient>
+            <linearGradient id="glass" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="rgba(220,235,255,.9)" />
+              <stop offset="100%" stopColor="rgba(120,150,190,.7)" />
+            </linearGradient>
+          </defs>
+
+          <ellipse cx="60" cy="50" rx="42" ry="4" fill="black" opacity="0.2" />
+          <path d="M18 34 C22 25, 30 18, 46 16 L74 16 C86 16, 95 23, 100 30 L108 34 C110 35, 110 38, 106 38 L16 38 C12 38, 12 36, 14 34 Z" fill="url(#paint)" stroke="hsl(var(--primary)/0.65)" strokeWidth="1.2" />
+          <path d="M48 16 L70 16 C78 16, 84 20, 87 26 L53 26 C49 26, 46 24, 46 22 Z" fill="url(#glass)" opacity="0.95" />
+          <path d="M48 16 L53 26" stroke="rgba(255,255,255,.45)" strokeWidth="1.4" />
+          <rect x="20" y="33.2" width="84" height="2.2" fill="rgba(255,255,255,.18)" />
+          <path d="M22 29 L16 29 L14 27 L22 27 Z" fill="hsl(var(--primary)/0.85)" />
+          <rect x="98" y="30" width="8" height="5" rx="2" fill="#fff6cc" />
+          <rect x="98" y="30" width="8" height="5" rx="2" fill="#fff6cc" opacity=".35" />
+
+          {/* Left wheel */}
+          <g transform="translate(38,40)">
+            <circle r="10" fill="black" />
+            <circle r="6.5" fill="#cfcfd2" />
+            <g className={reducedMotion ? "" : "animate-wheel-spin [transform-box:fill-box] [transform-origin:center]"}>
+              <rect x="-1" y="-9" width="2" height="18" fill="#8d8f95" />
+              <rect x="-9" y="-1" width="18" height="2" fill="#8d8f95" />
+              <rect x="-7" y="-7" width="14" height="2" transform="rotate(45)" fill="#8d8f95" />
+            </g>
+            <circle r="2.3" fill="#6a6d73" />
+          </g>
+
+          {/* Right wheel */}
+          <g transform="translate(86,40)">
+            <circle r="10" fill="black" />
+            <circle r="6.5" fill="#cfcfd2" />
+            <g className={reducedMotion ? "" : "animate-wheel-spin [transform-box:fill-box] [transform-origin:center]"}>
+              <rect x="-1" y="-9" width="2" height="18" fill="#8d8f95" />
+              <rect x="-9" y="-1" width="18" height="2" fill="#8d8f95" />
+              <rect x="-7" y="-7" width="14" height="2" transform="rotate(45)" fill="#8d8f95" />
+            </g>
+            <circle r="2.3" fill="#6a6d73" />
+          </g>
+        </svg>
+      </div>
+
+      {/* CHECKPOINT CARD — pause only when hovering/touching THIS card */}
+      <div
+        className={[
+          "absolute left-1/2 bottom-[220px] md:bottom-[240px] -translate-x-1/2 w-[min(720px,92vw)] z-30",
+          "rounded-2xl border border-muted bg-card/95 backdrop-blur-sm shadow-lg",
+          "transition-transform duration-500",
+          cardVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2",
+        ].join(" ")}
+        onMouseEnter={() => setHoverPause(true)}
+        onMouseLeave={() => setHoverPause(false)}
+        onTouchStart={() => setHoverPause(true)}
+        onTouchEnd={() => setHoverPause(false)}
+      >
+        {typeof activeIndex === "number" && (
+          <div className="grid grid-cols-1 md:grid-cols-[1.25fr_1fr] gap-4 p-4 md:p-6 items-center">
+            <figure className="overflow-hidden rounded-xl border border-muted/60">
+              <img
+                src={checkpoints[activeIndex].imageSrc}
+                alt={checkpoints[activeIndex].imageAlt}
+                className="block w-full h-60 md:h-52 object-cover"
+                loading="eager"
+              />
+            </figure>
+            <div>
+              <div className="text-xs uppercase tracking-wide text-muted-foreground mb-1">Checkpoint</div>
+              <h3 className="text-xl md:text-2xl font-semibold text-primary mb-1">
+                {checkpoints[activeIndex].title}
+              </h3>
+              <p className="text-sm md:text-base text-muted-foreground">{checkpoints[activeIndex].text}</p>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* PROGRESS BAR — eased and looping */}
+      <div className="absolute left-1/2 -translate-x-1/2 w-[min(760px,92vw)] z-20 top-6 pointer-events-none">
+        <div className="h-2 rounded-full bg-muted/40 overflow-hidden shadow-inner">
+          <div
+            className="h-full bg-primary transition-[width] duration-150 ease-[cubic-bezier(0.22,1,0.36,1)]"
+            style={{ width: `${Math.round(displayProgress * 100)}%` }}
+          />
         </div>
       </div>
+
+      {/* SR-only list for accessibility */}
+      <ol className="sr-only">
+        {checkpoints.map((cp, i) => (
+          <li key={cp.id ?? i} id={cp.id}>
+            <h3>{cp.title}</h3>
+            <p>{cp.text}</p>
+          </li>
+        ))}
+      </ol>
     </section>
   );
-};
-
-export default About;
+}

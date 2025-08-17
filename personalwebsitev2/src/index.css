@@ -6,130 +6,106 @@
 
 @layer base {
   :root {
-    --background: 35 25% 98%;
-    --foreground: 25 15% 25%;
+    /* Neutral foundation */
+    --background: 40 33% 97%;   /* light cream */
+    --foreground: 25 20% 20%;   /* soft warm charcoal */
 
     --card: 0 0% 100%;
-    --card-foreground: 25 15% 25%;
+    --card-foreground: 25 20% 20%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 25 15% 25%;
+    --popover-foreground: 25 20% 20%;
 
-    /* Warm terracotta/coral primary - more personal and approachable */
-    --primary: 15 75% 58%;
+    /* Primary – terracotta / ochre (signature accent) */
+    --primary: 22 65% 50%;       /* muted terracotta */
     --primary-foreground: 0 0% 100%;
-    --primary-light: 18 85% 75%;
-    --primary-dark: 12 65% 48%;
+    --primary-light: 22 70% 65%;
+    --primary-dark: 22 55% 40%;
 
-    /* Soft warm neutrals */
-    --secondary: 30 20% 92%;
-    --secondary-foreground: 25 15% 25%;
+    /* Secondary – soft taupe for structure */
+    --secondary: 35 20% 85%;
+    --secondary-foreground: 25 20% 25%;
 
-    --muted: 35 15% 94%;
-    --muted-foreground: 25 12% 55%;
+    /* Muted neutrals */
+    --muted: 40 15% 92%;
+    --muted-foreground: 25 10% 45%;
 
-    --accent: 45 40% 88%;
-    --accent-foreground: 25 15% 25%;
+    /* Accent – warm golden ochre */
+    --accent: 42 70% 55%;
+    --accent-foreground: 25 20% 20%;
 
-    --destructive: 0 84.2% 60.2%;
+    /* Destructive – softened clay red */
+    --destructive: 0 60% 45%;
     --destructive-foreground: 0 0% 98%;
 
-    --border: 30 15% 88%;
-    --input: 30 15% 88%;
-    --ring: 15 75% 58%;
+    /* Borders & inputs */
+    --border: 35 15% 85%;
+    --input: 35 15% 85%;
+    --ring: 22 65% 50%;
 
-    /* Custom personal website colors */
-    --warm-coral: 15 75% 58%;
-    --warm-coral-light: 18 85% 75%;
-    --warm-peach: 25 60% 85%;
-    --warm-cream: 40 25% 94%;
-    --warm-sand: 35 20% 82%;
-    --warm-brown: 25 20% 45%;
-    --warm-charcoal: 25 15% 25%;
+    /* Supporting palette */
+    --warm-cream: 40 33% 97%;
+    --warm-sand: 35 25% 82%;
+    --warm-taupe: 30 20% 65%;
+    --warm-brown: 25 25% 35%;
+    --warm-charcoal: 25 20% 20%;
 
-    /* Accent colors for variety */
-    --sage-green: 85 25% 65%;
-    --dusty-rose: 350 35% 75%;
-    --golden-yellow: 45 85% 70%;
+    /* One subtle secondary accent (optional) */
+    --sage-green: 100 20% 55%;
 
     /* Gradients */
-    --gradient-warm-coral: linear-gradient(135deg, hsl(var(--warm-coral)), hsl(var(--warm-coral-light)));
-    --gradient-warm-sunset: linear-gradient(180deg, hsl(var(--warm-peach)), hsl(var(--warm-cream)));
+    --gradient-primary: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--accent)));
     --gradient-neutral: linear-gradient(180deg, hsl(var(--background)), hsl(var(--warm-cream)));
 
-    /* Shadows - softer and more natural */
-    --shadow-soft: 0 4px 20px hsl(var(--warm-coral) / 0.12);
-    --shadow-card: 0 2px 12px hsl(25 15% 25% / 0.06);
-    --shadow-hover: 0 8px 25px hsl(var(--warm-coral) / 0.15);
-
-    /* Animations */
-    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    --transition-spring: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    --transition-bounce: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    /* Shadows */
+    --shadow-soft: 0 4px 20px hsl(var(--primary) / 0.08);
+    --shadow-card: 0 2px 10px hsl(25 20% 20% / 0.06);
+    --shadow-hover: 0 6px 18px hsl(var(--primary) / 0.12);
 
     --radius: 0.75rem;
-
-    /* Sidebar styling */
-    --sidebar-background: 35 15% 96%;
-    --sidebar-foreground: 25 15% 25%;
-    --sidebar-primary: 15 75% 58%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 30 20% 90%;
-    --sidebar-accent-foreground: 25 15% 25%;
-    --sidebar-border: 30 15% 85%;
-    --sidebar-ring: 15 75% 58%;
   }
 
   .dark {
-    --background: 25 15% 8%;
-    --foreground: 35 20% 92%;
+    --background: 25 15% 10%;
+    --foreground: 40 20% 92%;
 
-    --card: 25 15% 10%;
-    --card-foreground: 35 20% 92%;
+    --card: 25 15% 12%;
+    --card-foreground: 40 20% 92%;
 
-    --popover: 25 15% 10%;
-    --popover-foreground: 35 20% 92%;
+    --popover: 25 15% 12%;
+    --popover-foreground: 40 20% 92%;
 
-    /* Slightly muted coral for dark mode - easier on the eyes */
-    --primary: 15 65% 55%;
+    /* Primary stays warm but muted in dark mode */
+    --primary: 22 55% 52%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 25 12% 15%;
-    --secondary-foreground: 35 20% 92%;
+    --secondary: 25 12% 18%;
+    --secondary-foreground: 40 20% 92%;
 
-    --muted: 25 12% 15%;
+    --muted: 25 12% 18%;
     --muted-foreground: 35 15% 68%;
 
-    --accent: 25 12% 18%;
-    --accent-foreground: 35 20% 92%;
+    --accent: 42 65% 55%;
+    --accent-foreground: 25 20% 20%;
 
-    --destructive: 0 70% 58%;
-    --destructive-foreground: 35 20% 92%;
+    --destructive: 0 55% 48%;
+    --destructive-foreground: 40 20% 92%;
 
-    --border: 25 12% 18%;
-    --input: 25 12% 18%;
-    --ring: 15 65% 55%;
+    --border: 25 12% 20%;
+    --input: 25 12% 20%;
+    --ring: 22 55% 52%;
 
-    /* Dark mode warm colors */
-    --warm-cream: 25 12% 12%;
+    --warm-cream: 25 12% 14%;
     --warm-sand: 25 15% 22%;
-    --warm-brown: 35 15% 68%;
-    --warm-charcoal: 35 20% 92%;
+    --warm-taupe: 30 20% 45%;
+    --warm-brown: 35 15% 70%;
+    --warm-charcoal: 40 20% 92%;
 
     --gradient-neutral: linear-gradient(180deg, hsl(var(--background)), hsl(var(--warm-cream)));
     --shadow-card: 0 2px 12px hsl(0 0% 0% / 0.25);
-
-    /* Dark sidebar */
-    --sidebar-background: 25 15% 8%;
-    --sidebar-foreground: 35 20% 92%;
-    --sidebar-primary: 15 65% 55%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 25 12% 15%;
-    --sidebar-accent-foreground: 35 20% 92%;
-    --sidebar-border: 25 12% 18%;
-    --sidebar-ring: 15 65% 55%;
   }
 }
+
 
 @layer base {
   * {
