@@ -3,7 +3,7 @@
 Welcome to my repository, where I share my projects, experiments, and learning journey in software engineering, game development, and AI.
 
 ## **Current Project**
-The main project I'm working on right now is a **Enchanting Database App**. This project is in request of PT Bangunan Jaya Cemerlang for an upcoming software I proposed.
+The main project I'm working on right now is a **OpenxAI Hackathon Project**. 
 ---
 
 ## **Explore My Work**
