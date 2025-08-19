@@ -7,6 +7,7 @@ import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
+document.title= "Edbert Suwandi Portfolio"
 
 const App = () => (
   <QueryClientProvider client={queryClient}>

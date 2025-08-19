@@ -18,6 +18,11 @@ export default {
       },
     },
     extend: {
+      fontFamily: {
+        raleway: ["'Raleway'", "ui-sans-serif", "system-ui", "sans-serif"],
+        robocond: ["'Roboto Condensed'", "ui-sans-serif", "system-ui", "sans-serif"],
+        montserrat: ["'Montserrat'", "ui-sans-serif", "system-ui", "sans-serif"],
+      },
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",

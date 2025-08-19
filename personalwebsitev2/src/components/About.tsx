@@ -403,7 +403,7 @@ export default function AboutJourneyInfiniteRoad() {
         className={[
           "absolute left-1/2 bottom-[220px] md:bottom-[240px] -translate-x-1/2 w-[min(720px,92vw)] z-30",
           "rounded-2xl border border-muted bg-card/95 backdrop-blur-sm shadow-lg",
-          "transition-transform duration-500",
+          "transition-transform duration-400",
           cardVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2",
         ].join(" ")}
         onMouseEnter={() => setHoverPause(true)}
@@ -436,7 +436,7 @@ export default function AboutJourneyInfiniteRoad() {
       <div className="absolute left-1/2 -translate-x-1/2 w-[min(760px,92vw)] z-20 top-6 pointer-events-none">
         <div className="h-2 rounded-full bg-muted/40 overflow-hidden shadow-inner">
           <div
-            className="h-full bg-primary transition-[width] duration-150 ease-[cubic-bezier(0.22,1,0.36,1)]"
+            className="h-full bg-primary transition-[width] duration-200 ease-[cubic-bezier(0.22,1,0.36,1)]"
             style={{ width: `${Math.round(displayProgress * 100)}%` }}
           />
         </div>
