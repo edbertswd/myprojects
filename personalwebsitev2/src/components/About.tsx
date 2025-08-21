@@ -2,6 +2,9 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { animate } from "motion";
 import type { AnimationPlaybackControls } from "motion";
 
+// Import city images
+import city7 from "/src/assets/city/7.png";
+
 type Checkpoint = {
   t: number; // 0..1
   title: string;
@@ -44,12 +47,14 @@ export default function AboutJourneyInfiniteRoad() {
   // --- STATE ---
   const sectionRef = useRef<HTMLElement | null>(null);
   const [progress, setProgress] = useState(0);               // 0..1 (drives world)
-  const [displayProgress, setDisplayProgress] = useState(0); // smoothed bar
-  const [hoverPause, setHoverPause] = useState(false);       
+  const [pausedProgress, setPausedProgress] = useState<number | null>(null); // Store progress when paused
+  const [hoverPause, setHoverPause] = useState(false);
+  const [clickPause, setClickPause] = useState(false);
+  const [pausedCheckpoint, setPausedCheckpoint] = useState<Checkpoint | null>(null);       
   const [autoplayZone, setAutoplayZone] = useState(false);   // ≥30% visible
   const controlsRef = useRef<AnimationPlaybackControls | null>(null);
   const reducedMotion = usePrefersReducedMotion();
-  const playing = autoplayZone && !hoverPause && !reducedMotion;
+  const playing = autoplayZone && !hoverPause && !clickPause && !reducedMotion;
 
   const midpoints = useMemo(() => {
     const mids: number[] = [Number.NEGATIVE_INFINITY];
@@ -105,39 +110,36 @@ export default function AboutJourneyInfiniteRoad() {
     const baseDuration = 36; // seconds full cycle
 
     const run = () => {
-      const remaining = Math.max(0, 1 - progress);
+      // Use paused progress if resuming, otherwise use current progress
+      const startProgress = pausedProgress !== null ? pausedProgress : progress;
+      const remaining = Math.max(0, 1 - startProgress);
       const duration = Math.max(0.2, baseDuration * remaining);
-      const ctrl = animate(progress, 1, {
+      
+      const ctrl = animate(startProgress, 1, {
         duration,
         easing: (t) => t,
         onUpdate: (v) => setProgress(v),
         onComplete: () => {
+          // Simple reset: set to 0 and restart
           setProgress(0);
-          if (playing) requestAnimationFrame(run);
+          setPausedProgress(null);
+          if (playing) {
+            // Restart the run function after a brief reset
+            setTimeout(run, 50);
+          }
         },
       });
       controlsRef.current = ctrl;
     };
 
+    // Clear paused progress when starting fresh animation
+    if (pausedProgress !== null) {
+      setPausedProgress(null);
+    }
+    
     run();
     return () => controlsRef.current?.cancel();
   }, [playing]);
-
-  // --- Smooth bar ---
-  useEffect(() => {
-    let raf = 0;
-    const stiffness = 0.18;
-    const loop = () => {
-      setDisplayProgress((d) => {
-        const target = progress;
-        const next = d + (target - d) * stiffness;
-        return Math.abs(next - target) < 0.001 ? target : next;
-      });
-      raf = requestAnimationFrame(loop);
-    };
-    raf = requestAnimationFrame(loop);
-    return () => cancelAnimationFrame(raf);
-  }, [progress]);
 
   // --- Preload next image (wrap-aware) ---
   useEffect(() => {
@@ -158,7 +160,97 @@ export default function AboutJourneyInfiniteRoad() {
     >
       <h2 id="journey-heading" className="sr-only">Journey</h2>
 
-      {/* Local animations: road + skyline scroll (tile-perfect) */}
+      {/* LARGE CENTERED INSTRUCTION TEXT - high visibility with pixel font */}
+      <div 
+        className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 z-40 text-center pointer-events-none"
+        style={{
+          textShadow: "4px 4px 0px rgba(0,0,0,1), 2px 2px 8px rgba(0,0,0,0.9), 0 0 20px rgba(0,0,0,0.8)",
+          fontFamily: "'Pixelify Sans', sans-serif",
+        }}
+      >
+        <h2 className="text-white text-4xl md:text-5xl font-black mb-2" style={{ color: "#ffffff" }}>
+          Catch the Sign!
+        </h2>
+        <p className="text-yellow-300 text-lg md:text-xl font-bold" style={{ color: "#fde047" }}>
+          Click to pause and read each milestone
+        </p>
+      </div>
+
+      {/* PAUSED OVERLAY - centered sign with zoom animation */}
+      {clickPause && pausedCheckpoint && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center">
+          <div 
+            className="transform scale-100 transition-all duration-500 ease-out"
+            style={{
+              animation: "zoomIn 0.5s ease-out",
+            }}
+          >
+            <style>{`
+              @keyframes zoomIn {
+                0% { 
+                  transform: scale(0.8);
+                  opacity: 0;
+                }
+                100% { 
+                  transform: scale(1);
+                  opacity: 1;
+                }
+              }
+            `}</style>
+            
+            {/* Enlarged road sign */}
+            <div 
+              className="relative bg-green-700 text-white rounded-xl shadow-2xl border-4 border-white mb-6"
+              style={{
+                width: "400px",
+                padding: "24px 32px",
+                background: "linear-gradient(135deg, #166534 0%, #15803d 100%)",
+                boxShadow: "0 25px 50px rgba(0,0,0,0.5), 0 10px 20px rgba(0,0,0,0.3)",
+              }}
+            >
+              {/* Mile marker number */}
+              <div className="absolute -top-4 -left-4 w-10 h-10 bg-yellow-400 text-black rounded-full flex items-center justify-center font-bold text-lg border-3 border-white">
+                {checkpoints.findIndex(cp => cp.id === pausedCheckpoint.id) + 1}
+              </div>
+              
+              {/* Sign content */}
+              <div className="text-center">
+                <div className="text-yellow-200 text-sm font-semibold uppercase tracking-wider mb-2">
+                  MILESTONE
+                </div>
+                <h3 className="text-white text-2xl font-bold mb-3 leading-tight">
+                  {pausedCheckpoint.title}
+                </h3>
+                <p className="text-green-100 text-base leading-relaxed">
+                  {pausedCheckpoint.text}
+                </p>
+              </div>
+              
+              {/* Highway sign reflection effect */}
+              <div 
+                className="absolute inset-0 rounded-xl pointer-events-none"
+                style={{
+                  background: "linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.1) 50%, transparent 70%)",
+                  animation: "shimmer 3s infinite",
+                }}
+              />
+            </div>
+            
+            {/* Resume button centered below sign */}
+            <div className="text-center">
+              <button
+                onClick={() => {
+                  setClickPause(false);
+                  setPausedCheckpoint(null);
+                }}
+                className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg text-lg font-medium transition-colors shadow-lg"
+              >
+                ▶ Resume Journey
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
       <style>{`
         /* Road tiles (unchanged) */
         @keyframes road-scroll { from { background-position-x: 0; } to { background-position-x: -480px; } }
@@ -179,127 +271,72 @@ export default function AboutJourneyInfiniteRoad() {
         }
         .strip.is-playing { animation-play-state: running; }
 
-        /* Optional subtle brightness twinkle (doesn't affect tiling math) */
-        @keyframes twinkle { 0%,100%{opacity:.12} 50%{opacity:.22} }
-        .twinkle::after{
-          content:""; position:absolute; inset:0; pointer-events:none;
-          background: radial-gradient(circle 1px at 10px 10px, rgba(255,255,255,.7) 99%, transparent) 0 0/20px 16px;
-          opacity:.16; animation: twinkle 3.6s ease-in-out infinite;
+        /* Animation keyframes */
+        @keyframes exhaust { 
+          0% { opacity: 1; transform: translateX(0) scale(1); } 
+          100% { opacity: 0; transform: translateX(-20px) scale(0.6); } 
         }
+        
+        @keyframes car-bob { 
+          0%, 100% { transform: translateY(0); } 
+          50% { transform: translateY(-2px); } 
+        }
+        
+        @keyframes wheel-spin { 
+          from { transform: rotate(0deg); } 
+          to { transform: rotate(360deg); } 
+        }
+
+        .animate-exhaust { animation: exhaust 1.8s ease-out infinite; }
+        .animate-car-bob { animation: car-bob 2.4s ease-in-out infinite; }
+        .animate-wheel-spin { animation: wheel-spin 0.8s linear infinite; }
 
         @media (prefers-reduced-motion: reduce) {
           .animate-road { animation-play-state: paused !important; }
           .strip       { animation-play-state: paused !important; }
+          .animate-exhaust { animation-play-state: paused !important; }
+          .animate-car-bob { animation-play-state: paused !important; }
+          .animate-wheel-spin { animation-play-state: paused !important; }
         }
       `}</style>
 
-
-    {/* FAR SKY + subtle tint  */}
-    <div
-      className="absolute inset-0 pointer-events-none"
-      style={{
-        transform: `scale(${world.zoom})`,   // ok to keep scale for depth
-        transformOrigin: "center",
-        background:
-          "radial-gradient(1200px 600px at 50% -200px, hsl(var(--primary)/0.08), transparent), linear-gradient(to bottom, hsl(var(--background)), hsl(var(--background))/0.7)",
-      }}
-      aria-hidden
-    />
-
-    {/* FAR SKYLINE — very sparse, tallest silhouettes, slowest */}
-    <div
-      className={[
-        "strip absolute inset-x-0 top-[12%] h-[36%]",
-        playing && !reducedMotion ? "is-playing" : "",
-      ].join(" ")}
-      style={{
-        // Large tile to avoid obvious repetition
-        ["--tile" as any]: "1600px",
-        ["--duration" as any]: "130s",
-        backgroundImage:
-          "url(\"data:image/svg+xml;utf8," +
-          "<svg xmlns='http://www.w3.org/2000/svg' width='1600' height='288' viewBox='0 0 1600 288'>" +
-            // four spaced buildings + a couple antennas; low alpha so they sit back
-            "<rect x='90'   y='60'  width='160' height='228' fill='rgba(16,18,26,0.20)'/>" +
-            "<rect x='520'  y='86'  width='120' height='202' fill='rgba(16,18,26,0.22)'/>" +
-            "<rect x='980'  y='48'  width='180' height='240' fill='rgba(16,18,26,0.20)'/>" +
-            "<rect x='1380' y='104' width='110' height='184' fill='rgba(16,18,26,0.18)'/>" +
-            "<rect x='160'  y='28'  width='3'   height='32'  fill='rgba(16,18,26,0.30)'/>" +
-            "<rect x='1068' y='24'  width='3'   height='30'  fill='rgba(16,18,26,0.30)'/>" +
-          "</svg>\")",
-        maskImage: "linear-gradient(to top, transparent 0%, black 28%, black 92%, transparent 100%)",
-      }}
-      aria-hidden
-    />
-
-    {/* MID SKYLINE — slightly closer, a bit bolder, still sparse */}
-    <div
-      className={[
-        "strip absolute inset-x-0 top-[28%] h-[32%]",
-        playing && !reducedMotion ? "is-playing" : "",
-      ].join(" ")}
-      style={{
-        // Different tile to de-sync the pattern from the far layer
-        ["--tile" as any]: "1200px",
-        ["--duration" as any]: "95s",
-        backgroundImage:
-          "url(\"data:image/svg+xml;utf8," +
-          "<svg xmlns='http://www.w3.org/2000/svg' width='1200' height='256' viewBox='0 0 1200 256'>" +
-            // three buildings with varied tops (roof blocks)
-            "<g fill='rgba(22,24,32,0.42)'>" +
-              "<rect x='140' y='72'  width='150' height='184'/>" +
-              "<rect x='520' y='88'  width='130' height='168'/>" +
-              "<rect x='910' y='64'  width='170' height='192'/>" +
-            "</g>" +
-            "<g fill='rgba(255,255,255,0.06)'>" +
-              "<rect x='140' y='64'  width='46' height='8'/>" +   // roof details
-              "<rect x='520' y='80'  width='32' height='8'/>" +
-              "<rect x='910' y='56'  width='54' height='8'/>" +
-            "</g>" +
-            // sparse “window rows” as subtle lines that won’t cause seams
-            "<g fill='rgba(255,255,255,0.045)'>" +
-              "<rect x='140' y='128' width='150' height='2'/>" +
-              "<rect x='520' y='138' width='130' height='2'/>" +
-              "<rect x='910' y='120' width='170' height='2'/>" +
-              "<rect x='140' y='168' width='150' height='2'/>" +
-              "<rect x='520' y='176' width='130' height='2'/>" +
-              "<rect x='910' y='164' width='170' height='2'/>" +
-            "</g>" +
-          "</svg>\")",
-        maskImage: "linear-gradient(to top, transparent 0%, black 22%, black 92%, transparent 100%)",
-      }}
-      aria-hidden
-    />
-
-      {/* BUSH STRIP */}
+      {/* SINGLE CITY LAYER - using imported image 3 */}
       <div
         className={[
-          "strip absolute inset-x-0 bottom-44 h-16",
+          "strip absolute inset-0",
           playing && !reducedMotion ? "is-playing" : "",
         ].join(" ")}
         style={{
-          ["--tile" as any]: "700px",
-          ["--duration" as any]: "48s",        // mid speed
-          backgroundImage:
-            "url(\"data:image/svg+xml;utf8," +
-            "<svg xmlns='http://www.w3.org/2000/svg' width='700' height='64' viewBox='0 0 700 64'>" +
-              /* bushes kept well inside tile edges to avoid seam pop */
-              "<ellipse cx='80'  cy='52' rx='44' ry='18' fill='rgba(16,32,18,0.35)'/>" +
-              "<ellipse cx='180' cy='50' rx='34' ry='14' fill='rgba(16,32,18,0.32)'/>" +
-              "<ellipse cx='300' cy='54' rx='42' ry='17' fill='rgba(16,32,18,0.34)'/>" +
-              "<ellipse cx='460' cy='53' rx='36' ry='16' fill='rgba(16,32,18,0.33)'/>" +
-              "<ellipse cx='590' cy='51' rx='38' ry='16' fill='rgba(16,32,18,0.33)'/>" +
-            "</svg>\")",
-          maskImage: "linear-gradient(to top, transparent 0%, black 40%, black 100%)",
+          ["--tile" as any]: "1200px",
+          ["--duration" as any]: "80s",
+          backgroundImage: `url(${city7})`,
+          backgroundSize: "1200px 100%",
+          backgroundPosition: "center bottom",
         }}
         aria-hidden
       />
+
       {/* ROAD */}
       <div className="absolute left-0 right-0 bottom-8 md:bottom-12 h-28 md:h-32 pointer-events-none" aria-hidden>
         <div
           className={`${playing && !reducedMotion ? "animate-road" : ""} absolute inset-x-[-200px] -inset-y-2 rounded-[18px]`}
           style={{
-            backgroundImage: "url('/images/textures/asphalt-tile.png')",
+            backgroundImage: `url("data:image/svg+xml;charset=utf-8,${encodeURIComponent(`
+              <svg xmlns="http://www.w3.org/2000/svg" width="480" height="128" viewBox="0 0 480 128">
+                <defs>
+                  <pattern id="asphalt" x="0" y="0" width="40" height="40" patternUnits="userSpaceOnUse">
+                    <rect width="40" height="40" fill="#2a2a2a"/>
+                    <circle cx="8" cy="12" r="0.5" fill="#333"/>
+                    <circle cx="22" cy="8" r="0.3" fill="#1a1a1a"/>
+                    <circle cx="35" cy="25" r="0.4" fill="#333"/>
+                    <circle cx="15" cy="30" r="0.2" fill="#444"/>
+                    <circle cx="32" cy="5" r="0.3" fill="#1a1a1a"/>
+                  </pattern>
+                </defs>
+                <rect width="480" height="128" fill="url(#asphalt)"/>
+                <rect x="0" y="62" width="480" height="4" fill="#444"/>
+              </svg>
+            `)}")`,
             backgroundRepeat: "repeat-x",
             backgroundSize: "480px 100%",
             filter: "contrast(0.98) brightness(0.95)",
@@ -309,8 +346,8 @@ export default function AboutJourneyInfiniteRoad() {
         <div
           className={`${playing && !reducedMotion ? "animate-road" : ""} absolute left-0 right-0 top-1/2 h-[3px] -translate-y-1/2`}
           style={{
-            backgroundImage: "repeating-linear-gradient(90deg, hsl(var(--foreground)) 0 24px, transparent 24px 54px)",
-            opacity: 0.55,
+            backgroundImage: "repeating-linear-gradient(90deg, #ffff88 0 24px, transparent 24px 54px)",
+            opacity: 0.8,
             mixBlendMode: "screen",
             backgroundSize: "480px 100%",
           }}
@@ -323,8 +360,6 @@ export default function AboutJourneyInfiniteRoad() {
           }}
         />
       </div>
-      
-    
 
       {/* CAR */}
       <div className="absolute left-1/2 bottom-[88px] md:bottom-[112px] -translate-x-1/2 select-none" aria-hidden>
@@ -398,46 +433,113 @@ export default function AboutJourneyInfiniteRoad() {
         </svg>
       </div>
 
-      {/* CHECKPOINT CARD — pause only when hovering/touching THIS card */}
-      <div
-        className={[
-          "absolute left-1/2 bottom-[220px] md:bottom-[240px] -translate-x-1/2 w-[min(720px,92vw)] z-30",
-          "rounded-2xl border border-muted bg-card/95 backdrop-blur-sm shadow-lg",
-          "transition-transform duration-400",
-          cardVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2",
-        ].join(" ")}
-        onMouseEnter={() => setHoverPause(true)}
-        onMouseLeave={() => setHoverPause(false)}
-        onTouchStart={() => setHoverPause(true)}
-        onTouchEnd={() => setHoverPause(false)}
-      >
-        {typeof activeIndex === "number" && (
-          <div className="grid grid-cols-1 md:grid-cols-[1.25fr_1fr] gap-4 p-4 md:p-6 items-center">
-            <figure className="overflow-hidden rounded-xl border border-muted/60">
-              <img
-                src={checkpoints[activeIndex].imageSrc}
-                alt={checkpoints[activeIndex].imageAlt}
-                className="block w-full h-60 md:h-52 object-cover"
-                loading="eager"
+      {/* MILESTONE ROAD SIGNS — positioned along the journey route */}
+      {checkpoints.map((checkpoint, index) => {
+        const checkpointProgress = checkpoint.t;
+        const approachDistance = 0.05; // How early the sign becomes visible
+        const passDistance = 0.05; // How long the sign stays visible after passing
+        
+        const isApproaching = progress >= (checkpointProgress - approachDistance) && progress < checkpointProgress;
+        const isPassing = progress >= checkpointProgress && progress <= (checkpointProgress + passDistance);
+        const isVisible = isApproaching || isPassing;
+        
+        if (!isVisible) return null;
+        
+        // Calculate sign position based on progress relative to checkpoint
+        let signPosition;
+        if (isApproaching) {
+          // Sign starts far right and moves toward center
+          const approachProgress = (progress - (checkpointProgress - approachDistance)) / approachDistance;
+          signPosition = 100 - (approachProgress * 60); // Move from 100% to 40% from right
+        } else {
+          // Sign continues moving left as we pass it
+          const passingProgress = (progress - checkpointProgress) / passDistance;
+          signPosition = 40 - (passingProgress * 80); // Move from 40% to -40% from right
+        }
+        
+        return (
+          <div
+            key={checkpoint.id || index}
+            className="absolute top-1/2 -translate-y-1/2 z-30 cursor-pointer"
+            style={{
+              right: `${signPosition}%`,
+              opacity: isVisible ? 1 : 0,
+              transform: `translateY(-50%) scale(${isApproaching ? 0.8 + (1 - (progress - (checkpointProgress - approachDistance)) / approachDistance) * 0.2 : 1})`,
+            }}
+            onClick={() => {
+              setPausedProgress(progress); // Store current progress when pausing
+              setClickPause(true);
+              setPausedCheckpoint(checkpoint);
+            }}
+          >
+            {/* Highway-style road sign */}
+            <div 
+              className="relative bg-green-700 text-white rounded-lg shadow-2xl border-4 border-white"
+              style={{
+                minWidth: "280px",
+                maxWidth: "320px",
+                padding: "16px 20px",
+                background: "linear-gradient(135deg, #166534 0%, #15803d 100%)",
+                boxShadow: "0 15px 30px rgba(0,0,0,0.4), 0 6px 12px rgba(0,0,0,0.2)",
+              }}
+            >
+              {/* Mile marker number */}
+              <div className="absolute -top-2 -left-2 w-7 h-7 bg-yellow-400 text-black rounded-full flex items-center justify-center font-bold text-xs border-2 border-white">
+                {index + 1}
+              </div>
+              
+              {/* Sign content */}
+              <div className="text-center">
+                <div className="text-yellow-200 text-xs font-semibold uppercase tracking-wider mb-1">
+                  MILESTONE
+                </div>
+                <h3 className="text-white text-lg font-bold mb-1 leading-tight">
+                  {checkpoint.title}
+                </h3>
+                <p className="text-green-100 text-xs leading-relaxed">
+                  {checkpoint.text}
+                </p>
+              </div>
+              
+              {/* Highway sign reflection effect */}
+              <div 
+                className="absolute inset-0 rounded-lg pointer-events-none"
+                style={{
+                  background: "linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.1) 50%, transparent 70%)",
+                  animation: "shimmer 3s infinite",
+                }}
               />
-            </figure>
-            <div>
-              <div className="text-xs uppercase tracking-wide text-muted-foreground mb-1">Checkpoint</div>
-              <h3 className="text-xl md:text-2xl font-semibold text-primary mb-1">
-                {checkpoints[activeIndex].title}
-              </h3>
-              <p className="text-sm md:text-base text-muted-foreground">{checkpoints[activeIndex].text}</p>
             </div>
+            
+            {/* Support post - extends from sign to road level */}
+            <div 
+              className="absolute left-1/2 top-full w-2 bg-gray-600 -translate-x-1/2"
+              style={{
+                background: "linear-gradient(to right, #4a5568, #718096)",
+                height: "calc(50vh + 6rem)", // From middle of screen down to road level
+                bottom: "calc(-50vh - 6rem)", // Position it to reach the road
+              }}
+            />
           </div>
-        )}
-      </div>
+        );
+      })}
 
-      {/* PROGRESS BAR — eased and looping */}
+      <style>{`
+        @keyframes shimmer {
+          0%, 100% { opacity: 0; }
+          50% { opacity: 1; }
+        }
+      `}</style>
+
+      {/* PROGRESS BAR — smooth CSS transition */}
       <div className="absolute left-1/2 -translate-x-1/2 w-[min(760px,92vw)] z-20 top-6 pointer-events-none">
         <div className="h-2 rounded-full bg-muted/40 overflow-hidden shadow-inner">
           <div
-            className="h-full bg-primary transition-[width] duration-200 ease-[cubic-bezier(0.22,1,0.36,1)]"
-            style={{ width: `${Math.round(displayProgress * 100)}%` }}
+            className="h-full bg-primary transition-all duration-150 ease-out"
+            style={{ 
+              width: `${Math.round(progress * 100)}%`,
+              transitionProperty: 'width'
+            }}
           />
         </div>
       </div>

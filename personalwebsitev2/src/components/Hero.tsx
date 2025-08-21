@@ -51,6 +51,7 @@ export default function Hero() {
   }, []);
 
   const headlineColor = "hsl(140 25% 40%)";
+  const bannerColor = "#a0dae8"
 
   return (
     <section
@@ -58,14 +59,11 @@ export default function Hero() {
       id="hero"
       className="relative isolate min-h-screen flex items-center justify-center overflow-hidden"
     >
-      {/* Base cooler grey background */}
-      <div className="absolute inset-0 bg-gradient-to-b from-slate-50 to-slate-200" />
-
-      {/* Subtle vignette to give contrast */}
       <div
-        className="absolute inset-0"
-        style={{ boxShadow: "inset 0 0 160px 40px rgba(0,0,0,0.20)" }}
+          className="absolute inset-0"
+          style={{ backgroundColor: bannerColor }}
       />
+
 
       {/* Content (relative container anchors the lamp visually) */}
       <div ref={headingRef} className="relative z-10 max-w-4xl w-full px-6 text-center select-none">
@@ -144,6 +142,51 @@ export default function Hero() {
           </div>
         )}
       </div>
-    </section>
+
+
+      {/* Bottom cloud transition */}
+    <div className="absolute bottom-0 left-0 right-0 h-32 md:h-40 pointer-events-none">
+      <svg
+        className="w-full h-full"
+        viewBox="0 0 1200 200"
+        preserveAspectRatio="none"
+        style={{ opacity: 0.7 }}
+      >
+        <defs>
+          <linearGradient id="cloudGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stopColor="rgba(255,255,255,0.9)" />
+            <stop offset="100%" stopColor="rgba(255,255,255,0.2)" />
+          </linearGradient>
+        </defs>
+        
+        {/* Large background cloud */}
+        <ellipse cx="200" cy="140" rx="120" ry="35" fill="url(#cloudGradient)" />
+        <ellipse cx="170" cy="125" rx="80" ry="25" fill="url(#cloudGradient)" />
+        <ellipse cx="230" cy="130" rx="90" ry="30" fill="url(#cloudGradient)" />
+        
+        {/* Medium cloud cluster */}
+        <ellipse cx="500" cy="135" rx="100" ry="30" fill="rgba(255,255,255,0.6)" />
+        <ellipse cx="480" cy="120" rx="70" ry="20" fill="rgba(255,255,255,0.6)" />
+        <ellipse cx="520" cy="125" rx="80" ry="25" fill="rgba(255,255,255,0.6)" />
+        
+        {/* Large cloud on right */}
+        <ellipse cx="850" cy="145" rx="130" ry="40" fill="url(#cloudGradient)" />
+        <ellipse cx="820" cy="130" rx="90" ry="28" fill="url(#cloudGradient)" />
+        <ellipse cx="880" cy="135" rx="100" ry="32" fill="url(#cloudGradient)" />
+        
+        {/* Small scattered clouds */}
+        <ellipse cx="100" cy="160" rx="60" ry="18" fill="rgba(255,255,255,0.4)" />
+        <ellipse cx="350" cy="155" rx="70" ry="20" fill="rgba(255,255,255,0.5)" />
+        <ellipse cx="650" cy="150" rx="80" ry="22" fill="rgba(255,255,255,0.5)" />
+        <ellipse cx="1000" cy="160" rx="65" ry="19" fill="rgba(255,255,255,0.4)" />
+        
+        {/* Very small wispy clouds */}
+        <ellipse cx="75" cy="175" rx="40" ry="12" fill="rgba(255,255,255,0.3)" />
+        <ellipse cx="300" cy="170" rx="45" ry="14" fill="rgba(255,255,255,0.3)" />
+        <ellipse cx="750" cy="175" rx="50" ry="15" fill="rgba(255,255,255,0.3)" />
+        <ellipse cx="1100" cy="170" rx="42" ry="13" fill="rgba(255,255,255,0.3)" />
+      </svg>
+      </div>
+  </section>
   );
 }
