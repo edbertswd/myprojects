@@ -1,4 +1,5 @@
 import React from 'react';
+import europeEnchantingLogo from '/src/assets/europeenchanting-logo.webp'
 import { Calendar, ExternalLink, Code, Database, Zap, Users, CheckCircle, Github, Monitor, Brain, Gamepad2, Smartphone, Clock } from 'lucide-react';
 
 const ExperienceAndProjects = () => {
@@ -117,9 +118,18 @@ const ExperienceAndProjects = () => {
               }}
             >
               <div className="flex items-center justify-between">
-                <div>
-                  <h2 className="text-lg font-bold text-white">Europe Enchanting</h2>
-                  <p className="text-white/90 text-sm">Software Engineer Intern</p>
+                <div className="flex items-center gap-4">
+                  <div className="h-12 w-12 bg-white rounded-lg border overflow-hidden flex items-center justify-center p-2">
+                    <img 
+                      src={europeEnchantingLogo} 
+                      alt="Europe Enchanting Logo" 
+                      className="w-full h-full object-contain" 
+                    />
+                  </div>
+                  <div>
+                    <h2 className="text-lg font-bold text-white">Europe Enchanting</h2>
+                    <p className="text-white/90 text-sm">Software Engineer Intern</p>
+                  </div>
                 </div>
                 <div className="flex items-center gap-3">
                   <div className="flex items-center gap-1 bg-white/20 rounded-full px-2 py-1">
@@ -219,6 +229,8 @@ const ExperienceAndProjects = () => {
                     </div>
                     <a 
                       href={project.githubUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
                       className="flex items-center gap-1 px-3 py-1 rounded-lg border text-xs font-medium hover:shadow-sm transition-all"
                       style={{ borderColor: "hsl(var(--sage))", color: "hsl(var(--sage))" }}
                     >
@@ -276,6 +288,8 @@ const ExperienceAndProjects = () => {
                     {project.liveUrl && (
                       <a 
                         href={project.liveUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
                         className="flex-1 flex items-center justify-center gap-1 py-1 px-2 rounded text-xs font-medium transition-all"
                         style={{ backgroundColor: project.color, color: "white" }}
                       >
@@ -284,6 +298,8 @@ const ExperienceAndProjects = () => {
                     )}
                     <a 
                       href={project.githubUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
                       className="flex-1 flex items-center justify-center gap-1 py-1 px-2 rounded border text-xs font-medium transition-all"
                       style={{ borderColor: project.color, color: project.color }}
                     >

@@ -1,3 +1,5 @@
+import logo from '/src/assets/edsuw-logo.png'
+
 const Navigation = () => {
   return (
     <nav className="absolute top-0 left-0 right-0 z-50 bg-transparent">
@@ -5,7 +7,7 @@ const Navigation = () => {
         {/* Logo */}
         <div className="flex-shrink-0">
           <img 
-            src="src/assets/edsuw-logo.png" 
+            src={logo} 
             alt="Logo" 
             className="h-16 w-auto scale-150 transform origin-left" 
           />
@@ -52,14 +54,6 @@ const Navigation = () => {
               23.227.792 24 1.771 24h20.451C23.2 24 
               24 23.227 24 22.271V1.729C24 .774 23.2 
               0 22.222 0z"/>
-            </svg>
-          </a>
-
-          <a href="mailto:mail@example.org" className="p-2 hover:text-sage transition-colors">
-            {/* Mail Icon */}
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M16 12H8m8 0a4 4 0 11-8 0 4 4 0 018 0zm0 0v1.5a2.5 
-              2.5 0 005 0V12a9 9 0 10-9 9v-3"/>
             </svg>
           </a>
         </div>

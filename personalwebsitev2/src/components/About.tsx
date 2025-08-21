@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { animate } from "motion";
 import type { AnimationPlaybackControls } from "motion";
 
+
 // Import city images
 import city7 from "/src/assets/city/7.png";
 
