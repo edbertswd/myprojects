@@ -14,7 +14,6 @@ const Navigation = () => {
         {/* Navigation Links */}
         <div className="hidden md:flex items-center space-x-8">
           <a href="#about" className="text-warm-brown hover:text-sage transition-colors font-montserrat font-semibold">About</a>
-          <a href="#projects" className="text-warm-brown hover:text-sage transition-colors font-montserrat font-semibold">Projects</a>
           <a href="#experience" className="text-warm-brown hover:text-sage transition-colors font-montserrat font-semibold">Experience</a>
           <a href="#contact" className="text-warm-brown hover:text-sage transition-colors font-montserrat font-semibold">Contact</a>
         </div>
