@@ -1,0 +1,134 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Personal Website Design System - Calm & Inviting Palette (no orange/brown) */
+@layer base {
+  :root {
+    /* Neutral foundation */
+    --background: 40 20% 97%;   /* light cream */
+    --foreground: 220 15% 20%;  /* deep slate */
+
+    --card: 0 0% 100%;
+    --card-foreground: 220 15% 20%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 220 15% 20%;
+
+    /* Primary – soft sage */
+    --primary: 140 25% 40%;
+    --primary-foreground: 0 0% 100%;
+    --primary-light: 140 25% 55%;
+    --primary-dark: 140 30% 28%;
+
+    /* Secondary – muted blue-grey */
+    --secondary: 210 20% 85%;
+    --secondary-foreground: 220 20% 20%;
+
+    /* Muted neutrals */
+    --muted: 210 10% 92%;
+    --muted-foreground: 220 10% 40%;
+
+    /* Accent – soft golden beige */
+    --accent: 45 40% 65%;
+    --accent-foreground: 220 15% 20%;
+
+    /* Destructive – gentle clay red (toned down, not orange) */
+    --destructive: 350 50% 45%;
+    --destructive-foreground: 0 0% 98%;
+
+    /* Borders & inputs */
+    --border: 220 12% 85%;
+    --input: 220 12% 85%;
+    --ring: 140 25% 40%;
+
+    /* Supporting palette */
+    --cream: 40 20% 97%;
+    --taupe: 30 12% 65%;
+    --slate: 220 15% 20%;
+    --sage: 140 20% 45%;
+    --soft-blue: 210 25% 70%;
+
+    /* Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--accent)));
+    --gradient-neutral: linear-gradient(180deg, hsl(var(--background)), hsl(var(--cream)));
+
+    /* Shadows */
+    --shadow-soft: 0 4px 20px hsl(var(--primary) / 0.08);
+    --shadow-card: 0 2px 10px hsl(220 15% 20% / 0.06);
+    --shadow-hover: 0 6px 18px hsl(var(--primary) / 0.12);
+
+    --radius: 0.75rem;
+  }
+
+  .dark {
+    --background: 220 15% 10%;
+    --foreground: 40 20% 95%;
+
+    --card: 220 15% 12%;
+    --card-foreground: 40 20% 95%;
+
+    --popover: 220 15% 12%;
+    --popover-foreground: 40 20% 95%;
+
+    --primary: 140 25% 45%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 220 10% 18%;
+    --secondary-foreground: 40 20% 95%;
+
+    --muted: 220 10% 20%;
+    --muted-foreground: 210 10% 70%;
+
+    --accent: 45 35% 55%;
+    --accent-foreground: 220 15% 20%;
+
+    --destructive: 350 45% 48%;
+    --destructive-foreground: 40 20% 95%;
+
+    --border: 220 10% 25%;
+    --input: 220 10% 25%;
+    --ring: 140 25% 45%;
+
+    --cream: 220 10% 14%;
+    --taupe: 30 12% 45%;
+    --slate: 40 20% 95%;
+    --sage: 140 25% 50%;
+    --soft-blue: 210 25% 65%;
+
+    --gradient-neutral: linear-gradient(180deg, hsl(var(--background)), hsl(var(--cream)));
+    --shadow-card: 0 2px 12px hsl(0 0% 0% / 0.25);
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background;
+    color: hsl(var(--slate));
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    color: hsl(var(--slate));
+  }
+
+  .dark h1, .dark h2, .dark h3, .dark h4, .dark h5, .dark h6 {
+    color: hsl(var(--foreground));
+  }
+}
+
+/* Example utilities */
+@layer utilities {
+  .text-sage { color: hsl(var(--sage)); }
+  .bg-sage { background-color: hsl(var(--sage)); }
+
+  .text-soft-blue { color: hsl(var(--soft-blue)); }
+  .bg-soft-blue { background-color: hsl(var(--soft-blue)); }
+
+  .text-accent { color: hsl(var(--accent)); }
+  .bg-accent { background-color: hsl(var(--accent)); }
+}
