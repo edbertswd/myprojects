@@ -33,13 +33,13 @@ export default function AboutJourneyInfiniteRoad() {
   // --- DATA ---
   const checkpoints: Checkpoint[] = useMemo(
     () => [
-      { t: 0.04, id: "chapter-beginnings", title: "Beginnings", text: "Born in 2002, the youngest — learned to be heard.", imageSrc: "/images/journey/beginnings.webp", imageAlt: "Childhood sunset silhouette" },
-      { t: 0.16, id: "chapter-jakarta", title: "High School in Jakarta", text: "Tried everything — still searching for my thing.", imageSrc: "/images/journey/jakarta.webp", imageAlt: "Jakarta skyline and schoolyard" },
-      { t: 0.36, id: "chapter-atlanta", title: "Atlanta & Covid Era (2019–2022)", text: "Moved to Atlanta; taught myself to code. First Hello World.", imageSrc: "/images/journey/atlanta-desk.webp", imageAlt: "Laptop by a window in Atlanta" },
-      { t: 0.52, id: "chapter-sydney", title: "Sydney Chapter", text: "New culture, new resilience; grew as an engineer.", imageSrc: "/images/journey/sydney.webp", imageAlt: "Sydney skyline at dusk" },
-      { t: 0.66, id: "chapter-content", title: "Content Creation", text: "Built a Twitch community of 1.8k — learned to connect.", imageSrc: "/images/journey/twitch.webp", imageAlt: "Streamer desk with soft lighting" },
-      { t: 0.80, id: "chapter-gamedev", title: "Game Development", text: "Building little worlds; inspired by ConcernedApe.", imageSrc: "/images/journey/gamedev.webp", imageAlt: "Pixel art mockup and code editor" },
-      { t: 0.92, id: "chapter-next", title: "What's Next?", text: "Still writing the story — excited for the leap 🚀", imageSrc: "/images/journey/whats-next.webp", imageAlt: "Open highway into sunrise" },
+      { t: 0.04, id: "chapter-beginnings", title: "Beginnings", text: "Born in 2002, the youngest — learned to be heard." },
+      { t: 0.16, id: "chapter-jakarta", title: "High School in Jakarta", text: "Tried everything I wanted (mostly video games though unfortunately)."},
+      { t: 0.36, id: "chapter-atlanta", title: "Atlanta & Covid Era", text: "Moved to Atlanta and learned how to code. First Hello World."},
+      { t: 0.52, id: "chapter-sydney", title: "Sydney Chapter", text: "Moved to Sydney for my girlfriend. Worked hard to build a strong future here." },
+      { t: 0.66, id: "chapter-content", title: "Content Creation Era", text: "Built a Twitch community of 1.8k — learned content creating and networking." },
+      { t: 0.80, id: "chapter-gamedev", title: "Locked In Era", text: "Decided I had to specialize and chose two areas: web development and game development." },
+      { t: 0.92, id: "chapter-next", title: "What's Next?", text: "Still writing the story — excited for the next thing!" },
     ],
     []
   );
