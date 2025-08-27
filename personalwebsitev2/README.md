@@ -41,32 +41,12 @@ Includes form handling, validation, data fetching, charts, and other common UI u
 
 ---
 
-## 🛠 Development Tools
+## 🧩 Backend (Express) – Spotify & Pokémon TCG
 
-- **[TypeScript ESLint](https://typescript-eslint.io/)** – Linting for TypeScript
-- **[ESLint](https://eslint.org/)** + plugins (`eslint-plugin-react-hooks`, `eslint-plugin-react-refresh`)
-- **[PostCSS](https://postcss.org/)** + **Autoprefixer**
-- **[@tailwindcss/typography](https://tailwindcss.com/docs/typography-plugin)** – Prose styling
-- **[tailwind-merge](https://tailwind-merge.vercel.app/)** – Class merging utility
-- **clsx** – Conditional class names
-- **class-variance-authority** – Variants for component styles
+This starter includes an optional **Express** backend that:
+- Proxies the **Pokémon TCG API** (cards by ID, search, sets) using your `POKEMON_TCG_API_KEY`.
+- Implements **Spotify OAuth 2.0 (Authorization Code)** for login, token refresh, and a sample `/me` profile fetch.
+- Uses a **service layer** (`services/pokemonService`) that performs upstream calls with **Axios**.
+- Provides simple **response caching** for common endpoints.
 
----
-
-## 📦 Getting Started
-
-```bash
-# Install dependencies
-npm install
-
-# Start development server
-npm run dev
-
-# Build for production
-npm run build
-
-# Preview production build
-npm run preview
-
-# Lint code
-npm run lint
+### Folder Structure (suggested)
