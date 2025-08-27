@@ -18,7 +18,7 @@ const ExperienceAndProjects = () => {
       highlight: "Redesigned with a working backend handled in a Node.js server and a reactive frontend.",
       githubUrl: "https://github.com/edbertswd/myprojects/personalwebsitev2",
       teamSize: "Solo Project"
-    },
+    },  
     {
       title: "Social Mood Mobile App",
       description: "Cross-platform social media app with AI mood detection for hackathon competition.",

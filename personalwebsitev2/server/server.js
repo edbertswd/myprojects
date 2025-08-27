@@ -7,9 +7,8 @@ const spotifyRoutes = require('./routes/spotify');
 const pokemonRoutes = require('./routes/pokemon');
 
 const app = express();
-const PORT = process.env.PORT || 3001;
 
-// Initialize cache (TTL: 5 minutes for most data)
+// Initialize cache 
 const cache = new NodeCache({ stdTTL: 300 });
 
 // Middleware
@@ -26,18 +25,32 @@ app.use((req, res, next) => {
   next();
 });
 
-// Routes
-app.use('/api/spotify', spotifyRoutes);
-app.use('/api/pokemon', pokemonRoutes);
-
-// Health check
+// Health check - both endpoints for flexibility
 app.get('/health', (req, res) => {
   res.json({ 
     status: 'OK', 
     timestamp: new Date().toISOString(),
-    uptime: process.uptime()
+    uptime: Math.floor(process.uptime()),
+    environment: process.env.NODE_ENV || 'production'
   });
 });
+
+app.get('/api/health', (req, res) => {
+  res.json({ 
+    status: 'OK', 
+    timestamp: new Date().toISOString(),
+    uptime: Math.floor(process.uptime()),
+    environment: process.env.NODE_ENV || 'production',
+    cache: {
+      keys: cache.keys().length,
+      stats: cache.getStats()
+    }
+  });
+});
+
+// Routes
+app.use('/api/spotify', spotifyRoutes);
+app.use('/api/pokemon', pokemonRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {
@@ -50,10 +63,19 @@ app.use((err, req, res, next) => {
 
 // 404 handler
 app.use('*', (req, res) => {
-  res.status(404).json({ error: 'Route not found' });
+  res.status(404).json({ 
+    error: 'Route not found',
+    path: req.originalUrl,
+    method: req.method,
+    timestamp: new Date().toISOString()
+  });
 });
 
+// Namecheap/cPanel optimized server start
+const PORT = process.env.PORT;
 app.listen(PORT, () => {
-  console.log(`🚀 Server running on http://localhost:${PORT}`);
-  console.log(`📊 Health check: http://localhost:${PORT}/health`);
+  console.log(`🚀 Server running on Namecheap`);
+  console.log(`📊 Health: /health and /api/health`);
+  console.log(`🎵 Spotify: /api/spotify/*`);
+  console.log(`🐾 Pokemon: /api/pokemon/*`);
 });
