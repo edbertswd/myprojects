@@ -133,7 +133,7 @@ export default function AboutJourneyInfiniteRoad() {
         className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 z-40 text-center pointer-events-none"
         style={{
           textShadow: "4px 4px 0px rgba(0,0,0,1), 2px 2px 8px rgba(0,0,0,0.9), 0 0 20px rgba(0,0,0,0.8)",
-          fontFamily: "'Lilita One', cursive",
+          fontFamily: "'Roboto Condensed', sans-serif",
         }}
       >
         <h2 className="text-white text-4xl md:text-5xl font-black mb-2" style={{ color: "#ffffff" }}>
