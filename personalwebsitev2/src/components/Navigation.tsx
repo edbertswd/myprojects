@@ -15,9 +15,36 @@ const Navigation = () => {
 
         {/* Navigation Links */}
         <div className="hidden md:flex items-center space-x-8">
-          <a href="#about" className="text-warm-brown hover:text-sage transition-colors font-montserrat font-semibold">About</a>
-          <a href="#experience" className="text-warm-brown hover:text-sage transition-colors font-montserrat font-semibold">Experience</a>
-          <a href="#contact" className="text-warm-brown hover:text-sage transition-colors font-montserrat font-semibold">Contact</a>
+          <a 
+            href="#about" 
+            className="text-warm-brown hover:text-sage transition-colors font-montserrat font-semibold"
+            onClick={(e) => {
+              e.preventDefault();
+              document.getElementById('about')?.scrollIntoView({ behavior: 'smooth' });
+            }}
+          >
+            About
+          </a>
+          <a 
+            href="#experience" 
+            className="text-warm-brown hover:text-sage transition-colors font-montserrat font-semibold"
+            onClick={(e) => {
+              e.preventDefault();
+              document.getElementById('experience')?.scrollIntoView({ behavior: 'smooth' });
+            }}
+          >
+            Experience
+          </a>
+          <a 
+            href="#hobbies" 
+            className="text-warm-brown hover:text-sage transition-colors font-montserrat font-semibold"
+            onClick={(e) => {
+              e.preventDefault();
+              document.getElementById('hobbies')?.scrollIntoView({ behavior: 'smooth' });
+            }}
+          >
+            Hobbies
+          </a>
         </div>
 
         {/* Social Links */}

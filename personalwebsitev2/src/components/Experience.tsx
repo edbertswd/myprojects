@@ -12,10 +12,10 @@ const ExperienceAndProjects = () => {
   const inDevProjects = [
     {
       title: "Personal Website V2",
-      description: "This website! Honestly its been really fun thinking of ways I can make a personal portfolio that screams ME.",
-      technologies: ["React", "TailwindCSS", "TypeScript", "Framer Motion"],
+      description: "This website! Full stack website with a proper working backend in Node.js and Vite & React frontend.",
+      technologies: ["React", "Vite", "TailwindCSS", "TypeScript", "Framer Motion", "Node.js", "RESTful API"],
       timeline: "In Progress",
-      highlight: "Redesigned with unified experience sections and a maturity in choosing main colors (you suck orange)",
+      highlight: "Redesigned with a working backend handled in a Node.js server and a reactive frontend.",
       githubUrl: "https://github.com/edbertswd/myprojects/personalwebsitev2",
       teamSize: "Solo Project"
     },
@@ -72,6 +72,7 @@ const ExperienceAndProjects = () => {
 
   return (
     <section 
+      id="experience"
       className="relative overflow-hidden py-12"
       style={{
         fontFamily: "'Inter', sans-serif",
@@ -91,10 +92,10 @@ const ExperienceAndProjects = () => {
         <div className="mb-12">
           <div className="text-center mb-8">
             <div 
-              className="inline-block px-4 py-2 mb-4 rounded-lg border"
+              className="inline-block px-4 py-2 mb-4 rounded-lg"
               style={{
                 background: "linear-gradient(45deg, hsl(var(--sage)), hsl(var(--primary)))",
-                borderColor: "hsl(var(--sage))",
+                border: "1px solid hsl(var(--sage))",
                 color: "#fff"
               }}
             >
@@ -107,19 +108,21 @@ const ExperienceAndProjects = () => {
           </div>
 
           <div 
-            className="bg-white border rounded-xl shadow-md"
-            style={{ borderColor: "hsl(var(--sage))" }}
+            className="bg-white rounded-xl shadow-md"
+            style={{ border: "1px solid hsl(var(--sage))" }}
           >
             <div 
-              className="px-4 py-3 border-b"
+              className="px-4 py-3"
               style={{
                 background: "linear-gradient(135deg, hsl(var(--sage)) 0%, hsl(var(--primary)) 100%)",
-                borderColor: "hsl(var(--sage))"
+                borderBottom: "1px solid hsl(var(--sage))",
+                borderTopLeftRadius: "0.75rem",
+                borderTopRightRadius: "0.75rem"
               }}
             >
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-4">
-                  <div className="h-12 w-12 bg-white rounded-lg border overflow-hidden flex items-center justify-center p-2">
+                  <div className="h-12 w-12 bg-white rounded-lg overflow-hidden flex items-center justify-center p-2">
                     <img 
                       src={europeEnchantingLogo} 
                       alt="Europe Enchanting Logo" 
@@ -153,8 +156,8 @@ const ExperienceAndProjects = () => {
                 {achievements.map((achievement, index) => (
                   <div 
                     key={index}
-                    className="p-3 rounded-lg border bg-gray-50"
-                    style={{ borderColor: "hsl(var(--sage))" }}
+                    className="p-3 rounded-lg bg-gray-50"
+                    style={{ border: "1px solid hsl(var(--sage))" }}
                   >
                     <div className="flex items-center gap-2 mb-1">
                       <div 
@@ -197,7 +200,7 @@ const ExperienceAndProjects = () => {
 
           <div className="space-y-4">
             {inDevProjects.map((project, index) => (
-              <div key={index} className="bg-white border rounded-lg shadow-sm" style={{ borderColor: "hsl(var(--sage))" }}>
+              <div key={index} className="bg-white rounded-lg shadow-sm" style={{ border: "1px solid hsl(var(--sage))" }}>
                 <div className="p-4">
                   <div className="flex items-start justify-between mb-2">
                     <div>
@@ -231,8 +234,8 @@ const ExperienceAndProjects = () => {
                       href={project.githubUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex items-center gap-1 px-3 py-1 rounded-lg border text-xs font-medium hover:shadow-sm transition-all"
-                      style={{ borderColor: "hsl(var(--sage))", color: "hsl(var(--sage))" }}
+                      className="flex items-center gap-1 px-3 py-1 rounded-lg text-xs font-medium hover:shadow-sm transition-all"
+                      style={{ border: "1px solid hsl(var(--sage))", color: "hsl(var(--sage))" }}
                     >
                       <Github className="w-3 h-3" /> Code
                     </a>
@@ -251,12 +254,18 @@ const ExperienceAndProjects = () => {
             {completedProjects.map((project, index) => (
               <div 
                 key={index}
-                className="bg-white border rounded-lg shadow-sm hover:shadow-md transition-all"
-                style={{ borderColor: project.color }}
+                className="bg-white rounded-lg shadow-sm hover:shadow-md transition-all flex flex-col h-full"
+                style={{ border: `1px solid ${project.color}` }}
               >
                 <div 
-                  className="px-3 py-2 border-b"
-                  style={{ backgroundColor: project.color, borderColor: project.color, color: "white" }}
+                  className="px-3 py-2"
+                  style={{ 
+                    backgroundColor: project.color, 
+                    color: "white",
+                    borderBottom: `1px solid ${project.color}`,
+                    borderTopLeftRadius: "0.5rem",
+                    borderTopRightRadius: "0.5rem"
+                  }}
                 >
                   <div className="flex items-center gap-2">
                     {project.icon}
@@ -264,19 +273,19 @@ const ExperienceAndProjects = () => {
                   </div>
                 </div>
 
-                <div className="p-3">
-                  <h3 className="font-semibold text-gray-800 mb-2 text-sm">{project.title}</h3>
+                <div className="p-4 flex flex-col flex-grow">
+                  <h3 className="font-semibold text-gray-800 mb-3 text-base leading-tight">{project.title}</h3>
                   
-                  <div className="flex items-start gap-1 mb-3">
-                    <CheckCircle className="w-2 h-2 text-green-500 mt-1 flex-shrink-0" />
-                    <span className="text-xs text-gray-600 leading-tight">{project.highlight}</span>
+                  <div className="flex items-start gap-2 mb-4 flex-grow">
+                    <CheckCircle className="w-3 h-3 text-green-500 mt-0.5 flex-shrink-0" />
+                    <span className="text-sm text-gray-600 leading-relaxed">{project.highlight}</span>
                   </div>
 
-                  <div className="flex flex-wrap gap-1 mb-3">
+                  <div className="flex flex-wrap gap-1.5 mb-4">
                     {project.technologies.map((tech, idx) => (
                       <span 
                         key={idx}
-                        className="px-1 py-0.5 text-xs rounded"
+                        className="px-2 py-1 text-xs rounded-md font-medium"
                         style={{ backgroundColor: project.color, color: "white" }}
                       >
                         {tech}
@@ -284,26 +293,15 @@ const ExperienceAndProjects = () => {
                     ))}
                   </div>
 
-                  <div className="flex gap-1">
-                    {project.liveUrl && (
-                      <a 
-                        href={project.liveUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex-1 flex items-center justify-center gap-1 py-1 px-2 rounded text-xs font-medium transition-all"
-                        style={{ backgroundColor: project.color, color: "white" }}
-                      >
-                        <ExternalLink className="w-2 h-2" /> Demo
-                      </a>
-                    )}
+                  <div className="mt-auto">
                     <a 
                       href={project.githubUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex-1 flex items-center justify-center gap-1 py-1 px-2 rounded border text-xs font-medium transition-all"
-                      style={{ borderColor: project.color, color: project.color }}
+                      className="w-full flex items-center justify-center gap-2 py-2 px-3 rounded-md text-sm font-medium transition-all hover:bg-gray-50"
+                      style={{ border: `1px solid ${project.color}`, color: project.color }}
                     >
-                      <Github className="w-2 h-2" /> Code
+                      <Github className="w-4 h-4" /> View Code
                     </a>
                   </div>
                 </div>

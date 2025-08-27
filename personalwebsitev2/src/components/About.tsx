@@ -48,14 +48,9 @@ export default function AboutJourneyInfiniteRoad() {
   // --- STATE ---
   const sectionRef = useRef<HTMLElement | null>(null);
   const [progress, setProgress] = useState(0);               // 0..1 (drives world)
-  const [pausedProgress, setPausedProgress] = useState<number | null>(null); // Store progress when paused
-  const [hoverPause, setHoverPause] = useState(false);
   const [clickPause, setClickPause] = useState(false);
   const [pausedCheckpoint, setPausedCheckpoint] = useState<Checkpoint | null>(null);       
-  const [autoplayZone, setAutoplayZone] = useState(false);   // ≥30% visible
-  const controlsRef = useRef<AnimationPlaybackControls | null>(null);
   const reducedMotion = usePrefersReducedMotion();
-  const playing = autoplayZone && !hoverPause && !clickPause && !reducedMotion;
 
   const midpoints = useMemo(() => {
     const mids: number[] = [Number.NEGATIVE_INFINITY];
@@ -86,61 +81,32 @@ export default function AboutJourneyInfiniteRoad() {
     };
   }, [progress, reducedMotion]);
 
-  // --- Visibility: start at ≥30%, stop at <15% ---
+  // --- Circular scroll control for seamless looping ---
   useEffect(() => {
     const el = sectionRef.current;
-    if (!el || typeof IntersectionObserver === "undefined") return;
-    const io = new IntersectionObserver(
-      ([entry]) => {
-        const r = entry?.intersectionRatio ?? 0;
-        if (r >= 0.3) setAutoplayZone(true);
-        if (r < 0.15) setAutoplayZone(false);
-      },
-      { threshold: Array.from({ length: 101 }, (_, i) => i / 100) }
-    );
-    io.observe(el);
-    return () => io.disconnect();
-  }, []);
+    if (!el) return;
 
-  // --- Autoplay loop: 0→1, wrap to 0 while playing ---
-  useEffect(() => {
-    controlsRef.current?.cancel();
-    controlsRef.current = null;
-    if (!playing) return;
-
-    const baseDuration = 36; // seconds full cycle
-
-    const run = () => {
-      // Use paused progress if resuming, otherwise use current progress
-      const startProgress = pausedProgress !== null ? pausedProgress : progress;
-      const remaining = Math.max(0, 1 - startProgress);
-      const duration = Math.max(0.2, baseDuration * remaining);
+    const handleWheel = (e: WheelEvent) => {
+      e.preventDefault();
+      const delta = e.deltaX !== 0 ? e.deltaX : e.deltaY;
+      const sensitivity = 0.00015; // Much slower, smoother control
+      let newProgress = progress + (delta * sensitivity);
       
-      const ctrl = animate(startProgress, 1, {
-        duration,
-        easing: (t) => t,
-        onUpdate: (v) => setProgress(v),
-        onComplete: () => {
-          // Simple reset: set to 0 and restart
-          setProgress(0);
-          setPausedProgress(null);
-          if (playing) {
-            // Restart the run function after a brief reset
-            setTimeout(run, 50);
-          }
-        },
-      });
-      controlsRef.current = ctrl;
+      // Seamless circular wrapping
+      if (newProgress >= 1) {
+        newProgress = newProgress - 1; // Wrap to beginning smoothly
+      } else if (newProgress < 0) {
+        newProgress = newProgress + 1; // Wrap to end smoothly
+      }
+      
+      setProgress(newProgress);
     };
 
-    // Clear paused progress when starting fresh animation
-    if (pausedProgress !== null) {
-      setPausedProgress(null);
-    }
-    
-    run();
-    return () => controlsRef.current?.cancel();
-  }, [playing]);
+    el.addEventListener('wheel', handleWheel, { passive: false });
+    return () => el.removeEventListener('wheel', handleWheel);
+  }, [progress]);
+
+  // No autoplay - manual control only
 
   // --- Preload next image (wrap-aware) ---
   useEffect(() => {
@@ -161,19 +127,20 @@ export default function AboutJourneyInfiniteRoad() {
     >
       <h2 id="journey-heading" className="sr-only">Journey</h2>
 
-      {/* LARGE CENTERED INSTRUCTION TEXT - high visibility with pixel font */}
+
+      {/* INSTRUCTION TEXT */}
       <div 
         className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 z-40 text-center pointer-events-none"
         style={{
           textShadow: "4px 4px 0px rgba(0,0,0,1), 2px 2px 8px rgba(0,0,0,0.9), 0 0 20px rgba(0,0,0,0.8)",
-          fontFamily: "'Pixelify Sans', sans-serif",
+          fontFamily: "'Roboto Condensed', sans-serif",
         }}
       >
         <h2 className="text-white text-4xl md:text-5xl font-black mb-2" style={{ color: "#ffffff" }}>
-          Catch the Sign!
+          Scroll to Explore!
         </h2>
         <p className="text-yellow-300 text-lg md:text-xl font-bold" style={{ color: "#fde047" }}>
-          Click to pause and read each milestone
+          Use mouse wheel to navigate • Click signs to read details
         </p>
       </div>
 
@@ -303,16 +270,11 @@ export default function AboutJourneyInfiniteRoad() {
 
       {/* SINGLE CITY LAYER - using imported image 3 */}
       <div
-        className={[
-          "strip absolute inset-0",
-          playing && !reducedMotion ? "is-playing" : "",
-        ].join(" ")}
+        className="absolute inset-0"
         style={{
-          ["--tile" as any]: "1200px",
-          ["--duration" as any]: "80s",
           backgroundImage: `url(${city7})`,
           backgroundSize: "1200px 100%",
-          backgroundPosition: "center bottom",
+          backgroundPosition: `${(-progress * 300) % 1200}px bottom`, // Seamless looping parallax
         }}
         aria-hidden
       />
@@ -320,7 +282,7 @@ export default function AboutJourneyInfiniteRoad() {
       {/* ROAD */}
       <div className="absolute left-0 right-0 bottom-8 md:bottom-12 h-28 md:h-32 pointer-events-none" aria-hidden>
         <div
-          className={`${playing && !reducedMotion ? "animate-road" : ""} absolute inset-x-[-200px] -inset-y-2 rounded-[18px]`}
+          className="absolute inset-x-[-200px] -inset-y-2 rounded-[18px]"
           style={{
             backgroundImage: `url("data:image/svg+xml;charset=utf-8,${encodeURIComponent(`
               <svg xmlns="http://www.w3.org/2000/svg" width="480" height="128" viewBox="0 0 480 128">
@@ -340,17 +302,19 @@ export default function AboutJourneyInfiniteRoad() {
             `)}")`,
             backgroundRepeat: "repeat-x",
             backgroundSize: "480px 100%",
+            backgroundPositionX: `${(-progress * 480) % 480}px`,
             filter: "contrast(0.98) brightness(0.95)",
             boxShadow: "0 12px 36px rgba(0,0,0,0.28), inset 0 8px 28px rgba(0,0,0,0.35)",
           }}
         />
         <div
-          className={`${playing && !reducedMotion ? "animate-road" : ""} absolute left-0 right-0 top-1/2 h-[3px] -translate-y-1/2`}
+          className="absolute left-0 right-0 top-1/2 h-[3px] -translate-y-1/2"
           style={{
             backgroundImage: "repeating-linear-gradient(90deg, #ffff88 0 24px, transparent 24px 54px)",
             opacity: 0.8,
             mixBlendMode: "screen",
             backgroundSize: "480px 100%",
+            backgroundPositionX: `${(-progress * 480) % 480}px`,
           }}
         />
         <div
@@ -437,38 +401,39 @@ export default function AboutJourneyInfiniteRoad() {
       {/* MILESTONE ROAD SIGNS — positioned along the journey route */}
       {checkpoints.map((checkpoint, index) => {
         const checkpointProgress = checkpoint.t;
-        const approachDistance = 0.05; // How early the sign becomes visible
-        const passDistance = 0.05; // How long the sign stays visible after passing
+        const visibilityWindow = 0.12; // Larger window for better visibility
         
-        const isApproaching = progress >= (checkpointProgress - approachDistance) && progress < checkpointProgress;
-        const isPassing = progress >= checkpointProgress && progress <= (checkpointProgress + passDistance);
-        const isVisible = isApproaching || isPassing;
+        // Calculate distance from checkpoint
+        const distanceFromCheckpoint = Math.abs(progress - checkpointProgress);
+        const isVisible = distanceFromCheckpoint <= visibilityWindow;
         
         if (!isVisible) return null;
         
-        // Calculate sign position based on progress relative to checkpoint
-        let signPosition;
-        if (isApproaching) {
-          // Sign starts far right and moves toward center
-          const approachProgress = (progress - (checkpointProgress - approachDistance)) / approachDistance;
-          signPosition = 100 - (approachProgress * 60); // Move from 100% to 40% from right
-        } else {
-          // Sign continues moving left as we pass it
-          const passingProgress = (progress - checkpointProgress) / passDistance;
-          signPosition = 40 - (passingProgress * 80); // Move from 40% to -40% from right
-        }
+        // Calculate sign position and scale with smooth bounds
+        const relativeProgress = (progress - checkpointProgress) / visibilityWindow;
+        
+        // Sign position: starts right, moves left as we approach and pass
+        let signPosition = 50 - (relativeProgress * 40); // Center around 50%
+        
+        // Scale: larger when closer to checkpoint
+        const scale = Math.max(0.4, 1 - Math.abs(relativeProgress) * 0.6);
+        
+        // Opacity: fade in/out at edges
+        const opacity = Math.max(0.1, 1 - (Math.abs(relativeProgress) * 3));
+        
+        // Clamp values to prevent extreme positions
+        signPosition = Math.max(-20, Math.min(120, signPosition));
         
         return (
           <div
             key={checkpoint.id || index}
-            className="absolute top-1/2 -translate-y-1/2 z-30 cursor-pointer"
+            className="absolute top-1/2 -translate-y-1/2 z-30 cursor-pointer transition-none"
             style={{
               right: `${signPosition}%`,
-              opacity: isVisible ? 1 : 0,
-              transform: `translateY(-50%) scale(${isApproaching ? 0.8 + (1 - (progress - (checkpointProgress - approachDistance)) / approachDistance) * 0.2 : 1})`,
+              opacity: Math.max(0, Math.min(1, opacity)),
+              transform: `translateY(-50%) scale(${Math.max(0.3, Math.min(1.2, scale))})`,
             }}
             onClick={() => {
-              setPausedProgress(progress); // Store current progress when pausing
               setClickPause(true);
               setPausedCheckpoint(checkpoint);
             }}
@@ -532,16 +497,36 @@ export default function AboutJourneyInfiniteRoad() {
         }
       `}</style>
 
-      {/* PROGRESS BAR — smooth CSS transition */}
+      {/* ENHANCED PROGRESS BAR WITH CHECKPOINT MARKERS */}
       <div className="absolute left-1/2 -translate-x-1/2 w-[min(760px,92vw)] z-20 top-6 pointer-events-none">
-        <div className="h-2 rounded-full bg-muted/40 overflow-hidden shadow-inner">
-          <div
-            className="h-full bg-primary transition-all duration-150 ease-out"
-            style={{ 
-              width: `${Math.round(progress * 100)}%`,
-              transitionProperty: 'width'
-            }}
-          />
+        <div className="relative">
+          <div className="h-3 rounded-full bg-black/40 overflow-hidden shadow-inner backdrop-blur-sm">
+            <div
+              className="h-full bg-gradient-to-r from-primary to-primary/80"
+              style={{ 
+                width: `${Math.round(progress * 100)}%`,
+                transition: 'none' // Instant response for scroll control
+              }}
+            />
+          </div>
+          {/* Checkpoint markers */}
+          {checkpoints.map((checkpoint, index) => (
+            <div
+              key={checkpoint.id || index}
+              className="absolute top-1/2 -translate-y-1/2 w-4 h-4 bg-white rounded-full border-2 border-primary shadow-md flex items-center justify-center"
+              style={{ 
+                left: `${checkpoint.t * 100}%`,
+                transform: 'translate(-50%, -50%)',
+              }}
+            >
+              <div className={`w-2 h-2 rounded-full ${progress >= checkpoint.t ? 'bg-primary' : 'bg-gray-400'}`} />
+            </div>
+          ))}
+        </div>
+        {/* Progress info */}
+        <div className="flex justify-between items-center mt-2 text-white text-sm font-medium" style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.8)' }}>
+          <span>Journey Progress: {Math.round(progress * 100)}%</span>
+          <span>Current: {checkpoints[Math.floor(progress * checkpoints.length)]?.title || 'Beginnings'}</span>
         </div>
       </div>
 
