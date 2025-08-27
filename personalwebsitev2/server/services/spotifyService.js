@@ -1,170 +1,300 @@
-const SpotifyWebApi = require('spotify-web-api-node');
+const axios = require('axios');
+require('dotenv').config();
 
 class SpotifyService {
   constructor() {
-    this.spotifyApi = new SpotifyWebApi({
-      clientId: process.env.SPOTIFY_CLIENT_ID,
-      clientSecret: process.env.SPOTIFY_CLIENT_SECRET,
-      redirectUri: process.env.SPOTIFY_REDIRECT_URI
-    });
-    
-    this.accessToken = null;
-    this.refreshToken = null;
-    this.tokenExpirationEpoch = null;
-
-    // Auto-load tokens from environment variables if available
-    if (process.env.SPOTIFY_ACCESS_TOKEN && process.env.SPOTIFY_REFRESH_TOKEN) {
-      console.log('🎵 Loading Spotify tokens from environment variables...');
-      this.setStoredTokens(process.env.SPOTIFY_ACCESS_TOKEN, process.env.SPOTIFY_REFRESH_TOKEN);
-      console.log('✅ Spotify tokens loaded successfully');
-    } else {
-      console.log('⚠️  No Spotify tokens found in environment variables');
-      console.log('📝 Get tokens by visiting: /api/spotify/auth');
-    }
+    this.clientId = process.env.SPOTIFY_CLIENT_ID;
+    this.clientSecret = process.env.SPOTIFY_CLIENT_SECRET;
+    this.redirectUri = process.env.SPOTIFY_REDIRECT_URI;
+    this.accessToken = process.env.SPOTIFY_ACCESS_TOKEN;
+    this.refreshToken = process.env.SPOTIFY_REFRESH_TOKEN;
+    this.baseUrl = 'https://api.spotify.com/v1';
   }
 
-  // Generate authorization URL for initial setup
   getAuthUrl() {
-    const scopes = ['user-top-read', 'user-read-recently-played', 'playlist-read-private'];
-    return this.spotifyApi.createAuthorizeURL(scopes, 'state-key');
+    const scopes = [
+      'user-read-private',
+      'user-read-email',
+      'user-top-read',
+      'user-read-recently-played',
+      'user-read-currently-playing',
+      'user-read-playback-state',
+      'playlist-read-private',
+      'playlist-read-collaborative',
+      'user-follow-read',
+      'user-library-read'
+    ].join(' ');
+
+    const params = new URLSearchParams({
+      response_type: 'code',
+      client_id: this.clientId,
+      scope: scopes,
+      redirect_uri: this.redirectUri,
+    });
+
+    return `https://accounts.spotify.com/authorize?${params}`;
   }
 
-  // Set tokens (you'll need to run this once to get your tokens)
   async setTokens(code) {
     try {
-      const data = await this.spotifyApi.authorizationCodeGrant(code);
-      this.accessToken = data.body.access_token;
-      this.refreshToken = data.body.refresh_token;
-      this.tokenExpirationEpoch = new Date().getTime() + data.body.expires_in * 1000;
-      
-      this.spotifyApi.setAccessToken(this.accessToken);
-      this.spotifyApi.setRefreshToken(this.refreshToken);
-      
-      console.log('✅ Spotify tokens set successfully');
-      console.log('🔑 Access Token:', this.accessToken);
-      console.log('🔄 Refresh Token:', this.refreshToken);
-      
-      return { success: true, tokens: { accessToken: this.accessToken, refreshToken: this.refreshToken } };
+      const response = await axios.post('https://accounts.spotify.com/api/token', 
+        new URLSearchParams({
+          grant_type: 'authorization_code',
+          code,
+          redirect_uri: this.redirectUri,
+        }), {
+          headers: {
+            'Authorization': `Basic ${Buffer.from(`${this.clientId}:${this.clientSecret}`).toString('base64')}`,
+            'Content-Type': 'application/x-www-form-urlencoded'
+          }
+        }
+      );
+
+      const { access_token, refresh_token } = response.data;
+      this.accessToken = access_token;
+      this.refreshToken = refresh_token;
+
+      return {
+        tokens: {
+          accessToken: access_token,
+          refreshToken: refresh_token
+        }
+      };
     } catch (error) {
-      console.error('❌ Error getting tokens:', error.message);
-      throw error;
+      throw this.handleError(error);
     }
   }
 
-  // Set tokens directly (for when you have them saved)
   setStoredTokens(accessToken, refreshToken) {
     this.accessToken = accessToken;
     this.refreshToken = refreshToken;
-    this.spotifyApi.setAccessToken(accessToken);
-    this.spotifyApi.setRefreshToken(refreshToken);
   }
 
-  // Refresh access token when expired
   async refreshAccessToken() {
     try {
-      const data = await this.spotifyApi.refreshAccessToken();
-      this.accessToken = data.body.access_token;
-      this.tokenExpirationEpoch = new Date().getTime() + data.body.expires_in * 1000;
-      
-      this.spotifyApi.setAccessToken(this.accessToken);
-      console.log('🔄 Access token refreshed');
-      return this.accessToken;
+      console.log('Refreshing access token...');
+      const response = await axios.post('https://accounts.spotify.com/api/token',
+        new URLSearchParams({
+          grant_type: 'refresh_token',
+          refresh_token: this.refreshToken,
+        }), {
+          headers: {
+            'Authorization': `Basic ${Buffer.from(`${this.clientId}:${this.clientSecret}`).toString('base64')}`,
+            'Content-Type': 'application/x-www-form-urlencoded'
+          }
+        }
+      );
+
+      this.accessToken = response.data.access_token;
+      console.log('Access token refreshed successfully');
+      return response.data.access_token;
     } catch (error) {
-      console.error('❌ Error refreshing token:', error.message);
-      throw error;
+      console.error('Error refreshing token:', error.message);
+      throw this.handleError(error);
     }
   }
 
-  // Check if token needs refresh
-  async ensureValidToken() {
-    if (!this.accessToken || !this.refreshToken) {
-      throw new Error('No tokens available. Please authenticate first.');
-    }
+  async makeSpotifyRequest(endpoint, params = {}) {
+    const makeRequest = async () => {
+      return await axios.get(`${this.baseUrl}${endpoint}`, {
+        headers: {
+          'Authorization': `Bearer ${this.accessToken}`
+        },
+        params
+      });
+    };
 
-    if (this.tokenExpirationEpoch && new Date().getTime() > this.tokenExpirationEpoch) {
-      await this.refreshAccessToken();
-    }
-  }
-
-  // Get user's top track (most listened song)
-  async getTopTrack() {
-    await this.ensureValidToken();
-    
     try {
-      // Get top tracks from different time ranges
-      const [shortTerm, mediumTerm, longTerm] = await Promise.all([
-        this.spotifyApi.getMyTopTracks({ limit: 1, time_range: 'short_term' }),
-        this.spotifyApi.getMyTopTracks({ limit: 1, time_range: 'medium_term' }),
-        this.spotifyApi.getMyTopTracks({ limit: 1, time_range: 'long_term' })
-      ]);
-
-      // Prefer medium-term (6 months) as most representative
-      const topTrack = mediumTerm.body.items[0] || shortTerm.body.items[0] || longTerm.body.items[0];
-
-      if (!topTrack) {
-        return { error: 'No top tracks found' };
-      }
-
-      return {
-        name: topTrack.name,
-        artist: topTrack.artists.map(a => a.name).join(', '),
-        album: topTrack.album.name,
-        albumArt: topTrack.album.images[0]?.url,
-        spotifyUrl: topTrack.external_urls.spotify,
-        popularity: topTrack.popularity,
-        preview_url: topTrack.preview_url,
-        timeRange: 'medium_term'
-      };
+      const response = await makeRequest();
+      return response.data;
     } catch (error) {
-      console.error('Error getting top track:', error.message);
-      throw error;
-    }
-  }
-
-  // Get user's top playlist (most listened to)
-  async getTopPlaylist() {
-    await this.ensureValidToken();
-    
-    try {
-      // Get user's playlists
-      const playlists = await this.spotifyApi.getUserPlaylists({ limit: 50 });
-      
-      if (!playlists.body.items.length) {
-        return { error: 'No playlists found' };
-      }
-
-      // For now, we'll return the first playlist with tracks
-      // In a real scenario, you'd need to analyze listening history to find the "most listened"
-      let topPlaylist = null;
-      
-      for (const playlist of playlists.body.items) {
-        if (playlist.tracks.total > 0) {
-          // Get playlist details
-          const playlistDetails = await this.spotifyApi.getPlaylist(playlist.id);
-          const tracks = await this.spotifyApi.getPlaylistTracks(playlist.id, { limit: 5 });
-          
-          topPlaylist = {
-            name: playlistDetails.body.name,
-            description: playlistDetails.body.description,
-            image: playlistDetails.body.images[0]?.url,
-            trackCount: playlistDetails.body.tracks.total,
-            spotifyUrl: playlistDetails.body.external_urls.spotify,
-            topTracks: tracks.body.items.map(item => ({
-              name: item.track.name,
-              artist: item.track.artists.map(a => a.name).join(', '),
-              albumArt: item.track.album.images[2]?.url // Smaller image
-            }))
-          };
-          break;
+      // Try to refresh token if we get 401
+      if (error.response?.status === 401 && this.refreshToken) {
+        try {
+          await this.refreshAccessToken();
+          // Retry the request with new token
+          const response = await makeRequest();
+          return response.data;
+        } catch (refreshError) {
+          console.error('Failed to refresh and retry:', refreshError.message);
+          throw this.handleError(error);
         }
       }
-
-      return topPlaylist || { error: 'No suitable playlist found' };
-    } catch (error) {
-      console.error('Error getting top playlist:', error.message);
-      throw error;
+      throw this.handleError(error);
     }
+  }
+
+  // User Profile
+  async getUserProfile() {
+    try {
+      return await this.makeSpotifyRequest('/me');
+    } catch (error) {
+      return {
+        id: null,
+        display_name: 'Unknown User',
+        followers: { total: 0 },
+        images: []
+      };
+    }
+  }
+
+  // Top Tracks - Always return consistent structure
+  async getTopTracks(limit = 20, timeRange = 'medium_term') {
+    try {
+      const data = await this.makeSpotifyRequest('/me/top/tracks', {
+        limit,
+        time_range: timeRange
+      });
+      return {
+        items: data.items || [],
+        total: data.total || 0,
+        limit: data.limit || limit,
+        offset: data.offset || 0
+      };
+    } catch (error) {
+      return {
+        items: [],
+        total: 0,
+        limit: limit,
+        offset: 0,
+        error: error.message
+      };
+    }
+  }
+
+  // Top Artists - Always return consistent structure
+  async getTopArtists(limit = 20, timeRange = 'medium_term') {
+    try {
+      const data = await this.makeSpotifyRequest('/me/top/artists', {
+        limit,
+        time_range: timeRange
+      });
+      return {
+        items: data.items || [],
+        total: data.total || 0,
+        limit: data.limit || limit,
+        offset: data.offset || 0
+      };
+    } catch (error) {
+      return {
+        items: [],
+        total: 0,
+        limit: limit,
+        offset: 0,
+        error: error.message
+      };
+    }
+  }
+
+  // Recently Played
+  async getRecentlyPlayed(limit = 20) {
+    try {
+      const data = await this.makeSpotifyRequest('/me/player/recently-played', {
+        limit
+      });
+      return {
+        items: data.items || [],
+        total: data.items ? data.items.length : 0,
+        limit: limit
+      };
+    } catch (error) {
+      return {
+        items: [],
+        total: 0,
+        limit: limit,
+        error: error.message
+      };
+    }
+  }
+
+  // Currently Playing
+  async getCurrentlyPlaying() {
+    try {
+      const data = await this.makeSpotifyRequest('/me/player/currently-playing');
+      return data || { is_playing: false, item: null };
+    } catch (error) {
+      return { 
+        is_playing: false, 
+        item: null,
+        error: error.message 
+      };
+    }
+  }
+
+  // User Playlists
+  async getUserPlaylists(limit = 50) {
+    try {
+      const data = await this.makeSpotifyRequest('/me/playlists', {
+        limit
+      });
+      return {
+        items: data.items || [],
+        total: data.total || 0,
+        limit: data.limit || limit,
+        offset: data.offset || 0
+      };
+    } catch (error) {
+      return {
+        items: [],
+        total: 0,
+        limit: limit,
+        offset: 0,
+        error: error.message
+      };
+    }
+  }
+
+  // Legacy methods for backward compatibility
+  async getTopTrack() {
+    try {
+      const topTracks = await this.getTopTracks(1);
+      return {
+        track: topTracks.items[0] || null,
+        total: topTracks.total || 0,
+        cached: false
+      };
+    } catch (error) {
+      return { 
+        track: null, 
+        total: 0, 
+        error: error.message,
+        cached: false
+      };
+    }
+  }
+
+  async getTopPlaylist() {
+    try {
+      const playlists = await this.getUserPlaylists(1);
+      return {
+        playlist: playlists.items[0] || null,
+        total: playlists.total || 0,
+        cached: false
+      };
+    } catch (error) {
+      return { 
+        playlist: null, 
+        total: 0, 
+        error: error.message,
+        cached: false 
+      };
+    }
+  }
+
+  handleError(error) {
+    if (error.response) {
+      return {
+        message: error.response.data?.error?.message || error.message,
+        statusCode: error.response.status,
+        body: error.response.data
+      };
+    }
+    return {
+      message: error.message || 'Unknown error occurred',
+      statusCode: 500
+    };
   }
 }
 
+// Export a singleton instance
 module.exports = new SpotifyService();

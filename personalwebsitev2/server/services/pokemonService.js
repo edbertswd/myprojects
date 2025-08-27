@@ -12,14 +12,14 @@ class PokemonService {
     };
     
 
-    // Your card collection 
+    // Card collection 
     this.myCollection = [
-      { id: 'svp-85', quantity: 1 },
-      { id: 'det1-10', quantity: 1 }
+      { id: 'svp-85', quantity: 1 },        // Pikachu with Grey Felt Hat
+      { id: 'det1-10', quantity: 1 },       // Detective Pikachu (English set, #10/18)
     ];
   }
 
-  // Update your collection 
+  // Update my collection
   updateCollection(collection) {
     this.myCollection = collection;
   }
@@ -59,7 +59,7 @@ class PokemonService {
     }
   }
 
-  // Get your collection cards
+  // Get my collection cards
   async getMyCollection() {
     try {
       return await this.getCardsByIds(this.myCollection);
