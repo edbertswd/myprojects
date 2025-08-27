@@ -48,5 +48,3 @@ This starter includes an optional **Express** backend that:
 - Implements **Spotify OAuth 2.0 (Authorization Code)** for login, token refresh, and a sample `/me` profile fetch.
 - Uses a **service layer** (`services/pokemonService`) that performs upstream calls with **Axios**.
 - Provides simple **response caching** for common endpoints.
-
-### Folder Structure (suggested)
