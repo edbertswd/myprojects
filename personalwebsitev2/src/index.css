@@ -2,7 +2,9 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Personal Website Design System - Calm & Inviting Palette (no orange/brown) */
+/* Rapunzel-themed design system with magical colors, gradients, and animations.
+All colors MUST be HSL.
+*/
 @layer base {
   :root {
     /* Neutral foundation */
