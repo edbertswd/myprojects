@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { animate } from "motion";
 import type { AnimationPlaybackControls } from "motion";
-
+import { useMediaQuery } from "../hooks/useMediaQuery";
+import AboutMobile from "./AboutMobile";
 
 // Import city images
 import city7 from "/src/assets/city/7.png";
@@ -30,7 +31,7 @@ const usePrefersReducedMotion = () => {
   return reduced;
 };
 
-export default function AboutJourneyInfiniteRoad() {
+function AboutDesktop() {
   // --- DATA ---
   const checkpoints: Checkpoint[] = useMemo(
     () => [
@@ -541,4 +542,14 @@ export default function AboutJourneyInfiniteRoad() {
       </ol>
     </section>
   );
+}
+
+export default function AboutJourneyInfiniteRoad() {
+  const isMobile = useMediaQuery('(max-width: 768px)');
+  
+  if (isMobile) {
+    return <AboutMobile />;
+  }
+
+  return <AboutDesktop />;
 }
