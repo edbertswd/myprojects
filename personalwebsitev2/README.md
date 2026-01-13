@@ -5,7 +5,7 @@ Includes form handling, validation, data fetching, charts, and other common UI u
 
 ---
 
-## 🚀 Tech Stack
+## Tech Stack
 
 ### Core
 - **[Vite](https://vitejs.dev/)** – Fast dev server & build tool
