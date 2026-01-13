@@ -1,0 +1,24 @@
+[run]
+source = app
+omit =
+    */migrations/*
+    */tests/*
+    */tests.py
+    */__init__.py
+    */venv/*
+    */env/*
+    manage.py
+    config/asgi.py
+    config/wsgi.py
+
+[report]
+precision = 2
+show_missing = True
+skip_covered = False
+
+[html]
+directory = htmlcov
+title = Django Backend Test Coverage Report
+
+[xml]
+output = coverage.xml

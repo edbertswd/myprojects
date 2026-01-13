@@ -10,7 +10,7 @@ async function run() {
       feltHatResults.cards.map(c => ({ name: c.name, id: c.id, number: c.number, set: c.set?.id }))
     );
   } catch (err) {
-    console.error('❌ Error running test:', err.message);
+    console.error('Error running test:', err.message);
   }
 }
 

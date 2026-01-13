@@ -1,0 +1,59 @@
+# Dependencies
+/node_modules
+
+# Production build
+/dist
+
+# Optional Vite cache (improves dev speed)
+/.vite
+
+# Local env files
+.env
+.env.local
+.env.*.local
+
+# Editor / OS specific
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# macOS
+.DS_Store
+
+# VS Code
+.vscode/*
+!.vscode/extensions.json
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# IDEs
+.idea
+*.iml
+
+# Other caches
+*.cache
+
+db.sqlite3
+
+# Database dumps (exclude local dumps)
+backend/database/dumps/
+
+# Submission folder SHOULD be tracked (contains database_dump.sql for tutors)
+# !submission/
+
+# Python bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Virtual environments
+venv/
+env/
+ENV/
+.venv

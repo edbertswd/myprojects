@@ -1,0 +1,2510 @@
+{
+    "openapi": "3.0.3",
+    "info": {
+        "title": "",
+        "version": "0.0.0"
+    },
+    "paths": {
+        "/api/admin/facilities/{facility_id}/approve/": {
+            "post": {
+                "operationId": "api_admin_facilities_approve_create",
+                "description": "Approve a pending facility\nPOST /admin/facilities/{facility_id}/approve/",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "facility_id",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "required": true
+                    }
+                ],
+                "tags": [
+                    "api"
+                ],
+                "security": [
+                    {
+                        "cookieAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "No response body"
+                    }
+                }
+            }
+        },
+        "/api/admin/facilities/{facility_id}/reject/": {
+            "post": {
+                "operationId": "api_admin_facilities_reject_create",
+                "description": "Reject a pending facility\nPOST /admin/facilities/{facility_id}/reject/",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "facility_id",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "required": true
+                    }
+                ],
+                "tags": [
+                    "api"
+                ],
+                "security": [
+                    {
+                        "cookieAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "No response body"
+                    }
+                }
+            }
+        },
+        "/api/admin/facilities/pending/": {
+            "get": {
+                "operationId": "api_admin_facilities_pending_list",
+                "description": "List all pending facility applications\nGET /admin/facilities/pending/",
+                "tags": [
+                    "api"
+                ],
+                "security": [
+                    {
+                        "cookieAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/FacilityDetail"
+                                    }
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/api/auth/csrf/": {
+            "get": {
+                "operationId": "api_auth_csrf_retrieve",
+                "description": "GET /auth/csrf/\nReturns a CSRF token cookie",
+                "tags": [
+                    "api"
+                ],
+                "security": [
+                    {}
+                ],
+                "responses": {
+                    "200": {
+                        "description": "No response body"
+                    }
+                }
+            }
+        },
+        "/api/auth/login/": {
+            "post": {
+                "operationId": "api_auth_login_create",
+                "description": "User login endpoint\nPOST /auth/login/",
+                "tags": [
+                    "api"
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Login"
+                            }
+                        },
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Login"
+                            }
+                        },
+                        "multipart/form-data": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Login"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "security": [
+                    {}
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Login"
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/api/auth/logout/": {
+            "post": {
+                "operationId": "api_auth_logout_create",
+                "description": "User logout endpoint\nPOST /auth/logout/",
+                "tags": [
+                    "api"
+                ],
+                "security": [
+                    {
+                        "cookieAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "No response body"
+                    }
+                }
+            }
+        },
+        "/api/auth/profile/": {
+            "get": {
+                "operationId": "api_auth_profile_retrieve",
+                "description": "Get or update current user profile\nGET/PUT /auth/profile/",
+                "tags": [
+                    "api"
+                ],
+                "security": [
+                    {
+                        "cookieAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/User"
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            },
+            "put": {
+                "operationId": "api_auth_profile_update",
+                "description": "Get or update current user profile\nGET/PUT /auth/profile/",
+                "tags": [
+                    "api"
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/User"
+                            }
+                        },
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "$ref": "#/components/schemas/User"
+                            }
+                        },
+                        "multipart/form-data": {
+                            "schema": {
+                                "$ref": "#/components/schemas/User"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "security": [
+                    {
+                        "cookieAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/User"
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            },
+            "patch": {
+                "operationId": "api_auth_profile_partial_update",
+                "description": "Get or update current user profile\nGET/PUT /auth/profile/",
+                "tags": [
+                    "api"
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PatchedUser"
+                            }
+                        },
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PatchedUser"
+                            }
+                        },
+                        "multipart/form-data": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PatchedUser"
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "cookieAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/User"
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/api/auth/register/": {
+            "post": {
+                "operationId": "api_auth_register_create",
+                "description": "User registration endpoint\nPOST /auth/register/",
+                "tags": [
+                    "api"
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Register"
+                            }
+                        },
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Register"
+                            }
+                        },
+                        "multipart/form-data": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Register"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "security": [
+                    {}
+                ],
+                "responses": {
+                    "201": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Register"
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/api/bookings/v1/": {
+            "post": {
+                "operationId": "api_bookings_v1_create",
+                "description": "Create a new booking\nPOST /bookings/v1/",
+                "tags": [
+                    "api"
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/BookingCreate"
+                            }
+                        },
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "$ref": "#/components/schemas/BookingCreate"
+                            }
+                        },
+                        "multipart/form-data": {
+                            "schema": {
+                                "$ref": "#/components/schemas/BookingCreate"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "security": [
+                    {
+                        "cookieAuth": []
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BookingCreate"
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/api/bookings/v1/{booking_id}/": {
+            "get": {
+                "operationId": "api_bookings_v1_retrieve",
+                "description": "Retrieve a specific booking\nGET /bookings/v1/{booking_id}/",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "booking_id",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "required": true
+                    }
+                ],
+                "tags": [
+                    "api"
+                ],
+                "security": [
+                    {
+                        "cookieAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BookingDetail"
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/api/bookings/v1/{booking_id}/cancel/": {
+            "put": {
+                "operationId": "api_bookings_v1_cancel_update",
+                "description": "Cancel a booking\nDELETE /bookings/v1/{booking_id}/cancel/",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "booking_id",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "required": true
+                    }
+                ],
+                "tags": [
+                    "api"
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/BookingCancel"
+                            }
+                        },
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "$ref": "#/components/schemas/BookingCancel"
+                            }
+                        },
+                        "multipart/form-data": {
+                            "schema": {
+                                "$ref": "#/components/schemas/BookingCancel"
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "cookieAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BookingCancel"
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            },
+            "patch": {
+                "operationId": "api_bookings_v1_cancel_partial_update",
+                "description": "Cancel a booking\nDELETE /bookings/v1/{booking_id}/cancel/",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "booking_id",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "required": true
+                    }
+                ],
+                "tags": [
+                    "api"
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PatchedBookingCancel"
+                            }
+                        },
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PatchedBookingCancel"
+                            }
+                        },
+                        "multipart/form-data": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PatchedBookingCancel"
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "cookieAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BookingCancel"
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            },
+            "delete": {
+                "operationId": "api_bookings_v1_cancel_destroy",
+                "description": "Support DELETE method for cancellation",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "booking_id",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "required": true
+                    }
+                ],
+                "tags": [
+                    "api"
+                ],
+                "security": [
+                    {
+                        "cookieAuth": []
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No response body"
+                    }
+                }
+            }
+        },
+        "/api/bookings/v1/my-bookings/": {
+            "get": {
+                "operationId": "api_bookings_v1_my_bookings_list",
+                "description": "List current user's bookings with filtering\nGET /bookings/v1/my-bookings/",
+                "tags": [
+                    "api"
+                ],
+                "security": [
+                    {
+                        "cookieAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/BookingList"
+                                    }
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/api/bookings/v1/stats/": {
+            "get": {
+                "operationId": "api_bookings_v1_stats_retrieve",
+                "description": "Get booking statistics for the current user\nGET /bookings/v1/stats/",
+                "tags": [
+                    "api"
+                ],
+                "security": [
+                    {
+                        "cookieAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "No response body"
+                    }
+                }
+            }
+        },
+        "/api/facilities/": {
+            "get": {
+                "operationId": "api_facilities_list",
+                "description": "List all active facilities\nGET /facilities/",
+                "tags": [
+                    "api"
+                ],
+                "security": [
+                    {
+                        "cookieAuth": []
+                    },
+                    {}
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/FacilityList"
+                                    }
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/api/facilities/{facility_id}/": {
+            "get": {
+                "operationId": "api_facilities_retrieve",
+                "description": "Get facility details\nGET /facilities/{facility_id}/",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "facility_id",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "required": true
+                    }
+                ],
+                "tags": [
+                    "api"
+                ],
+                "security": [
+                    {
+                        "cookieAuth": []
+                    },
+                    {}
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/FacilityDetail"
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/api/facilities/{facility_id}/courts/": {
+            "get": {
+                "operationId": "api_facilities_courts_list",
+                "description": "List courts for a facility\nGET /facilities/{facility_id}/courts/",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "facility_id",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "required": true
+                    }
+                ],
+                "tags": [
+                    "api"
+                ],
+                "security": [
+                    {
+                        "cookieAuth": []
+                    },
+                    {}
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Court"
+                                    }
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/api/facilities/{facility_id}/update/": {
+            "put": {
+                "operationId": "api_facilities_update_update",
+                "description": "Update a facility\nPUT/PATCH /facilities/{facility_id}/update/",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "facility_id",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "required": true
+                    }
+                ],
+                "tags": [
+                    "api"
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/FacilityCreateUpdate"
+                            }
+                        },
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "$ref": "#/components/schemas/FacilityCreateUpdate"
+                            }
+                        },
+                        "multipart/form-data": {
+                            "schema": {
+                                "$ref": "#/components/schemas/FacilityCreateUpdate"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "security": [
+                    {
+                        "cookieAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/FacilityCreateUpdate"
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            },
+            "patch": {
+                "operationId": "api_facilities_update_partial_update",
+                "description": "Update a facility\nPUT/PATCH /facilities/{facility_id}/update/",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "facility_id",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "required": true
+                    }
+                ],
+                "tags": [
+                    "api"
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PatchedFacilityCreateUpdate"
+                            }
+                        },
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PatchedFacilityCreateUpdate"
+                            }
+                        },
+                        "multipart/form-data": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PatchedFacilityCreateUpdate"
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "cookieAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/FacilityCreateUpdate"
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/api/facilities/courts/{court_id}/": {
+            "get": {
+                "operationId": "api_facilities_courts_retrieve",
+                "description": "Get details for a specific court\nGET /facilities/courts/{court_id}/",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "court_id",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "required": true
+                    }
+                ],
+                "tags": [
+                    "api"
+                ],
+                "security": [
+                    {
+                        "cookieAuth": []
+                    },
+                    {}
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Court"
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/api/facilities/courts/{court_id}/availability/": {
+            "get": {
+                "operationId": "api_facilities_courts_availability_list",
+                "description": "List availability for a court\nGET /facilities/courts/{court_id}/availability/",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "court_id",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "required": true
+                    }
+                ],
+                "tags": [
+                    "api"
+                ],
+                "security": [
+                    {
+                        "cookieAuth": []
+                    },
+                    {}
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Availability"
+                                    }
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/api/facilities/create/": {
+            "post": {
+                "operationId": "api_facilities_create_create",
+                "description": "Create a new facility\nPOST /facilities/create/",
+                "tags": [
+                    "api"
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/FacilityCreateUpdate"
+                            }
+                        },
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "$ref": "#/components/schemas/FacilityCreateUpdate"
+                            }
+                        },
+                        "multipart/form-data": {
+                            "schema": {
+                                "$ref": "#/components/schemas/FacilityCreateUpdate"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "security": [
+                    {
+                        "cookieAuth": []
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/FacilityCreateUpdate"
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/api/facilities/search/": {
+            "get": {
+                "operationId": "api_facilities_search_retrieve",
+                "description": "Search facilities with filters\nGET /facilities/search/",
+                "tags": [
+                    "api"
+                ],
+                "security": [
+                    {
+                        "cookieAuth": []
+                    },
+                    {}
+                ],
+                "responses": {
+                    "200": {
+                        "description": "No response body"
+                    }
+                }
+            }
+        },
+        "/api/facilities/sport-types/": {
+            "get": {
+                "operationId": "api_facilities_sport_types_list",
+                "description": "List all sport types\nGET /facilities/sport-types/",
+                "tags": [
+                    "api"
+                ],
+                "security": [
+                    {
+                        "cookieAuth": []
+                    },
+                    {}
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/SportType"
+                                    }
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/api/manager/facilities/": {
+            "get": {
+                "operationId": "api_manager_facilities_list",
+                "description": "List all facilities owned by the manager\nGET /api/manager/facilities/",
+                "tags": [
+                    "api"
+                ],
+                "security": [
+                    {
+                        "cookieAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/FacilityDetail"
+                                    }
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/api/manager/facilities/{facility_id}/": {
+            "get": {
+                "operationId": "api_manager_facilities_retrieve",
+                "description": "Get or update a facility owned by the manager\nGET/PUT /api/manager/facilities/{id}/",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "facility_id",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "required": true
+                    }
+                ],
+                "tags": [
+                    "api"
+                ],
+                "security": [
+                    {
+                        "cookieAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/FacilityDetail"
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            },
+            "put": {
+                "operationId": "api_manager_facilities_update",
+                "description": "Get or update a facility owned by the manager\nGET/PUT /api/manager/facilities/{id}/",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "facility_id",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "required": true
+                    }
+                ],
+                "tags": [
+                    "api"
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/FacilityCreateUpdate"
+                            }
+                        },
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "$ref": "#/components/schemas/FacilityCreateUpdate"
+                            }
+                        },
+                        "multipart/form-data": {
+                            "schema": {
+                                "$ref": "#/components/schemas/FacilityCreateUpdate"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "security": [
+                    {
+                        "cookieAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/FacilityCreateUpdate"
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            },
+            "patch": {
+                "operationId": "api_manager_facilities_partial_update",
+                "description": "Get or update a facility owned by the manager\nGET/PUT /api/manager/facilities/{id}/",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "facility_id",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "required": true
+                    }
+                ],
+                "tags": [
+                    "api"
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PatchedFacilityCreateUpdate"
+                            }
+                        },
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PatchedFacilityCreateUpdate"
+                            }
+                        },
+                        "multipart/form-data": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PatchedFacilityCreateUpdate"
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "cookieAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/FacilityCreateUpdate"
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/api/manager/facilities/{facility_id}/courts/": {
+            "get": {
+                "operationId": "api_manager_facilities_courts_retrieve",
+                "description": "Get all courts for a facility owned by the manager\nGET /api/manager/facilities/{facility_id}/courts/",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "facility_id",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "required": true
+                    }
+                ],
+                "tags": [
+                    "api"
+                ],
+                "security": [
+                    {
+                        "cookieAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "No response body"
+                    }
+                }
+            }
+        },
+        "/api/manager/facilities/{facility_id}/courts/{court_id}/": {
+            "put": {
+                "operationId": "api_manager_facilities_courts_update",
+                "description": "Update a court for a facility owned by the manager\nPUT/PATCH /api/manager/facilities/{facility_id}/courts/{court_id}/",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "court_id",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "required": true
+                    },
+                    {
+                        "in": "path",
+                        "name": "facility_id",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "required": true
+                    }
+                ],
+                "tags": [
+                    "api"
+                ],
+                "security": [
+                    {
+                        "cookieAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "No response body"
+                    }
+                }
+            },
+            "patch": {
+                "operationId": "api_manager_facilities_courts_partial_update",
+                "description": "Update a court for a facility owned by the manager\nPUT/PATCH /api/manager/facilities/{facility_id}/courts/{court_id}/",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "court_id",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "required": true
+                    },
+                    {
+                        "in": "path",
+                        "name": "facility_id",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "required": true
+                    }
+                ],
+                "tags": [
+                    "api"
+                ],
+                "security": [
+                    {
+                        "cookieAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "No response body"
+                    }
+                }
+            }
+        },
+        "/api/manager/facilities/{facility_id}/courts/{court_id}/availability/": {
+            "get": {
+                "operationId": "api_manager_facilities_courts_availability_retrieve",
+                "description": "Get all availability for a specific court owned by the manager\nGET /api/manager/facilities/{facility_id}/courts/{court_id}/availability/",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "court_id",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "required": true
+                    },
+                    {
+                        "in": "path",
+                        "name": "facility_id",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "required": true
+                    }
+                ],
+                "tags": [
+                    "api"
+                ],
+                "security": [
+                    {
+                        "cookieAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "No response body"
+                    }
+                }
+            }
+        },
+        "/api/manager/facilities/{facility_id}/courts/{court_id}/availability/{availability_id}/": {
+            "put": {
+                "operationId": "api_manager_facilities_courts_availability_update",
+                "description": "Update availability slot for a court owned by the manager\nPUT/PATCH /api/manager/facilities/{facility_id}/courts/{court_id}/availability/{availability_id}/",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "availability_id",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "required": true
+                    },
+                    {
+                        "in": "path",
+                        "name": "court_id",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "required": true
+                    },
+                    {
+                        "in": "path",
+                        "name": "facility_id",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "required": true
+                    }
+                ],
+                "tags": [
+                    "api"
+                ],
+                "security": [
+                    {
+                        "cookieAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "No response body"
+                    }
+                }
+            },
+            "patch": {
+                "operationId": "api_manager_facilities_courts_availability_partial_update",
+                "description": "Update availability slot for a court owned by the manager\nPUT/PATCH /api/manager/facilities/{facility_id}/courts/{court_id}/availability/{availability_id}/",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "availability_id",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "required": true
+                    },
+                    {
+                        "in": "path",
+                        "name": "court_id",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "required": true
+                    },
+                    {
+                        "in": "path",
+                        "name": "facility_id",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "required": true
+                    }
+                ],
+                "tags": [
+                    "api"
+                ],
+                "security": [
+                    {
+                        "cookieAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "No response body"
+                    }
+                }
+            }
+        },
+        "/api/manager/facilities/{facility_id}/courts/{court_id}/availability/{availability_id}/delete/": {
+            "delete": {
+                "operationId": "api_manager_facilities_courts_availability_delete_destroy",
+                "description": "Delete availability slot for a court owned by the manager\nDELETE /api/manager/facilities/{facility_id}/courts/{court_id}/availability/{availability_id}/",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "availability_id",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "required": true
+                    },
+                    {
+                        "in": "path",
+                        "name": "court_id",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "required": true
+                    },
+                    {
+                        "in": "path",
+                        "name": "facility_id",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "required": true
+                    }
+                ],
+                "tags": [
+                    "api"
+                ],
+                "security": [
+                    {
+                        "cookieAuth": []
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No response body"
+                    }
+                }
+            }
+        },
+        "/api/manager/facilities/{facility_id}/courts/{court_id}/availability/bulk/": {
+            "post": {
+                "operationId": "api_manager_facilities_courts_availability_bulk_create",
+                "description": "Bulk create availability slots for a court\nPOST /api/manager/facilities/{facility_id}/courts/{court_id}/availability/bulk/\n\nBody: {\n    \"start_date\": \"2025-10-23\",\n    \"end_date\": \"2025-11-23\",\n    \"days_of_week\": [1, 2, 3, 4, 5],  # Monday=1, Sunday=7\n    \"start_time\": \"10:00\",\n    \"end_time\": \"22:00\",\n    \"slot_duration_minutes\": 60\n}",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "court_id",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "required": true
+                    },
+                    {
+                        "in": "path",
+                        "name": "facility_id",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "required": true
+                    }
+                ],
+                "tags": [
+                    "api"
+                ],
+                "security": [
+                    {
+                        "cookieAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "No response body"
+                    }
+                }
+            }
+        },
+        "/api/manager/facilities/{facility_id}/courts/{court_id}/availability/create/": {
+            "post": {
+                "operationId": "api_manager_facilities_courts_availability_create_create",
+                "description": "Create new availability slot for a court owned by the manager\nPOST /api/manager/facilities/{facility_id}/courts/{court_id}/availability/",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "court_id",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "required": true
+                    },
+                    {
+                        "in": "path",
+                        "name": "facility_id",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "required": true
+                    }
+                ],
+                "tags": [
+                    "api"
+                ],
+                "security": [
+                    {
+                        "cookieAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "No response body"
+                    }
+                }
+            }
+        },
+        "/api/manager/facilities/{facility_id}/courts/{court_id}/delete/": {
+            "patch": {
+                "operationId": "api_manager_facilities_courts_delete_partial_update",
+                "description": "Delete or deactivate a court for a facility owned by the manager\nDELETE /api/manager/facilities/{facility_id}/courts/{court_id}/delete/?permanent=true - Hard delete\nPATCH /api/manager/facilities/{facility_id}/courts/{court_id}/delete/ - Soft delete (deactivate)",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "court_id",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "required": true
+                    },
+                    {
+                        "in": "path",
+                        "name": "facility_id",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "required": true
+                    }
+                ],
+                "tags": [
+                    "api"
+                ],
+                "security": [
+                    {
+                        "cookieAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "No response body"
+                    }
+                }
+            },
+            "delete": {
+                "operationId": "api_manager_facilities_courts_delete_destroy",
+                "description": "Delete or deactivate a court for a facility owned by the manager\nDELETE /api/manager/facilities/{facility_id}/courts/{court_id}/delete/?permanent=true - Hard delete\nPATCH /api/manager/facilities/{facility_id}/courts/{court_id}/delete/ - Soft delete (deactivate)",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "court_id",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "required": true
+                    },
+                    {
+                        "in": "path",
+                        "name": "facility_id",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "required": true
+                    }
+                ],
+                "tags": [
+                    "api"
+                ],
+                "security": [
+                    {
+                        "cookieAuth": []
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No response body"
+                    }
+                }
+            }
+        },
+        "/api/manager/facilities/{facility_id}/courts/create/": {
+            "post": {
+                "operationId": "api_manager_facilities_courts_create_create",
+                "description": "Create a new court for a facility owned by the manager\nPOST /api/manager/facilities/{facility_id}/courts/",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "facility_id",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "required": true
+                    }
+                ],
+                "tags": [
+                    "api"
+                ],
+                "security": [
+                    {
+                        "cookieAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "No response body"
+                    }
+                }
+            }
+        },
+        "/api/manager/overview/": {
+            "get": {
+                "operationId": "api_manager_overview_retrieve",
+                "description": "Get manager dashboard overview with booking statistics\nGET /api/manager/overview/",
+                "tags": [
+                    "api"
+                ],
+                "security": [
+                    {
+                        "cookieAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "No response body"
+                    }
+                }
+            }
+        },
+        "/api/schema/": {
+            "get": {
+                "operationId": "api_schema_retrieve",
+                "description": "OpenApi3 schema for this API. Format can be selected via content negotiation.\n\n- YAML: application/vnd.oai.openapi\n- JSON: application/vnd.oai.openapi+json",
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "format",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "json",
+                                "yaml"
+                            ]
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "lang",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "af",
+                                "ar",
+                                "ar-dz",
+                                "ast",
+                                "az",
+                                "be",
+                                "bg",
+                                "bn",
+                                "br",
+                                "bs",
+                                "ca",
+                                "ckb",
+                                "cs",
+                                "cy",
+                                "da",
+                                "de",
+                                "dsb",
+                                "el",
+                                "en",
+                                "en-au",
+                                "en-gb",
+                                "eo",
+                                "es",
+                                "es-ar",
+                                "es-co",
+                                "es-mx",
+                                "es-ni",
+                                "es-ve",
+                                "et",
+                                "eu",
+                                "fa",
+                                "fi",
+                                "fr",
+                                "fy",
+                                "ga",
+                                "gd",
+                                "gl",
+                                "he",
+                                "hi",
+                                "hr",
+                                "hsb",
+                                "hu",
+                                "hy",
+                                "ia",
+                                "id",
+                                "ig",
+                                "io",
+                                "is",
+                                "it",
+                                "ja",
+                                "ka",
+                                "kab",
+                                "kk",
+                                "km",
+                                "kn",
+                                "ko",
+                                "ky",
+                                "lb",
+                                "lt",
+                                "lv",
+                                "mk",
+                                "ml",
+                                "mn",
+                                "mr",
+                                "ms",
+                                "my",
+                                "nb",
+                                "ne",
+                                "nl",
+                                "nn",
+                                "os",
+                                "pa",
+                                "pl",
+                                "pt",
+                                "pt-br",
+                                "ro",
+                                "ru",
+                                "sk",
+                                "sl",
+                                "sq",
+                                "sr",
+                                "sr-latn",
+                                "sv",
+                                "sw",
+                                "ta",
+                                "te",
+                                "tg",
+                                "th",
+                                "tk",
+                                "tr",
+                                "tt",
+                                "udm",
+                                "ug",
+                                "uk",
+                                "ur",
+                                "uz",
+                                "vi",
+                                "zh-hans",
+                                "zh-hant"
+                            ]
+                        }
+                    }
+                ],
+                "tags": [
+                    "api"
+                ],
+                "security": [
+                    {
+                        "cookieAuth": []
+                    },
+                    {}
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/vnd.oai.openapi": {
+                                "schema": {
+                                    "type": "object",
+                                    "additionalProperties": {}
+                                }
+                            },
+                            "application/yaml": {
+                                "schema": {
+                                    "type": "object",
+                                    "additionalProperties": {}
+                                }
+                            },
+                            "application/vnd.oai.openapi+json": {
+                                "schema": {
+                                    "type": "object",
+                                    "additionalProperties": {}
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "additionalProperties": {}
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "Availability": {
+                "type": "object",
+                "description": "Serializer for court availability",
+                "properties": {
+                    "availability_id": {
+                        "type": "integer",
+                        "readOnly": true
+                    },
+                    "court": {
+                        "type": "integer"
+                    },
+                    "court_name": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "facility_name": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "start_time": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "end_time": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "is_available": {
+                        "type": "boolean"
+                    }
+                },
+                "required": [
+                    "availability_id",
+                    "court",
+                    "court_name",
+                    "end_time",
+                    "facility_name",
+                    "is_available",
+                    "start_time"
+                ]
+            },
+            "BookingCancel": {
+                "type": "object",
+                "properties": {
+                    "reason": {
+                        "type": "string",
+                        "maxLength": 500
+                    }
+                }
+            },
+            "BookingCreate": {
+                "type": "object",
+                "properties": {
+                    "availability_id": {
+                        "type": "integer",
+                        "writeOnly": true
+                    }
+                },
+                "required": [
+                    "availability_id"
+                ]
+            },
+            "BookingDetail": {
+                "type": "object",
+                "properties": {
+                    "booking_id": {
+                        "type": "integer",
+                        "readOnly": true
+                    },
+                    "court_name": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "facility_name": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "facility_address": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "sport_type": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "start_time": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "end_time": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "hourly_rate_snapshot": {
+                        "type": "string",
+                        "format": "decimal",
+                        "pattern": "^-?\\d{0,8}(?:\\.\\d{0,2})?$"
+                    },
+                    "commission_rate_snapshot": {
+                        "type": "string",
+                        "format": "decimal",
+                        "pattern": "^-?\\d{0,3}(?:\\.\\d{0,2})?$"
+                    },
+                    "status_name": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "user_name": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "user_email": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true
+                    }
+                },
+                "required": [
+                    "booking_id",
+                    "commission_rate_snapshot",
+                    "court_name",
+                    "created_at",
+                    "end_time",
+                    "facility_address",
+                    "facility_name",
+                    "hourly_rate_snapshot",
+                    "sport_type",
+                    "start_time",
+                    "status_name",
+                    "updated_at",
+                    "user_email",
+                    "user_name"
+                ]
+            },
+            "BookingList": {
+                "type": "object",
+                "properties": {
+                    "booking_id": {
+                        "type": "integer",
+                        "readOnly": true
+                    },
+                    "court_name": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "facility_name": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "sport_type": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "start_time": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "end_time": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "hourly_rate_snapshot": {
+                        "type": "string",
+                        "format": "decimal",
+                        "pattern": "^-?\\d{0,8}(?:\\.\\d{0,2})?$"
+                    },
+                    "status_name": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true
+                    }
+                },
+                "required": [
+                    "booking_id",
+                    "court_name",
+                    "created_at",
+                    "end_time",
+                    "facility_name",
+                    "hourly_rate_snapshot",
+                    "sport_type",
+                    "start_time",
+                    "status_name"
+                ]
+            },
+            "Court": {
+                "type": "object",
+                "description": "Serializer for courts",
+                "properties": {
+                    "court_id": {
+                        "type": "integer",
+                        "readOnly": true
+                    },
+                    "name": {
+                        "type": "string",
+                        "maxLength": 255
+                    },
+                    "facility": {
+                        "type": "integer"
+                    },
+                    "facility_name": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "sport_type": {
+                        "type": "integer"
+                    },
+                    "sport_name": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "hourly_rate": {
+                        "type": "string",
+                        "format": "decimal",
+                        "pattern": "^-?\\d{0,8}(?:\\.\\d{0,2})?$"
+                    },
+                    "is_active": {
+                        "type": "boolean"
+                    },
+                    "opening_time": {
+                        "type": "string",
+                        "format": "time",
+                        "nullable": true,
+                        "description": "Daily opening time (e.g., 06:00)"
+                    },
+                    "closing_time": {
+                        "type": "string",
+                        "format": "time",
+                        "nullable": true,
+                        "description": "Daily closing time (e.g., 22:00)"
+                    },
+                    "availability_start_date": {
+                        "type": "string",
+                        "format": "date",
+                        "nullable": true,
+                        "description": "Date from which availability is generated"
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true
+                    }
+                },
+                "required": [
+                    "court_id",
+                    "created_at",
+                    "facility",
+                    "facility_name",
+                    "hourly_rate",
+                    "name",
+                    "sport_name",
+                    "sport_type",
+                    "updated_at"
+                ]
+            },
+            "FacilityCreateUpdate": {
+                "type": "object",
+                "description": "Serializer for creating/updating facilities",
+                "properties": {
+                    "facility_name": {
+                        "type": "string",
+                        "maxLength": 255
+                    },
+                    "address": {
+                        "type": "string",
+                        "maxLength": 500
+                    },
+                    "timezone": {
+                        "$ref": "#/components/schemas/TimezoneEnum"
+                    },
+                    "latitude": {
+                        "type": "string",
+                        "format": "decimal",
+                        "pattern": "^-?\\d{0,3}(?:\\.\\d{0,6})?$",
+                        "nullable": true
+                    },
+                    "longitude": {
+                        "type": "string",
+                        "format": "decimal",
+                        "pattern": "^-?\\d{0,3}(?:\\.\\d{0,6})?$",
+                        "nullable": true
+                    },
+                    "image": {
+                        "type": "string",
+                        "format": "uri",
+                        "nullable": true,
+                        "description": "Facility image"
+                    },
+                    "is_active": {
+                        "type": "boolean"
+                    }
+                },
+                "required": [
+                    "address",
+                    "facility_name"
+                ]
+            },
+            "FacilityDetail": {
+                "type": "object",
+                "description": "Serializer for facility details",
+                "properties": {
+                    "facility_id": {
+                        "type": "integer",
+                        "readOnly": true
+                    },
+                    "facility_name": {
+                        "type": "string",
+                        "maxLength": 255
+                    },
+                    "address": {
+                        "type": "string",
+                        "maxLength": 500
+                    },
+                    "timezone": {
+                        "$ref": "#/components/schemas/TimezoneEnum"
+                    },
+                    "latitude": {
+                        "type": "string",
+                        "format": "decimal",
+                        "pattern": "^-?\\d{0,3}(?:\\.\\d{0,6})?$",
+                        "nullable": true
+                    },
+                    "longitude": {
+                        "type": "string",
+                        "format": "decimal",
+                        "pattern": "^-?\\d{0,3}(?:\\.\\d{0,6})?$",
+                        "nullable": true
+                    },
+                    "commission_rate": {
+                        "type": "string",
+                        "format": "decimal",
+                        "pattern": "^-?\\d{0,1}(?:\\.\\d{0,4})?$",
+                        "description": "Commission rate as decimal (e.g., 0.10 for 10%)"
+                    },
+                    "approval_status": {
+                        "type": "string",
+                        "maxLength": 20
+                    },
+                    "is_active": {
+                        "type": "boolean"
+                    },
+                    "manager_name": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "manager_email": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "approved_by_name": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "approved_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true,
+                        "nullable": true
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true
+                    }
+                },
+                "required": [
+                    "address",
+                    "approved_at",
+                    "approved_by_name",
+                    "created_at",
+                    "facility_id",
+                    "facility_name",
+                    "manager_email",
+                    "manager_name",
+                    "updated_at"
+                ]
+            },
+            "FacilityList": {
+                "type": "object",
+                "description": "Serializer for listing facilities",
+                "properties": {
+                    "facility_id": {
+                        "type": "integer",
+                        "readOnly": true
+                    },
+                    "facility_name": {
+                        "type": "string",
+                        "maxLength": 255
+                    },
+                    "address": {
+                        "type": "string",
+                        "maxLength": 500
+                    },
+                    "timezone": {
+                        "$ref": "#/components/schemas/TimezoneEnum"
+                    },
+                    "latitude": {
+                        "type": "string",
+                        "format": "decimal",
+                        "pattern": "^-?\\d{0,3}(?:\\.\\d{0,6})?$",
+                        "nullable": true
+                    },
+                    "longitude": {
+                        "type": "string",
+                        "format": "decimal",
+                        "pattern": "^-?\\d{0,3}(?:\\.\\d{0,6})?$",
+                        "nullable": true
+                    },
+                    "manager_name": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "approval_status": {
+                        "type": "string",
+                        "maxLength": 20
+                    },
+                    "is_active": {
+                        "type": "boolean"
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true
+                    },
+                    "image_url": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "min_price": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "sports": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "total_courts": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "review_count": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "average_rating": {
+                        "type": "string",
+                        "readOnly": true
+                    }
+                },
+                "required": [
+                    "address",
+                    "average_rating",
+                    "created_at",
+                    "facility_id",
+                    "facility_name",
+                    "image_url",
+                    "manager_name",
+                    "min_price",
+                    "review_count",
+                    "sports",
+                    "total_courts"
+                ]
+            },
+            "Login": {
+                "type": "object",
+                "properties": {
+                    "email": {
+                        "type": "string",
+                        "format": "email"
+                    },
+                    "password": {
+                        "type": "string",
+                        "writeOnly": true
+                    }
+                },
+                "required": [
+                    "email",
+                    "password"
+                ]
+            },
+            "PatchedBookingCancel": {
+                "type": "object",
+                "properties": {
+                    "reason": {
+                        "type": "string",
+                        "maxLength": 500
+                    }
+                }
+            },
+            "PatchedFacilityCreateUpdate": {
+                "type": "object",
+                "description": "Serializer for creating/updating facilities",
+                "properties": {
+                    "facility_name": {
+                        "type": "string",
+                        "maxLength": 255
+                    },
+                    "address": {
+                        "type": "string",
+                        "maxLength": 500
+                    },
+                    "timezone": {
+                        "$ref": "#/components/schemas/TimezoneEnum"
+                    },
+                    "latitude": {
+                        "type": "string",
+                        "format": "decimal",
+                        "pattern": "^-?\\d{0,3}(?:\\.\\d{0,6})?$",
+                        "nullable": true
+                    },
+                    "longitude": {
+                        "type": "string",
+                        "format": "decimal",
+                        "pattern": "^-?\\d{0,3}(?:\\.\\d{0,6})?$",
+                        "nullable": true
+                    },
+                    "image": {
+                        "type": "string",
+                        "format": "uri",
+                        "nullable": true,
+                        "description": "Facility image"
+                    },
+                    "is_active": {
+                        "type": "boolean"
+                    }
+                }
+            },
+            "PatchedUser": {
+                "type": "object",
+                "properties": {
+                    "user_id": {
+                        "type": "integer",
+                        "readOnly": true
+                    },
+                    "name": {
+                        "type": "string",
+                        "maxLength": 255
+                    },
+                    "email": {
+                        "type": "string",
+                        "format": "email",
+                        "maxLength": 254
+                    },
+                    "phone_number": {
+                        "type": "string",
+                        "nullable": true,
+                        "maxLength": 32
+                    },
+                    "verification_status": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true
+                    },
+                    "is_admin": {
+                        "type": "boolean",
+                        "readOnly": true
+                    },
+                    "role": {
+                        "type": "string",
+                        "readOnly": true
+                    }
+                }
+            },
+            "Register": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "maxLength": 255
+                    },
+                    "email": {
+                        "type": "string",
+                        "format": "email",
+                        "maxLength": 254
+                    },
+                    "password": {
+                        "type": "string",
+                        "writeOnly": true
+                    },
+                    "password_confirm": {
+                        "type": "string",
+                        "writeOnly": true
+                    },
+                    "phone_number": {
+                        "type": "string",
+                        "nullable": true,
+                        "maxLength": 32
+                    }
+                },
+                "required": [
+                    "email",
+                    "name",
+                    "password",
+                    "password_confirm"
+                ]
+            },
+            "SportType": {
+                "type": "object",
+                "description": "Serializer for sport types",
+                "properties": {
+                    "sport_type_id": {
+                        "type": "integer",
+                        "readOnly": true
+                    },
+                    "sport_name": {
+                        "type": "string",
+                        "maxLength": 100
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true
+                    }
+                },
+                "required": [
+                    "created_at",
+                    "sport_name",
+                    "sport_type_id"
+                ]
+            },
+            "TimezoneEnum": {
+                "enum": [
+                    "Australia/Sydney",
+                    "Australia/Melbourne",
+                    "Australia/Brisbane",
+                    "Australia/Adelaide",
+                    "Australia/Perth",
+                    "Australia/Hobart",
+                    "Australia/Darwin"
+                ],
+                "type": "string",
+                "description": "* `Australia/Sydney` - Sydney (NSW, ACT)\n* `Australia/Melbourne` - Melbourne (VIC)\n* `Australia/Brisbane` - Brisbane (QLD)\n* `Australia/Adelaide` - Adelaide (SA)\n* `Australia/Perth` - Perth (WA)\n* `Australia/Hobart` - Hobart (TAS)\n* `Australia/Darwin` - Darwin (NT)"
+            },
+            "User": {
+                "type": "object",
+                "properties": {
+                    "user_id": {
+                        "type": "integer",
+                        "readOnly": true
+                    },
+                    "name": {
+                        "type": "string",
+                        "maxLength": 255
+                    },
+                    "email": {
+                        "type": "string",
+                        "format": "email",
+                        "maxLength": 254
+                    },
+                    "phone_number": {
+                        "type": "string",
+                        "nullable": true,
+                        "maxLength": 32
+                    },
+                    "verification_status": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true
+                    },
+                    "is_admin": {
+                        "type": "boolean",
+                        "readOnly": true
+                    },
+                    "role": {
+                        "type": "string",
+                        "readOnly": true
+                    }
+                },
+                "required": [
+                    "created_at",
+                    "email",
+                    "is_admin",
+                    "name",
+                    "role",
+                    "user_id",
+                    "verification_status"
+                ]
+            }
+        },
+        "securitySchemes": {
+            "cookieAuth": {
+                "type": "apiKey",
+                "in": "cookie",
+                "name": "sessionid"
+            }
+        }
+    }
+}
