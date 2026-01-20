@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Music, Play, Users, TrendingUp, Zap, Star, Trophy, Eye, Clock, BarChart3, Headphones, Calendar } from 'lucide-react';
+import { Music, Play, Users, TrendingUp, Zap, Star, Trophy, Eye, Clock, BarChart3 } from 'lucide-react';
 
 interface SpotifyTrack {
   name: string;
@@ -46,12 +46,6 @@ interface ListeningStats {
   diversityScore: number;
 }
 
-interface ListeningHabits {
-  mostActiveHours: { hour: number; count: number }[];
-  topDays: { day: string; count: number }[];
-  skipRate: number;
-  averageSessionLength: number;
-}
 
 interface PokemonCard {
   id: string;
@@ -85,7 +79,6 @@ interface HobbiesData {
     currentPlaying?: any;
     weeklyStats?: ListeningStats;
     monthlyStats?: ListeningStats;
-    habits?: ListeningHabits;
   };
   pokemon: {
     featured: PokemonCard[];
@@ -107,7 +100,7 @@ const Hobbies = () => {
   const [spotifyLoading, setSpotifyLoading] = useState(true);
   const [pokemonLoading, setPokemonLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [spotifyTab, setSpotifyTab] = useState<'overview' | 'stats' | 'habits'>('overview');
+  const [spotifyTab, setSpotifyTab] = useState<'overview' | 'stats'>('overview');
 
   const fetchHobbiesData = async () => {
     try {
@@ -119,25 +112,49 @@ const Hobbies = () => {
         }
         return '/api';
       };
-      
+
       const API_BASE = getApiBase();
-      
-      // Enhanced parallel data fetching
-      const [
-        spotifyResponse, 
-        spotifyTopTracksResponse,
-        spotifyTopArtistsResponse,
-        spotifyRecentResponse,
-        pokemonResponse, 
-        pokemonStatsResponse
-      ] = await Promise.all([
-        fetch(`${API_BASE}/spotify/dashboard`).catch(() => ({ ok: false })),
-        fetch(`${API_BASE}/spotify/top-tracks?limit=10`).catch(() => ({ ok: false })),
-        fetch(`${API_BASE}/spotify/top-artists?limit=10`).catch(() => ({ ok: false })),
-        fetch(`${API_BASE}/spotify/recently-played?limit=20`).catch(() => ({ ok: false })),
-        fetch(`${API_BASE}/pokemon/featured?limit=6`).catch(() => ({ ok: false })),
-        fetch(`${API_BASE}/pokemon/stats`).catch(() => ({ ok: false }))
-      ]);
+
+      // Check if backend is available
+      const checkBackendHealth = async () => {
+        try {
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 1000);
+          const response = await fetch(`${API_BASE}/health`, { signal: controller.signal });
+          clearTimeout(timeoutId);
+          return response.ok;
+        } catch {
+          return false;
+        }
+      };
+
+      const backendAvailable = await checkBackendHealth();
+
+      let spotifyResponse = { ok: false } as Response;
+      let spotifyTopTracksResponse = { ok: false } as Response;
+      let spotifyTopArtistsResponse = { ok: false } as Response;
+      let spotifyRecentResponse = { ok: false } as Response;
+      let pokemonResponse = { ok: false } as Response;
+      let pokemonStatsResponse = { ok: false } as Response;
+
+      // Only fetch if backend is available to avoid console errors
+      if (backendAvailable) {
+        [
+          spotifyResponse,
+          spotifyTopTracksResponse,
+          spotifyTopArtistsResponse,
+          spotifyRecentResponse,
+          pokemonResponse,
+          pokemonStatsResponse
+        ] = await Promise.all([
+          fetch(`${API_BASE}/spotify/dashboard`).catch(() => ({ ok: false } as Response)),
+          fetch(`${API_BASE}/spotify/top-tracks?limit=10`).catch(() => ({ ok: false } as Response)),
+          fetch(`${API_BASE}/spotify/top-artists?limit=10`).catch(() => ({ ok: false } as Response)),
+          fetch(`${API_BASE}/spotify/recently-played?limit=20`).catch(() => ({ ok: false } as Response)),
+          fetch(`${API_BASE}/pokemon/featured?limit=6`).catch(() => ({ ok: false } as Response)),
+          fetch(`${API_BASE}/pokemon/stats`).catch(() => ({ ok: false } as Response))
+        ]);
+      }
 
       const newData: HobbiesData = {
         spotify: {},
@@ -169,7 +186,7 @@ const Hobbies = () => {
             } : undefined
           };
         } catch (jsonError) {
-          console.error('Failed to parse Spotify JSON:', jsonError);
+          // Silently handle JSON parse error
         }
       }
 
@@ -188,7 +205,7 @@ const Hobbies = () => {
             }));
           }
         } catch (jsonError) {
-          console.error('Failed to parse top tracks:', jsonError);
+          // Silently handle JSON parse error
         }
       }
 
@@ -225,7 +242,7 @@ const Hobbies = () => {
             };
           }
         } catch (jsonError) {
-          console.error('Failed to parse top artists:', jsonError);
+          // Silently handle JSON parse error
         }
       }
 
@@ -246,88 +263,25 @@ const Hobbies = () => {
               }
             }));
 
-            // Generate listening habits analysis with error handling
-            try {
-              const validPlayTimes = newData.spotify.recentTracks
-                .filter(item => item.track.played_at)
-                .map(item => {
-                  try {
-                    return new Date(item.track.played_at);
-                  } catch {
-                    return null;
-                  }
-                })
-                .filter(date => date && !isNaN(date.getTime()));
-
-              if (validPlayTimes.length > 0) {
-                const hourCounts = validPlayTimes.reduce((acc: Record<number, number>, date) => {
-                  const hour = date.getHours();
-                  acc[hour] = (acc[hour] || 0) + 1;
-                  return acc;
-                }, {});
-
-                const dayCounts = validPlayTimes.reduce((acc: Record<string, number>, date) => {
-                  const day = date.toLocaleDateString('en-US', { weekday: 'long' });
-                  acc[day] = (acc[day] || 0) + 1;
-                  return acc;
-                }, {});
-
-                newData.spotify.habits = {
-                  mostActiveHours: Object.entries(hourCounts)
-                    .map(([hour, count]) => ({ hour: parseInt(hour), count }))
-                    .sort((a, b) => b.count - a.count)
-                    .slice(0, 5),
-                  topDays: Object.entries(dayCounts)
-                    .map(([day, count]) => ({ day, count }))
-                    .sort((a, b) => b.count - a.count),
-                  skipRate: Math.floor(Math.random() * 15 + 5), // 5-20% range
-                  averageSessionLength: Math.floor(Math.random() * 30 + 30) // 30-60 min range
-                };
-              } else {
-                // Fallback habits data when no recent tracks available
-                newData.spotify.habits = {
-                  mostActiveHours: [
-                    { hour: 14, count: 8 }, // 2 PM
-                    { hour: 20, count: 6 }, // 8 PM  
-                    { hour: 9, count: 4 }   // 9 AM
-                  ],
-                  topDays: [
-                    { day: 'Friday', count: 12 },
-                    { day: 'Saturday', count: 10 },
-                    { day: 'Sunday', count: 8 }
-                  ],
-                  skipRate: 12,
-                  averageSessionLength: 42
-                };
-              }
-            } catch (error) {
-              console.error('Error generating habits:', error);
-              newData.spotify.habits = null;
-            }
           }
         } catch (jsonError) {
-          console.error('Failed to parse recent tracks:', jsonError);
+          // Silently handle JSON parse error
         }
       }
 
-      // Process Pokemon data (unchanged)
+      // Process Pokemon data
       if (pokemonResponse.ok) {
         try {
           const pokemonData = await pokemonResponse.json();
-          console.log('Pokemon API Response:', pokemonData);
           newData.pokemon.featured = Array.isArray(pokemonData?.cards) ? pokemonData.cards : [];
         } catch (jsonError) {
-          console.error('Failed to parse Pokemon JSON:', jsonError);
           newData.pokemon.featured = [];
         }
-      } else {
-        console.error('Pokemon endpoint failed. Check if /api/pokemon/featured exists');
       }
 
       if (pokemonStatsResponse.ok) {
         try {
           const statsData = await pokemonStatsResponse.json();
-          console.log('Pokemon Stats Response:', statsData);
           newData.pokemon.stats = {
             totalCards: statsData?.totalCards || 0,
             uniqueCards: statsData?.uniqueCards || 0,
@@ -335,16 +289,14 @@ const Hobbies = () => {
             rarityBreakdown: statsData?.rarityBreakdown || {}
           };
         } catch (jsonError) {
-          console.error('Failed to parse Pokemon stats JSON:', jsonError);
+          // Silently handle JSON parse error
         }
-      } else {
-        console.error('Pokemon stats endpoint failed. Check if /api/pokemon/stats exists');
       }
 
       setData(newData);
       setError(null);
     } catch (err) {
-      console.error('fetchHobbiesData error:', err);
+      // Silently handle error - backend may not be running
       setError(err instanceof Error ? err.message : 'Failed to fetch hobbies data');
     } finally {
       setLoading(false);
@@ -369,11 +321,6 @@ const Hobbies = () => {
     }
   };
 
-  const formatHour = (hour: number) => {
-    const period = hour >= 12 ? 'PM' : 'AM';
-    const displayHour = hour === 0 ? 12 : hour > 12 ? hour - 12 : hour;
-    return `${displayHour}${period}`;
-  };
 
   if (loading) {
     return (
@@ -472,14 +419,6 @@ const Hobbies = () => {
                     }`}
                   >
                     Stats
-                  </button>
-                  <button
-                    onClick={() => setSpotifyTab('habits')}
-                    className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
-                      spotifyTab === 'habits' ? 'bg-white bg-opacity-30' : 'bg-white bg-opacity-10 hover:bg-opacity-20'
-                    }`}
-                  >
-                    Habits
                   </button>
                 </div>
               </div>
@@ -626,62 +565,6 @@ const Hobbies = () => {
                 </div>
               )}
 
-              {spotifyTab === 'habits' && (
-                <div className="space-y-6">
-                  {data.spotify.habits && (
-                    <>
-                      <div>
-                        <h4 className="text-sm font-semibold text-gray-600 mb-3 uppercase tracking-wider flex items-center gap-2">
-                          <Headphones className="w-3 h-3" /> Listening Patterns
-                        </h4>
-                        
-                        <div className="grid grid-cols-2 gap-4 mb-4">
-                          <div className="text-center p-3 bg-gray-50 rounded-lg">
-                            <div className="text-lg font-bold text-gray-800">{data.spotify.habits.averageSessionLength.toFixed(0)}min</div>
-                            <div className="text-xs text-gray-500">Avg Session</div>
-                          </div>
-                          <div className="text-center p-3 bg-gray-50 rounded-lg">
-                            <div className="text-lg font-bold text-gray-800">{data.spotify.habits.skipRate.toFixed(0)}%</div>
-                            <div className="text-xs text-gray-500">Skip Rate</div>
-                          </div>
-                        </div>
-
-                        {data.spotify.habits.mostActiveHours.length > 0 && (
-                          <div className="mb-4">
-                            <p className="text-xs font-medium text-gray-600 mb-2">Most Active Hours:</p>
-                            <div className="flex flex-wrap gap-2">
-                              {data.spotify.habits.mostActiveHours.map((hourData, index) => (
-                                <span 
-                                  key={index}
-                                  className="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs"
-                                >
-                                  {formatHour(hourData.hour)} ({hourData.count})
-                                </span>
-                              ))}
-                            </div>
-                          </div>
-                        )}
-
-                        {data.spotify.habits.topDays.length > 0 && (
-                          <div>
-                            <p className="text-xs font-medium text-gray-600 mb-2">Most Active Days:</p>
-                            <div className="flex flex-wrap gap-2">
-                              {data.spotify.habits.topDays.slice(0, 3).map((dayData, index) => (
-                                <span 
-                                  key={index}
-                                  className="px-2 py-1 bg-purple-100 text-purple-800 rounded-full text-xs"
-                                >
-                                  {dayData.day} ({dayData.count})
-                                </span>
-                              ))}
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    </>
-                  )}
-                </div>
-              )}
             </div>
           </div>
 
