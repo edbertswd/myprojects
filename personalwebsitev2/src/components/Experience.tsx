@@ -1,11 +1,24 @@
 import React from 'react';
 import europeEnchantingLogo from '/src/assets/europeenchanting-logo.webp'
 import biotechFuturesLogo from '/src/assets/biotechfutures.avif'
+import cathrxLogo from '/src/assets/cathrx.png'
 import { Calendar, ExternalLink, Code, Database, Zap, Users, CheckCircle, Github, Monitor, Brain, Gamepad2, Smartphone, Clock } from 'lucide-react';
 import test from 'node:test';
 
 const ExperienceAndProjects = () => {
-  const workExperience = [
+  const workExperience = [{
+      company: "CathRx",
+      role: "Software Engineer Intern",
+      logo: cathrxLogo,
+      logoAlt: "CathRx Logo",
+      date: "March 2026 - ongoing",
+      websiteUrl: "http://cathrx.com",
+      achievements:[
+        {icon: <Monitor className = "w-3 h-3" />, title: "Legacy Code Refactoring and Documentation", metric: "60,000+ lines of legacy code and logic."},
+        {icon: <Zap className = "w-3 h-3" />, title: "Rewrite Testing Script to test Catheter functionality.", metric: "Reduced redundant code by 50%"},
+      ],
+      skills: ["C++", "Luau"]
+    },
     {
       company: "Biotech Futures",
       role: "Software Engineer Capstone Project",
@@ -53,55 +66,74 @@ const ExperienceAndProjects = () => {
         category: "Fullstack",
         icon: <Monitor className="w-3 h-3" />,
         technologies: ["Amazon EC2 Cloud Instance", "Python Django", "Vite", "PostgreSQL"],
-        highlight: "A full-stack web application for court booking in Australia. Integrated AWS EC2 for hosting and PostgreSQL for robust data management, as well as creating a RESTFUL API with Nominatim API",
+        highlight: [
+          "Full-stack court booking app for Australia",
+          "AWS EC2 hosting + PostgreSQL",
+          "RESTful API with Nominatim address autocomplete",
+        ],
         githubUrl: "https://github.com/edbertswd/myprojects/tree/main/CourtConnectWebsite/app",
-        color: "#0091ff",
+        color: "#a63d40",
       },
       {
       title: "Social Mood Mobile App",
       category: "Fullstack",
       icon: <Monitor className="w-3 h-3" />,
       technologies: ["React Native", "TensorFlow Lite", "Flask", "PostgreSQL"],
-      highlight: "Real-time facial emotion recognition built inside a compact mobile TFLite model.",
+      highlight: [
+        "Real-time facial emotion recognition",
+        "Compact mobile TFLite model",
+      ],
       githubUrl: "https://github.com/edbertswd/openxai",
-      color: "#0091ff"
+      color: "#a63d40"
     },
     {
       title: "Personal Website (First Version)",
       category: "Frontend",
       icon: <Monitor className="w-3 h-3" />,
       technologies: ["React", "Framer Motion"],
-      highlight: "My first ever portfolio website. This was my first JS and ReactJS website.",
+      highlight: [
+        "My first ever portfolio website",
+        "First JS and ReactJS project",
+      ],
       githubUrl: "https://github.com/edbertswd/myprojects/tree/main/personalwebsite",
       liveUrl: "#",
-      color: "#173c59"
+      color: "#5d576b"
     },
     {
       title: "ML Cancer Model",
       category: "Data Science",
       icon: <Brain className="w-3 h-3" />,
       technologies: ["Python", "Scikit-learn"],
-      highlight: "Worked with a team of 4 TALENTED engineers to achieve: 83.7% accuracy on 50,000 patient records. This was one of my first dives into data science!",
+      highlight: [
+        "Team of 4 engineers",
+        "83.7% accuracy on 50,000 patient records",
+        "First dive into data science",
+      ],
       githubUrl: "https://github.com/edbertswd/myprojects/tree/main/MLLungCancerPredictor",
-      color: "#8B5CF6",
+      color: "#5d576b",
     },
     {
       title: "Pacman Game",
       category: "Game Dev",
       icon: <Gamepad2 className="w-3 h-3" />,
       technologies: ["Java", "Gradle"],
-      highlight: "This project helped me design a game that adheres to SOLID/GRASP principles. It was a really fun project honestly!",
+      highlight: [
+        "Game design with SOLID/GRASP principles",
+      ],
       githubUrl: "https://github.com/edbertswd/myprojects/tree/main/PacmanGame",
-      color: "#F59E0B"
+      color: "#5171a5"
     },
     {
       title: "Tower Defense",
       category: "Game Dev",
       icon: <Gamepad2 className="w-3 h-3" />,
       technologies: ["Java", "OOP"],
-      highlight: "This was my very first Java x Gradle projects, and helped me solidify my understanding on OOP principles.",
+      highlight: [
+        "First Java x Gradle project",
+        "Solidified OOP understanding",
+      ],
       githubUrl: "https://github.com/edbertswd/myprojects/tree/main/TowerDefense",
-      color: "#F59E0B"
+      color: "#5171a5"
     }
   ];
 
@@ -140,6 +172,7 @@ const ExperienceAndProjects = () => {
               </div>
             </div>
             <h1 className="text-3xl font-bold mb-2 text-gray-800">Work Experience</h1>
+            <p className="text-gray-600">My experiences in a professional setting.</p>
           </div>
 
           <div className="space-y-6">
@@ -188,7 +221,6 @@ const ExperienceAndProjects = () => {
                   </div>
                 </div>
               </div>
-
               <div className="p-4">
                 <div className="grid md:grid-cols-3 gap-3 mb-4">
                   {experience.achievements.map((achievement, index) => (
@@ -316,9 +348,13 @@ const ExperienceAndProjects = () => {
                 <div className="p-4 flex flex-col flex-grow">
                   <h3 className="font-semibold text-gray-800 mb-3 text-base leading-tight">{project.title}</h3>
                   
-                  <div className="flex items-start gap-2 mb-4 flex-grow">
-                    <CheckCircle className="w-3 h-3 text-green-500 mt-0.5 flex-shrink-0" />
-                    <span className="text-sm text-gray-600 leading-relaxed">{project.highlight}</span>
+                  <div className="mb-4 flex-grow space-y-1">
+                    {project.highlight.map((point, i) => (
+                      <div key={i} className="flex items-start gap-2">
+                        <CheckCircle className="w-3 h-3 text-green-500 mt-0.5 flex-shrink-0" />
+                        <span className="text-sm text-gray-600 leading-relaxed">{point}</span>
+                      </div>
+                    ))}
                   </div>
 
                   <div className="flex flex-wrap gap-1.5 mb-4">
