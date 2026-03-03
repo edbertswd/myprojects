@@ -36,12 +36,12 @@ function AboutDesktop() {
   const checkpoints: Checkpoint[] = useMemo(
     () => [
       { t: 0.04, id: "chapter-beginnings", title: "Beginnings", text: "Born in 2002, the youngest — learned to be heard." },
-      { t: 0.16, id: "chapter-jakarta", title: "High School in Jakarta", text: "Tried everything I wanted (mostly video games though unfortunately)."},
-      { t: 0.36, id: "chapter-atlanta", title: "Atlanta & Covid Era", text: "Moved to Atlanta and learned how to code. First Hello World."},
-      { t: 0.52, id: "chapter-sydney", title: "Sydney Chapter", text: "Moved to Sydney for my girlfriend. Worked hard to build a strong future here." },
-      { t: 0.66, id: "chapter-content", title: "Content Creation Era", text: "Built a Twitch community of 1.8k — learned content creating and networking." },
-      { t: 0.80, id: "chapter-gamedev", title: "Locked In Era", text: "Decided I had to specialize and chose two areas: web development and game development." },
-      { t: 0.92, id: "chapter-next", title: "What's Next?", text: "Still writing the story — excited for the next thing!" },
+      { t: 0.16, id: "chapter-jakarta", title: "High School in Jakarta", text: "International Highschool in Jakarta. TEDxYouth organizer, vice student president. Learned to lead early."},
+      { t: 0.36, id: "chapter-atlanta", title: "Atlanta & Covid Era", text: "Moved to Atlanta and learned how to code." },
+      { t: 0.52, id: "chapter-sydney", title: "Sydney Chapter", text: "Moved to Sydney for my undergraduate degree. Instantly felt like home." },
+      { t: 0.66, id: "chapter-content", title: "Content Creation Era", text: "Pursued side projects. Built a Twitch community of 1.8k — learned content creating and networking." },
+      { t: 0.80, id: "chapter-gamedev", title: "Studying Era", text: "Decided I had to specialize and chose two areas: web development and game development." },
+      { t: 0.92, id: "chapter-next", title: "What's Next?", text: "Still writing the story — maybe you'll be part of it :)" },
     ],
     []
   );

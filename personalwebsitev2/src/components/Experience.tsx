@@ -1,12 +1,51 @@
 import React from 'react';
 import europeEnchantingLogo from '/src/assets/europeenchanting-logo.webp'
+import biotechFuturesLogo from '/src/assets/biotechfutures.avif'
+import cathrxLogo from '/src/assets/cathrx.png'
 import { Calendar, ExternalLink, Code, Database, Zap, Users, CheckCircle, Github, Monitor, Brain, Gamepad2, Smartphone, Clock } from 'lucide-react';
+import test from 'node:test';
 
 const ExperienceAndProjects = () => {
-  const achievements = [
-    { icon: <Database className="w-3 h-3" />, title: "20,000+ SKUs", metric: "100% accuracy" },
-    { icon: <Zap className="w-3 h-3" />, title: "API Automation", metric: "Hours to minutes" },
-    { icon: <Users className="w-3 h-3" />, title: "Review System", metric: "Full-stack prototype" }
+  const workExperience = [{
+      company: "CathRx",
+      role: "Software Engineer Intern",
+      logo: cathrxLogo,
+      logoAlt: "CathRx Logo",
+      date: "March 2026 - ongoing",
+      websiteUrl: "http://cathrx.com",
+      achievements:[
+        {icon: <Monitor className = "w-3 h-3" />, title: "Legacy Code Refactoring and Documentation", metric: "60,000+ lines of legacy code and logic."},
+        {icon: <Zap className = "w-3 h-3" />, title: "Rewrite Testing Script to test Catheter functionality.", metric: "Reduced redundant code by 50%"},
+      ],
+      skills: ["C++", "Luau"]
+    },
+    {
+      company: "Biotech Futures",
+      role: "Software Engineer Capstone Project",
+      logo: biotechFuturesLogo,
+      logoAlt: "Biotech Futures Logo",
+      date: "July 2025 - Nov 2025",
+      websiteUrl: "https://www.biotechfutures.org/",
+      achievements: [
+        { icon: <Monitor className="w-3 h-3" />, title: "Student-Tutor Mentoring Platform", metric: "Microsoft Azure Cloud Computing Services" },
+        { icon: <Users className="w-3 h-3" />, title: "User Metric", metric: "500+ active mentors and students" },
+      ],
+      skills: ["Python Django", "JavaScript", "Microsoft Azure", "Vue", "React"]
+    },
+    {
+      company: "Europe Enchanting",
+      role: "Software Engineer Intern",
+      logo: europeEnchantingLogo,
+      logoAlt: "Europe Enchanting Logo",
+      date: "June 2024",
+      websiteUrl: "https://europeenchanting.com",
+      achievements: [
+        { icon: <Database className="w-3 h-3" />, title: "20,000+ SKUs", metric: "100% accuracy" },
+        { icon: <Zap className="w-3 h-3" />, title: "API Automation", metric: "Hours to minutes" },
+        { icon: <Users className="w-3 h-3" />, title: "Review System", metric: "Full-stack prototype" }
+      ],
+      skills: ["Node.js", "React", "TypeScript", "E-commerce", "Shopify API"]
+    }
   ];
 
   const inDevProjects = [
@@ -19,54 +58,82 @@ const ExperienceAndProjects = () => {
       githubUrl: "https://github.com/edbertswd/myprojects/personalwebsitev2",
       teamSize: "Solo Project"
     },  
-    {
-      title: "Social Mood Mobile App",
-      description: "Cross-platform social media app with AI mood detection for hackathon competition.",
-      technologies: ["React Native", "TensorFlow Lite", "Flask", "PostgreSQL"],
-      timeline: "Due Aug 31, 2025",
-      highlight: "Real-time facial emotion recognition with Flask APIs and Docker deployment",
-      githubUrl: "https://github.com/edbertswd/openxai",
-      teamSize: "Team of 2"
-    }
   ];
 
   const completedProjects = [
+      {
+        title: "CourtConnect",
+        category: "Fullstack",
+        icon: <Monitor className="w-3 h-3" />,
+        technologies: ["Amazon EC2 Cloud Instance", "Python Django", "Vite", "PostgreSQL"],
+        highlight: [
+          "Full-stack court booking app for Australia",
+          "AWS EC2 hosting + PostgreSQL",
+          "RESTful API with Nominatim address autocomplete",
+        ],
+        githubUrl: "https://github.com/edbertswd/myprojects/tree/main/CourtConnectWebsite/app",
+        color: "#a63d40",
+      },
+      {
+      title: "Social Mood Mobile App",
+      category: "Fullstack",
+      icon: <Monitor className="w-3 h-3" />,
+      technologies: ["React Native", "TensorFlow Lite", "Flask", "PostgreSQL"],
+      highlight: [
+        "Real-time facial emotion recognition",
+        "Compact mobile TFLite model",
+      ],
+      githubUrl: "https://github.com/edbertswd/openxai",
+      color: "#a63d40"
+    },
     {
       title: "Personal Website (First Version)",
       category: "Frontend",
       icon: <Monitor className="w-3 h-3" />,
       technologies: ["React", "Framer Motion"],
-      highlight: "My first ever portfolio website. This was my first JS and ReactJS website.",
+      highlight: [
+        "My first ever portfolio website",
+        "First JS and ReactJS project",
+      ],
       githubUrl: "https://github.com/edbertswd/myprojects/tree/main/personalwebsite",
       liveUrl: "#",
-      color: "hsl(var(--primary))"
+      color: "#5d576b"
     },
     {
       title: "ML Cancer Model",
       category: "Data Science",
       icon: <Brain className="w-3 h-3" />,
       technologies: ["Python", "Scikit-learn"],
-      highlight: "Worked with a team of 4 TALENTED engineers to achieve: 83.7% accuracy on 50,000 patient records. This was one of my first dives into data science!",
+      highlight: [
+        "Team of 4 engineers",
+        "83.7% accuracy on 50,000 patient records",
+        "First dive into data science",
+      ],
       githubUrl: "https://github.com/edbertswd/myprojects/tree/main/MLLungCancerPredictor",
-      color: "#8B5CF6",
+      color: "#5d576b",
     },
     {
       title: "Pacman Game",
       category: "Game Dev",
       icon: <Gamepad2 className="w-3 h-3" />,
       technologies: ["Java", "Gradle"],
-      highlight: "This project helped me design a game that adheres to SOLID/GRASP principles. It was a really fun project honestly!",
+      highlight: [
+        "Game design with SOLID/GRASP principles",
+      ],
       githubUrl: "https://github.com/edbertswd/myprojects/tree/main/PacmanGame",
-      color: "#F59E0B"
+      color: "#5171a5"
     },
     {
       title: "Tower Defense",
       category: "Game Dev",
       icon: <Gamepad2 className="w-3 h-3" />,
       technologies: ["Java", "OOP"],
-      highlight: "This was my very first Java x Gradle projects, and helped me solidify my understanding on OOP principles.",
+      highlight: [
+        "First Java x Gradle project",
+        "Solidified OOP understanding",
+      ],
       githubUrl: "https://github.com/edbertswd/myprojects/tree/main/TowerDefense",
-      color: "#F59E0B"
+      color: "#5171a5"
     }
   ];
 
@@ -105,89 +172,94 @@ const ExperienceAndProjects = () => {
               </div>
             </div>
             <h1 className="text-3xl font-bold mb-2 text-gray-800">Work Experience</h1>
+            <p className="text-gray-600">My experiences in a professional setting.</p>
           </div>
 
-          <div 
-            className="bg-white rounded-xl shadow-md"
-            style={{ border: "1px solid hsl(var(--sage))" }}
-          >
-            <div 
-              className="px-4 py-3"
-              style={{
-                background: "linear-gradient(135deg, hsl(var(--sage)) 0%, hsl(var(--primary)) 100%)",
-                borderBottom: "1px solid hsl(var(--sage))",
-                borderTopLeftRadius: "0.75rem",
-                borderTopRightRadius: "0.75rem"
-              }}
+          <div className="space-y-6">
+            {workExperience.map((experience, idx) => (
+            <div
+              key={idx}
+              className="bg-white rounded-xl shadow-md"
+              style={{ border: "1px solid hsl(var(--sage))" }}
             >
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                  <div className="h-12 w-12 bg-white rounded-lg overflow-hidden flex items-center justify-center p-2">
-                    <img 
-                      src={europeEnchantingLogo} 
-                      alt="Europe Enchanting Logo" 
-                      className="w-full h-full object-contain" 
-                    />
-                  </div>
-                  <div>
-                    <h2 className="text-lg font-bold text-white">Europe Enchanting</h2>
-                    <p className="text-white/90 text-sm">Software Engineer Intern</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-3">
-                  <div className="flex items-center gap-1 bg-white/20 rounded-full px-2 py-1">
-                    <Calendar className="w-3 h-3 text-white" />
-                    <span className="text-white text-xs">June 2024</span>
-                  </div>
-                  <a 
-                    href="https://europeenchanting.com"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-1 bg-white text-gray-700 px-2 py-1 rounded-full text-xs hover:bg-gray-50 transition-colors"
-                  >
-                    Visit Site <ExternalLink className="w-2 h-2" />
-                  </a>
-                </div>
-              </div>
-            </div>
-
-            <div className="p-4">
-              <div className="grid md:grid-cols-3 gap-3 mb-4">
-                {achievements.map((achievement, index) => (
-                  <div 
-                    key={index}
-                    className="p-3 rounded-lg bg-gray-50"
-                    style={{ border: "1px solid hsl(var(--sage))" }}
-                  >
-                    <div className="flex items-center gap-2 mb-1">
-                      <div 
-                        className="p-1 rounded-full"
-                        style={{ backgroundColor: "hsl(var(--sage))", color: "white" }}
-                      >
-                        {achievement.icon}
-                      </div>
-                      <span className="text-xs font-semibold text-gray-600">{achievement.metric}</span>
+              <div
+                className="px-4 py-3"
+                style={{
+                  background: "linear-gradient(135deg, hsl(var(--sage)) 0%, hsl(var(--primary)) 100%)",
+                  borderBottom: "1px solid hsl(var(--sage))",
+                  borderTopLeftRadius: "0.75rem",
+                  borderTopRightRadius: "0.75rem"
+                }}
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-4">
+                    <div className="h-12 w-12 bg-white rounded-lg overflow-hidden flex items-center justify-center p-2">
+                      <img
+                        src={experience.logo}
+                        alt={experience.logoAlt}
+                        className="w-full h-full object-contain"
+                      />
                     </div>
-                    <h3 className="text-sm font-semibold text-gray-800">{achievement.title}</h3>
+                    <div>
+                      <h2 className="text-lg font-bold text-white">{experience.company}</h2>
+                      <p className="text-white/90 text-sm">{experience.role}</p>
+                    </div>
                   </div>
-                ))}
+                  <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-1 bg-white/20 rounded-full px-2 py-1">
+                      <Calendar className="w-3 h-3 text-white" />
+                      <span className="text-white text-xs">{experience.date}</span>
+                    </div>
+                    <a
+                      href={experience.websiteUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-1 bg-white text-gray-700 px-2 py-1 rounded-full text-xs hover:bg-gray-50 transition-colors"
+                    >
+                      Visit Site <ExternalLink className="w-2 h-2" />
+                    </a>
+                  </div>
+                </div>
               </div>
-              
-              <div className="flex flex-wrap gap-2">
-                {["Node.js", "React", "TypeScript", "E-commerce", "Shopify API"].map((skill, index) => (
-                  <span
-                    key={index}
-                    className="px-2 py-1 rounded-full text-xs font-medium"
-                    style={{
-                      background: "linear-gradient(45deg, hsl(var(--primary)), hsl(var(--sage)))",
-                      color: "white"
-                    }}
-                  >
-                    {skill}
-                  </span>
-                ))}
+              <div className="p-4">
+                <div className="grid md:grid-cols-3 gap-3 mb-4">
+                  {experience.achievements.map((achievement, index) => (
+                    <div
+                      key={index}
+                      className="p-3 rounded-lg bg-gray-50"
+                      style={{ border: "1px solid hsl(var(--sage))" }}
+                    >
+                      <div className="flex items-center gap-2 mb-1">
+                        <div
+                          className="p-1 rounded-full"
+                          style={{ backgroundColor: "hsl(var(--sage))", color: "white" }}
+                        >
+                          {achievement.icon}
+                        </div>
+                        <span className="text-xs font-semibold text-gray-600">{achievement.metric}</span>
+                      </div>
+                      <h3 className="text-sm font-semibold text-gray-800">{achievement.title}</h3>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="flex flex-wrap gap-2">
+                  {experience.skills.map((skill, index) => (
+                    <span
+                      key={index}
+                      className="px-2 py-1 rounded-full text-xs font-medium"
+                      style={{
+                        background: "linear-gradient(45deg, hsl(var(--primary)), hsl(var(--sage)))",
+                        color: "white"
+                      }}
+                    >
+                      {skill}
+                    </span>
+                  ))}
+                </div>
               </div>
             </div>
+            ))}
           </div>
         </div>
 
@@ -276,9 +348,13 @@ const ExperienceAndProjects = () => {
                 <div className="p-4 flex flex-col flex-grow">
                   <h3 className="font-semibold text-gray-800 mb-3 text-base leading-tight">{project.title}</h3>
                   
-                  <div className="flex items-start gap-2 mb-4 flex-grow">
-                    <CheckCircle className="w-3 h-3 text-green-500 mt-0.5 flex-shrink-0" />
-                    <span className="text-sm text-gray-600 leading-relaxed">{project.highlight}</span>
+                  <div className="mb-4 flex-grow space-y-1">
+                    {project.highlight.map((point, i) => (
+                      <div key={i} className="flex items-start gap-2">
+                        <CheckCircle className="w-3 h-3 text-green-500 mt-0.5 flex-shrink-0" />
+                        <span className="text-sm text-gray-600 leading-relaxed">{point}</span>
+                      </div>
+                    ))}
                   </div>
 
                   <div className="flex flex-wrap gap-1.5 mb-4">

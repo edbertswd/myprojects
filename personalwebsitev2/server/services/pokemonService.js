@@ -37,20 +37,20 @@ class PokemonService {
             headers: this.headers
           });
           
-          console.log(`✅ Found card: ${response.data.data.name}`);
+          console.log(`Found card: ${response.data.data.name}`);
           return {
             ...response.data.data,
             quantity: quantity
           };
         } catch (cardError) {
-          console.error(`❌ Card not found: ${cardId} (${cardError.response?.status})`);
+          console.error(`Card not found: ${cardId} (${cardError.response?.status})`);
           return null; // Return null for missing cards instead of throwing
         }
       });
 
       const cards = await Promise.all(promises);
       const validCards = cards.filter(card => card !== null);
-      console.log(`📋 Successfully fetched ${validCards.length}/${cardIds.length} cards`);
+      console.log(`Successfully fetched ${validCards.length}/${cardIds.length} cards`);
       
       return validCards;
     } catch (error) {
@@ -200,7 +200,7 @@ class PokemonService {
         timeout: 20000 // 20 second timeout
       });
 
-      console.log('✅ Search successful, found:', response.data.totalCount, 'cards');
+      console.log('Search successful, found:', response.data.totalCount, 'cards');
 
       return {
         cards: response.data.data,
@@ -210,10 +210,10 @@ class PokemonService {
         totalPages: Math.ceil(response.data.totalCount / response.data.pageSize)
       };
     } catch (error) {
-      console.error('❌ Error searching cards:', error.message);
+      console.error('Error searching cards:', error.message);
       
       if (error.code === 'ECONNABORTED') {
-        console.error('⏰ Request timed out - server may have network issues');
+        console.error('Request timed out - server may have network issues');
         return {
           cards: [],
           totalCount: 0,
@@ -225,8 +225,8 @@ class PokemonService {
       }
       
       if (error.response) {
-        console.error('📊 Response status:', error.response.status);
-        console.error('📝 Response data:', error.response.data);
+        console.error('Response status:', error.response.status);
+        console.error('Response data:', error.response.data);
       }
       
       // Return empty result instead of throwing
