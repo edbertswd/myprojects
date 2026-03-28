@@ -12,10 +12,11 @@ class PokemonService {
     };
     
 
-    // Card collection 
+    // Card collection
     this.myCollection = [
       { id: 'svp-85', quantity: 1 },        // Pikachu with Grey Felt Hat
-      { id: 'det1-10', quantity: 1 },       // Detective Pikachu (English set, #10/18)
+      { id: 'sv10-284', quantity: 1 },      // Mega Gengar ex 284 Pokemon Ascended Heroes
+      { id: 'det1-1', quantity: 1 },        // Mew (Bubble Mew) 
     ];
   }
 
