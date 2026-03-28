@@ -734,11 +734,6 @@ const Hobbies = () => {
                     >
                       Retry Loading
                     </button>
-                    {!loading && (
-                      <div className="mt-3 text-xs text-gray-400">
-                        <div>Endpoints: /api/pokemon/featured, /api/pokemon/stats</div>
-                      </div>
-                    )}
                   </div>
                 )}
               </div>
