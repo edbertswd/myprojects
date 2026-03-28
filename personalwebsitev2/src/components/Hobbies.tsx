@@ -91,6 +91,46 @@ interface HobbiesData {
   };
 }
 
+// Cache utility for localStorage
+const CACHE_PREFIX = 'hobbies_cache_';
+const CACHE_DURATION = 60 * 60 * 1000; // 1 hour in milliseconds
+
+interface CacheEntry<T> {
+  data: T;
+  timestamp: number;
+}
+
+const getFromCache = <T,>(key: string): T | null => {
+  try {
+    const cached = localStorage.getItem(CACHE_PREFIX + key);
+    if (!cached) return null;
+
+    const entry: CacheEntry<T> = JSON.parse(cached);
+    const age = Date.now() - entry.timestamp;
+
+    if (age > CACHE_DURATION) {
+      localStorage.removeItem(CACHE_PREFIX + key);
+      return null;
+    }
+
+    return entry.data;
+  } catch {
+    return null;
+  }
+};
+
+const saveToCache = <T,>(key: string, data: T): void => {
+  try {
+    const entry: CacheEntry<T> = {
+      data,
+      timestamp: Date.now()
+    };
+    localStorage.setItem(CACHE_PREFIX + key, JSON.stringify(entry));
+  } catch {
+    // Silently fail if localStorage is full or unavailable
+  }
+};
+
 const Hobbies = () => {
   const [data, setData] = useState<HobbiesData>({
     spotify: {},
@@ -101,6 +141,7 @@ const Hobbies = () => {
   const [pokemonLoading, setPokemonLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [spotifyTab, setSpotifyTab] = useState<'overview' | 'stats'>('overview');
+  const [pokemonFromCache, setPokemonFromCache] = useState(false);
 
   const fetchHobbiesData = async () => {
     try {
@@ -269,28 +310,53 @@ const Hobbies = () => {
         }
       }
 
-      // Process Pokemon data
+      // Process Pokemon data - Check cache first
+      const cachedPokemon = getFromCache<{ featured: PokemonCard[]; stats: any }>('pokemon_data');
+
+      if (cachedPokemon) {
+        // Use cached data immediately
+        newData.pokemon = cachedPokemon;
+        setPokemonFromCache(true);
+      }
+
+      // Try to fetch fresh data
+      let freshPokemonData = false;
       if (pokemonResponse.ok) {
         try {
           const pokemonData = await pokemonResponse.json();
-          newData.pokemon.featured = Array.isArray(pokemonData?.cards) ? pokemonData.cards : [];
+          if (Array.isArray(pokemonData?.cards) && pokemonData.cards.length > 0) {
+            newData.pokemon.featured = pokemonData.cards;
+            freshPokemonData = true;
+          }
         } catch (jsonError) {
-          newData.pokemon.featured = [];
+          // Keep cached data if fresh fetch fails
         }
       }
 
       if (pokemonStatsResponse.ok) {
         try {
           const statsData = await pokemonStatsResponse.json();
-          newData.pokemon.stats = {
-            totalCards: statsData?.totalCards || 0,
-            uniqueCards: statsData?.uniqueCards || 0,
-            totalValue: statsData?.totalValue || 0,
-            rarityBreakdown: statsData?.rarityBreakdown || {}
-          };
+          if (statsData?.totalCards > 0) {
+            newData.pokemon.stats = {
+              totalCards: statsData.totalCards,
+              uniqueCards: statsData.uniqueCards,
+              totalValue: statsData.totalValue,
+              rarityBreakdown: statsData.rarityBreakdown || {}
+            };
+            freshPokemonData = true;
+          }
         } catch (jsonError) {
-          // Silently handle JSON parse error
+          // Keep cached data if fresh fetch fails
         }
+      }
+
+      // Save to cache if we got fresh data
+      if (freshPokemonData && newData.pokemon.featured.length > 0) {
+        saveToCache('pokemon_data', newData.pokemon);
+        setPokemonFromCache(false);
+      } else if (!cachedPokemon) {
+        // No cache and no fresh data - set empty state
+        newData.pokemon = { featured: [], stats: { totalCards: 0, uniqueCards: 0, totalValue: 0, rarityBreakdown: {} } };
       }
 
       setData(newData);
@@ -305,7 +371,8 @@ const Hobbies = () => {
 
   useEffect(() => {
     fetchHobbiesData();
-    const interval = setInterval(fetchHobbiesData, 30000);
+    // Refetch every 5 minutes instead of 30 seconds (less aggressive, more API-friendly)
+    const interval = setInterval(fetchHobbiesData, 5 * 60 * 1000);
     return () => clearInterval(interval);
   }, []);
 
@@ -570,16 +637,24 @@ const Hobbies = () => {
 
           {/* Pokemon Cards Section */}
           <div className="bg-white rounded-xl shadow-md overflow-hidden" style={{ border: "1px solid hsl(var(--sage))" }}>
-            <div 
+            <div
               className="px-6 py-4"
               style={{
                 background: "linear-gradient(135deg, hsl(var(--sage)) 0%, hsl(var(--primary)) 100%)",
                 color: "white"
               }}
             >
-              <div className="flex items-center gap-3">
-                <Trophy className="w-5 h-5" />
-                <h3 className="text-lg font-bold">Pokémon Card Collection</h3>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <Trophy className="w-5 h-5" />
+                  <h3 className="text-lg font-bold">Pokémon Card Collection</h3>
+                </div>
+                {pokemonFromCache && (
+                  <div className="flex items-center gap-1 bg-white bg-opacity-20 px-2 py-1 rounded-full text-xs">
+                    <Clock className="w-3 h-3" />
+                    <span>Cached</span>
+                  </div>
+                )}
               </div>
             </div>
 
@@ -648,12 +723,17 @@ const Hobbies = () => {
                 ) : (
                   <div className="text-center py-8 text-gray-500">
                     <Trophy className="w-8 h-8 mx-auto mb-2 opacity-50" />
-                    <p className="text-sm">No Pokemon cards found</p>
-                    <p className="text-xs mt-1">Pokemon API not working...</p>
-                    <div className="mt-2 text-xs">
-                      <div>/api/pokemon/featured</div>
-                      <div>/api/pokemon/stats</div>
-                    </div>
+                    <p className="text-sm font-medium">No Pokemon cards found</p>
+                    <p className="text-xs mt-1">The Pokemon TCG API might be temporarily unavailable</p>
+                    <button
+                      onClick={() => {
+                        setLoading(true);
+                        fetchHobbiesData();
+                      }}
+                      className="mt-4 px-4 py-2 bg-gradient-to-r from-green-500 to-blue-500 text-white text-xs rounded-lg hover:from-green-600 hover:to-blue-600 transition-all"
+                    >
+                      Retry Loading
+                    </button>
                   </div>
                 )}
               </div>
