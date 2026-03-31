@@ -99,6 +99,15 @@ Full-stack engineer with experience spanning web development, machine learning, 
 ---
 
 ## Experience
+**Embedded Systems Engineer Intern** · Cathrx *(2025)*
+ 
+- Developed a 1-Wire EEPROM emulator using Arduino Mega and the OneWireHub library to emulate a DS2431 chip for a proprietary medical catheter test system
+- Performed oscilloscope analysis (RIGOL DHO914) to debug protocol timing and signal integrity issues
+- Investigated 3.3V/5V logic level mismatches and deep-dived into OneWireHub library internals to resolve communication failures
+- Produced professionally formatted technical documentation as structured `.docx` deliverables with a custom greyscale design system
+- Developed 10 new features on a CIRRIS Electrical Tester GUI.
+- Refactored 7000+ lines of old and coupled legacy code to be more maintanable for future SWEs working on the project.
+
 
 **Software Engineer Intern** · Europe Enchanting *(June 2024)*
 
