@@ -1,9 +1,8 @@
 import React from 'react';
 import europeEnchantingLogo from '/src/assets/europeenchanting-logo.webp'
-import biotechFuturesLogo from '/src/assets/biotechfutures.avif'
+import biotechFuturesLogo from '/src/assets/biotechfutures.jpg'
 import cathrxLogo from '/src/assets/cathrx.png'
-import { Calendar, ExternalLink, Code, Database, Zap, Users, CheckCircle, Github, Monitor, Brain, Gamepad2, Smartphone, Clock } from 'lucide-react';
-import test from 'node:test';
+import { Calendar, ExternalLink, Code, Database, Zap, Users, CheckCircle, Github, Monitor, Brain, Gamepad2, Smartphone, Clock, MapPin } from 'lucide-react';
 
 const ExperienceAndProjects = () => {
   const workExperience = [{
@@ -12,12 +11,17 @@ const ExperienceAndProjects = () => {
       logo: cathrxLogo,
       logoAlt: "CathRx Logo",
       date: "March 2026 - ongoing",
+      location: "Sydney, AU",
       websiteUrl: "http://cathrx.com",
-      achievements:[
-        {icon: <Monitor className = "w-3 h-3" />, title: "Legacy Code Refactoring and Documentation", metric: "60,000+ lines of legacy code and logic."},
-        {icon: <Zap className = "w-3 h-3" />, title: "Rewrite Testing Script to test Catheter functionality.", metric: "Reduced redundant code by 50%"},
+      bullets: [
+        "Developed a 1-Wire EEPROM emulator using Arduino Mega and the OneWireHub library to emulate a DS2431 chip for a proprietary medical catheter test system",
+        "Performed oscilloscope analysis (RIGOL DHO914) to debug protocol timing and signal integrity issues",
+        "Investigated 3.3V/5V logic level mismatches and deep-dived into OneWireHub library internals to resolve communication failures",
+        "Produced professionally formatted technical documentation as structured .docx deliverables with a custom greyscale design system",
+        "Developed 10 new features on a CIRRIS Electrical Tester GUI",
+        "Refactored 7,000+ lines of old and coupled legacy code to be more maintainable for future SWEs working on the project",
       ],
-      skills: ["C++", "Luau"]
+      skills: ["C++", "Luau", "Arduino", "Embedded Systems", "Technical Documentation"]
     },
     {
       company: "Biotech Futures",
@@ -25,10 +29,12 @@ const ExperienceAndProjects = () => {
       logo: biotechFuturesLogo,
       logoAlt: "Biotech Futures Logo",
       date: "July 2025 - Nov 2025",
+      location: "Sydney, AU",
       websiteUrl: "https://www.biotechfutures.org/",
-      achievements: [
-        { icon: <Monitor className="w-3 h-3" />, title: "Student-Tutor Mentoring Platform", metric: "Microsoft Azure Cloud Computing Services" },
-        { icon: <Users className="w-3 h-3" />, title: "User Metric", metric: "500+ active mentors and students" },
+      bullets: [
+        "Built a student-tutor mentoring platform serving 500+ active mentors and students using Python Django and Vue.js",
+        "Deployed full-stack application to Microsoft Azure, handling authentication, REST API design, and database management",
+        "Led development in a multi-led team of 7 backend engineers, 6 frontend, and 5 algorithm engineers, delivering the capstone project in under 13 weeks",
       ],
       skills: ["Python Django", "JavaScript", "Microsoft Azure", "Vue", "React"]
     },
@@ -38,11 +44,12 @@ const ExperienceAndProjects = () => {
       logo: europeEnchantingLogo,
       logoAlt: "Europe Enchanting Logo",
       date: "June 2024",
+      location: "Sydney, AU",
       websiteUrl: "https://europeenchanting.com",
-      achievements: [
-        { icon: <Database className="w-3 h-3" />, title: "20,000+ SKUs", metric: "100% accuracy" },
-        { icon: <Zap className="w-3 h-3" />, title: "API Automation", metric: "Hours to minutes" },
-        { icon: <Users className="w-3 h-3" />, title: "Review System", metric: "Full-stack prototype" }
+      bullets: [
+        "Automated migration of 20,000+ product SKUs with 100% accuracy using Shopify API and Node.js scripts",
+        "Reduced manual data entry time from hours to minutes through automated API workflows",
+        "Prototyped a full-stack customer review system using React and TypeScript",
       ],
       skills: ["Node.js", "React", "TypeScript", "E-commerce", "Shopify API"]
     }
@@ -175,88 +182,76 @@ const ExperienceAndProjects = () => {
             <p className="text-gray-600">My experiences in a professional setting.</p>
           </div>
 
-          <div className="space-y-6">
+          <div className="space-y-16">
             {workExperience.map((experience, idx) => (
-            <div
-              key={idx}
-              className="bg-white rounded-xl shadow-md"
-              style={{ border: "1px solid hsl(var(--sage))" }}
-            >
-              <div
-                className="px-4 py-3"
-                style={{
-                  background: "linear-gradient(135deg, hsl(var(--sage)) 0%, hsl(var(--primary)) 100%)",
-                  borderBottom: "1px solid hsl(var(--sage))",
-                  borderTopLeftRadius: "0.75rem",
-                  borderTopRightRadius: "0.75rem"
-                }}
+            <div key={idx} className="relative">
+              {/* Faded index number */}
+              <span
+                className="absolute top-8 right-0 text-8xl font-black leading-none select-none pointer-events-none"
+                style={{ color: "hsl(var(--sage) / 0.1)" }}
               >
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-4">
-                    <div className="h-12 w-12 bg-white rounded-lg overflow-hidden flex items-center justify-center p-2">
-                      <img
-                        src={experience.logo}
-                        alt={experience.logoAlt}
-                        className="w-full h-full object-contain"
-                      />
-                    </div>
-                    <div>
-                      <h2 className="text-lg font-bold text-white">{experience.company}</h2>
-                      <p className="text-white/90 text-sm">{experience.role}</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <div className="flex items-center gap-1 bg-white/20 rounded-full px-2 py-1">
-                      <Calendar className="w-3 h-3 text-white" />
-                      <span className="text-white text-xs">{experience.date}</span>
-                    </div>
-                    <a
-                      href={experience.websiteUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center gap-1 bg-white text-gray-700 px-2 py-1 rounded-full text-xs hover:bg-gray-50 transition-colors"
-                    >
-                      Visit Site <ExternalLink className="w-2 h-2" />
-                    </a>
-                  </div>
-                </div>
-              </div>
-              <div className="p-4">
-                <div className="grid md:grid-cols-3 gap-3 mb-4">
-                  {experience.achievements.map((achievement, index) => (
-                    <div
-                      key={index}
-                      className="p-3 rounded-lg bg-gray-50"
-                      style={{ border: "1px solid hsl(var(--sage))" }}
-                    >
-                      <div className="flex items-center gap-2 mb-1">
-                        <div
-                          className="p-1 rounded-full"
-                          style={{ backgroundColor: "hsl(var(--sage))", color: "white" }}
-                        >
-                          {achievement.icon}
-                        </div>
-                        <span className="text-xs font-semibold text-gray-600">{achievement.metric}</span>
-                      </div>
-                      <h3 className="text-sm font-semibold text-gray-800">{achievement.title}</h3>
-                    </div>
-                  ))}
-                </div>
+                {String(idx + 1).padStart(2, '0')}
+              </span>
 
-                <div className="flex flex-wrap gap-2">
-                  {experience.skills.map((skill, index) => (
-                    <span
-                      key={index}
-                      className="px-2 py-1 rounded-full text-xs font-medium"
-                      style={{
-                        background: "linear-gradient(45deg, hsl(var(--primary)), hsl(var(--sage)))",
-                        color: "white"
-                      }}
-                    >
-                      {skill}
-                    </span>
-                  ))}
+              {/* Header row */}
+              <div className="flex items-start justify-between mb-4">
+                <div className="flex items-stretch gap-4">
+                  <div className="w-24 rounded-xl overflow-hidden flex items-center justify-center bg-white shadow-sm p-1.5" style={{ border: "1px solid hsl(var(--sage))" }}>
+                    <img
+                      src={experience.logo}
+                      alt={experience.logoAlt}
+                      className="w-full h-full object-contain"
+                    />
+                  </div>
+                  <div>
+                    <h2 className="text-2xl font-bold text-gray-900">{experience.company}</h2>
+                    <p className="text-base font-medium text-gray-500">{experience.role}</p>
+                    <div className="flex items-center gap-3 mt-1">
+                      <span className="flex items-center gap-1 text-sm text-gray-400">
+                        <Calendar className="w-3.5 h-3.5" />{experience.date}
+                      </span>
+                      <span className="flex items-center gap-1 text-sm text-gray-400">
+                        <MapPin className="w-3.5 h-3.5" />{experience.location}
+                      </span>
+                    </div>
+                  </div>
                 </div>
+                <a
+                  href={experience.websiteUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-1 text-sm font-medium hover:underline flex-shrink-0 mt-1"
+                  style={{ color: "hsl(var(--sage))" }}
+                >
+                  Visit Site <ExternalLink className="w-3 h-3" />
+                </a>
+              </div>
+
+              {/* Bullets */}
+              <ul className="space-y-2 mb-4">
+                {experience.bullets.map((bullet, index) => (
+                  <li key={index} className="flex items-start gap-2">
+                    <CheckCircle className="w-4 h-4 mt-0.5 flex-shrink-0" style={{ color: "hsl(var(--sage))" }} />
+                    <span className="text-base text-gray-700 leading-relaxed">{bullet}</span>
+                  </li>
+                ))}
+              </ul>
+
+              {/* Skills */}
+              <div className="flex flex-wrap gap-2">
+                {experience.skills.map((skill, index) => (
+                  <span
+                    key={index}
+                    className="px-3 py-1 rounded-full text-sm font-medium"
+                    style={{
+                      background: "hsl(var(--sage) / 0.2)",
+                      color: "hsl(var(--primary-dark))",
+                      border: "1px solid hsl(var(--sage) / 0.5)"
+                    }}
+                  >
+                    {skill}
+                  </span>
+                ))}
               </div>
             </div>
             ))}
@@ -322,11 +317,11 @@ const ExperienceAndProjects = () => {
         <div>
           <h2 className="text-xl font-bold text-gray-800 mb-4">Completed Projects</h2>
           
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
             {completedProjects.map((project, index) => (
-              <div 
+              <div
                 key={index}
-                className="bg-white rounded-lg shadow-sm hover:shadow-md transition-all flex flex-col h-full"
+                className="bg-white rounded-lg shadow-sm hover:shadow-md hover:-translate-y-1 transition-all flex flex-col h-full"
                 style={{ border: `1px solid ${project.color}` }}
               >
                 <div 
@@ -369,16 +364,27 @@ const ExperienceAndProjects = () => {
                     ))}
                   </div>
 
-                  <div className="mt-auto">
-                    <a 
+                  <div className="mt-auto flex gap-2">
+                    <a
                       href={project.githubUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="w-full flex items-center justify-center gap-2 py-2 px-3 rounded-md text-sm font-medium transition-all hover:bg-gray-50"
+                      className="flex-1 flex items-center justify-center gap-2 py-2 px-3 rounded-md text-sm font-medium transition-all hover:bg-gray-50"
                       style={{ border: `1px solid ${project.color}`, color: project.color }}
                     >
                       <Github className="w-4 h-4" /> View Code
                     </a>
+                    {project.liveUrl && project.liveUrl !== "#" && (
+                      <a
+                        href={project.liveUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center justify-center gap-2 py-2 px-3 rounded-md text-sm font-medium text-white transition-all hover:opacity-90"
+                        style={{ backgroundColor: project.color }}
+                      >
+                        <ExternalLink className="w-4 h-4" /> Live
+                      </a>
+                    )}
                   </div>
                 </div>
               </div>

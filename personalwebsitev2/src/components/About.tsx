@@ -50,8 +50,11 @@ function AboutDesktop() {
   const sectionRef = useRef<HTMLElement | null>(null);
   const [progress, setProgress] = useState(0);               // 0..1 (drives world)
   const [clickPause, setClickPause] = useState(false);
-  const [pausedCheckpoint, setPausedCheckpoint] = useState<Checkpoint | null>(null);       
+  const [pausedCheckpoint, setPausedCheckpoint] = useState<Checkpoint | null>(null);
   const reducedMotion = usePrefersReducedMotion();
+  const progressRef = useRef(0);
+  const engagedRef = useRef(false);
+  const overflowScrollRef = useRef(0); // accumulates scroll past edges
 
   const midpoints = useMemo(() => {
     const mids: number[] = [Number.NEGATIVE_INFINITY];
@@ -82,30 +85,60 @@ function AboutDesktop() {
     };
   }, [progress, reducedMotion]);
 
-  // --- Circular scroll control for seamless looping ---
+  // --- Scroll control with edge-release ---
   useEffect(() => {
     const el = sectionRef.current;
     if (!el) return;
 
+    // Engage only when the section is roughly centered in the viewport
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.intersectionRatio > 0.5) {
+          engagedRef.current = true;
+          overflowScrollRef.current = 0;
+        } else {
+          engagedRef.current = false;
+        }
+      },
+      { threshold: 0.5 }
+    );
+    observer.observe(el);
+
     const handleWheel = (e: WheelEvent) => {
-      e.preventDefault();
+      if (!engagedRef.current) return;
+
       const delta = e.deltaX !== 0 ? e.deltaX : e.deltaY;
-      const sensitivity = 0.00015; // Much slower, smoother control
-      let newProgress = progress + (delta * sensitivity);
-      
-      // Seamless circular wrapping
-      if (newProgress >= 1) {
-        newProgress = newProgress - 1; // Wrap to beginning smoothly
-      } else if (newProgress < 0) {
-        newProgress = newProgress + 1; // Wrap to end smoothly
+      const sensitivity = 0.00015;
+      const newProgress = progressRef.current + delta * sensitivity;
+
+      if (newProgress >= 0 && newProgress <= 1) {
+        // Still within range — hijack scroll
+        e.preventDefault();
+        overflowScrollRef.current = 0;
+        progressRef.current = newProgress;
+        setProgress(newProgress);
+      } else {
+        // Past an edge — accumulate overflow; release after a threshold
+        overflowScrollRef.current += delta;
+        const RELEASE_THRESHOLD = 800;
+        if (Math.abs(overflowScrollRef.current) > RELEASE_THRESHOLD) {
+          // Let the page scroll naturally — do not preventDefault
+          engagedRef.current = false;
+        } else {
+          e.preventDefault();
+        }
       }
-      
-      setProgress(newProgress);
     };
 
     el.addEventListener('wheel', handleWheel, { passive: false });
-    return () => el.removeEventListener('wheel', handleWheel);
-  }, [progress]);
+    return () => {
+      el.removeEventListener('wheel', handleWheel);
+      observer.disconnect();
+    };
+  }, []);
+
+  // Keep ref in sync with state (handler reads ref to avoid stale closure)
+  useEffect(() => { progressRef.current = progress; }, [progress]);
 
   // No autoplay - manual control only
 
@@ -141,7 +174,7 @@ function AboutDesktop() {
           Scroll to Explore!
         </h2>
         <p className="text-yellow-300 text-lg md:text-xl font-bold" style={{ color: "#fde047" }}>
-          Use mouse wheel to navigate • Click signs to read details
+          Use mouse wheel to navigate • Click signs for details • Keep scrolling to exit
         </p>
       </div>
 
