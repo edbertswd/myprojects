@@ -15,8 +15,8 @@ class PokemonService {
     // Card collection
     this.myCollection = [
       { id: 'svp-85', quantity: 1 },        // Pikachu with Grey Felt Hat
-      { id: 'sv10-284', quantity: 1 },      // Mega Gengar ex 284 Pokemon Ascended Heroes
-      { id: 'det1-1', quantity: 1 },        // Mew (Bubble Mew) 
+      { id: 'me2pt5-284', quantity: 1 },     // Mega Gengar ex 284 Pokemon Ascended Heroes
+      { id: 'sv4pt5-232', quantity: 1 },    // Mew (Bubble Mew)
     ];
   }
 

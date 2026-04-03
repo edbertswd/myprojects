@@ -17,7 +17,6 @@ const ExperienceAndProjects = () => {
         "Developed a 1-Wire EEPROM emulator using Arduino Mega and the OneWireHub library to emulate a DS2431 chip for a proprietary medical catheter test system",
         "Performed oscilloscope analysis (RIGOL DHO914) to debug protocol timing and signal integrity issues",
         "Investigated 3.3V/5V logic level mismatches and deep-dived into OneWireHub library internals to resolve communication failures",
-        "Produced professionally formatted technical documentation as structured .docx deliverables with a custom greyscale design system",
         "Developed 10 new features on a CIRRIS Electrical Tester GUI",
         "Refactored 7,000+ lines of old and coupled legacy code to be more maintainable for future SWEs working on the project",
       ],
@@ -194,24 +193,24 @@ const ExperienceAndProjects = () => {
               </span>
 
               {/* Header row */}
-              <div className="flex items-start justify-between mb-4">
+              <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between mb-4 gap-3">
                 <div className="flex items-stretch gap-4">
-                  <div className="w-24 rounded-xl overflow-hidden flex items-center justify-center bg-white shadow-sm p-1.5" style={{ border: "1px solid hsl(var(--sage))" }}>
+                  <div className="w-16 sm:w-24 flex-shrink-0 rounded-xl overflow-hidden flex items-center justify-center bg-white shadow-sm p-1.5" style={{ border: "1px solid hsl(var(--sage))" }}>
                     <img
                       src={experience.logo}
                       alt={experience.logoAlt}
                       className="w-full h-full object-contain"
                     />
                   </div>
-                  <div>
-                    <h2 className="text-2xl font-bold text-gray-900">{experience.company}</h2>
-                    <p className="text-base font-medium text-gray-500">{experience.role}</p>
-                    <div className="flex items-center gap-3 mt-1">
-                      <span className="flex items-center gap-1 text-sm text-gray-400">
-                        <Calendar className="w-3.5 h-3.5" />{experience.date}
+                  <div className="min-w-0">
+                    <h2 className="text-xl sm:text-2xl font-bold text-gray-900 leading-tight">{experience.company}</h2>
+                    <p className="text-sm sm:text-base font-medium text-gray-500">{experience.role}</p>
+                    <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-1">
+                      <span className="flex items-center gap-1 text-xs sm:text-sm text-gray-400">
+                        <Calendar className="w-3 h-3 sm:w-3.5 sm:h-3.5 flex-shrink-0" />{experience.date}
                       </span>
-                      <span className="flex items-center gap-1 text-sm text-gray-400">
-                        <MapPin className="w-3.5 h-3.5" />{experience.location}
+                      <span className="flex items-center gap-1 text-xs sm:text-sm text-gray-400">
+                        <MapPin className="w-3 h-3 sm:w-3.5 sm:h-3.5 flex-shrink-0" />{experience.location}
                       </span>
                     </div>
                   </div>
@@ -220,7 +219,7 @@ const ExperienceAndProjects = () => {
                   href={experience.websiteUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center gap-1 text-sm font-medium hover:underline flex-shrink-0 mt-1"
+                  className="flex items-center gap-1 text-sm font-medium hover:underline flex-shrink-0 self-start"
                   style={{ color: "hsl(var(--sage))" }}
                 >
                   Visit Site <ExternalLink className="w-3 h-3" />
@@ -232,7 +231,7 @@ const ExperienceAndProjects = () => {
                 {experience.bullets.map((bullet, index) => (
                   <li key={index} className="flex items-start gap-2">
                     <CheckCircle className="w-4 h-4 mt-0.5 flex-shrink-0" style={{ color: "hsl(var(--sage))" }} />
-                    <span className="text-base text-gray-700 leading-relaxed">{bullet}</span>
+                    <span className="text-sm sm:text-base text-gray-700 leading-relaxed">{bullet}</span>
                   </li>
                 ))}
               </ul>
@@ -269,12 +268,12 @@ const ExperienceAndProjects = () => {
             {inDevProjects.map((project, index) => (
               <div key={index} className="bg-white rounded-lg shadow-sm" style={{ border: "1px solid hsl(var(--sage))" }}>
                 <div className="p-4">
-                  <div className="flex items-start justify-between mb-2">
-                    <div>
+                  <div className="flex flex-col xs:flex-row xs:items-start xs:justify-between mb-2 gap-1">
+                    <div className="min-w-0">
                       <h3 className="text-lg font-bold text-gray-800 mb-1">{project.title}</h3>
                       <p className="text-gray-600 text-sm mb-2">{project.description}</p>
                     </div>
-                    <div className="text-right flex-shrink-0 ml-4">
+                    <div className="xs:text-right flex-shrink-0 xs:ml-4">
                       <div className="text-xs text-orange-600 font-medium">{project.timeline}</div>
                       <div className="text-xs text-gray-500">{project.teamSize}</div>
                     </div>
@@ -285,10 +284,10 @@ const ExperienceAndProjects = () => {
                     <span className="text-xs text-gray-600">{project.highlight}</span>
                   </div>
 
-                  <div className="flex items-center justify-between">
+                  <div className="flex flex-col xs:flex-row xs:items-center xs:justify-between gap-2">
                     <div className="flex flex-wrap gap-1">
                       {project.technologies.map((tech, idx) => (
-                        <span 
+                        <span
                           key={idx}
                           className="px-2 py-1 text-xs rounded-full"
                           style={{ backgroundColor: "hsl(var(--sage))", color: "white" }}
@@ -297,11 +296,11 @@ const ExperienceAndProjects = () => {
                         </span>
                       ))}
                     </div>
-                    <a 
+                    <a
                       href={project.githubUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex items-center gap-1 px-3 py-1 rounded-lg text-xs font-medium hover:shadow-sm transition-all"
+                      className="flex items-center gap-1 px-3 py-1 rounded-lg text-xs font-medium hover:shadow-sm transition-all self-start xs:self-auto flex-shrink-0"
                       style={{ border: "1px solid hsl(var(--sage))", color: "hsl(var(--sage))" }}
                     >
                       <Github className="w-3 h-3" /> Code
