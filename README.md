@@ -112,7 +112,6 @@ Full-stack engineer with experience spanning web development, machine learning, 
 **Software Engineer Intern** · Europe Enchanting *(June 2024)*
 
 - Managed and maintained 20,000+ product SKUs across multiple e-commerce platforms
-- Built Flask REST APIs and React.js prototypes to accelerate internal tooling
 - Automated deployment workflows, cutting release times from hours to minutes
 
 ---
