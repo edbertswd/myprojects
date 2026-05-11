@@ -558,9 +558,9 @@ function AboutDesktop() {
           ))}
         </div>
         {/* Progress info */}
-        <div className="flex justify-between items-center mt-2 text-white text-sm font-medium" style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.8)' }}>
-          <span>Journey Progress: {Math.round(progress * 100)}%</span>
-          <span>Current: {checkpoints[Math.floor(progress * checkpoints.length)]?.title || 'Beginnings'}</span>
+        <div className="flex flex-col xs:flex-row justify-between items-start xs:items-center mt-2 gap-0.5 text-white font-medium" style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.8)', fontSize: 'clamp(0.65rem, 2vw, 0.875rem)' }}>
+          <span>Journey: {Math.round(progress * 100)}%</span>
+          <span className="truncate max-w-[55%] xs:max-w-none text-right">{checkpoints[Math.floor(progress * checkpoints.length)]?.title || 'Beginnings'}</span>
         </div>
       </div>
 
