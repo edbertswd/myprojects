@@ -49,14 +49,26 @@
     --sage: 140 20% 45%;
     --soft-blue: 210 25% 70%;
 
+    /* Portfolio aliases (mapped to current palette) */
+    --portfolio-orange: 140 25% 40%;
+    --portfolio-orange-light: 140 25% 55%;
+    --portfolio-cream: 40 20% 97%;
+    --portfolio-gray: 210 10% 92%;
+    --portfolio-dark: 220 15% 20%;
+
+    /* Section backgrounds */
+    --section-bg: 145 40% 96%;
+    --section-bg-alt: 150 30% 94%;
+    --hero-banner: 195 60% 78%;
+
     /* Gradients */
     --gradient-primary: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--accent)));
     --gradient-neutral: linear-gradient(180deg, hsl(var(--background)), hsl(var(--cream)));
 
-    /* Shadows */
-    --shadow-soft: 0 4px 20px hsl(var(--primary) / 0.08);
-    --shadow-card: 0 2px 10px hsl(220 15% 20% / 0.06);
-    --shadow-hover: 0 6px 18px hsl(var(--primary) / 0.12);
+    /* Shadows – slightly stronger for visual depth */
+    --shadow-soft: 0 4px 20px hsl(var(--primary) / 0.10);
+    --shadow-card: 0 2px 12px hsl(220 15% 20% / 0.08);
+    --shadow-hover: 0 8px 24px hsl(var(--primary) / 0.15);
 
     --radius: 0.75rem;
   }
@@ -96,6 +108,16 @@
     --sage: 140 25% 50%;
     --soft-blue: 210 25% 65%;
 
+    --portfolio-orange: 140 25% 45%;
+    --portfolio-orange-light: 140 25% 55%;
+    --portfolio-cream: 220 10% 14%;
+    --portfolio-gray: 220 10% 20%;
+    --portfolio-dark: 40 20% 95%;
+
+    --section-bg: 220 15% 11%;
+    --section-bg-alt: 220 12% 13%;
+    --hero-banner: 210 30% 18%;
+
     --gradient-neutral: linear-gradient(180deg, hsl(var(--background)), hsl(var(--cream)));
     --shadow-card: 0 2px 12px hsl(0 0% 0% / 0.25);
   }
@@ -121,7 +143,7 @@
   }
 }
 
-/* Example utilities */
+/* Utility classes */
 @layer utilities {
   .text-sage { color: hsl(var(--sage)); }
   .bg-sage { background-color: hsl(var(--sage)); }
@@ -131,4 +153,24 @@
 
   .text-accent { color: hsl(var(--accent)); }
   .bg-accent { background-color: hsl(var(--accent)); }
+
+  .bg-section { background-color: hsl(var(--section-bg)); }
+  .bg-section-alt { background-color: hsl(var(--section-bg-alt)); }
+}
+
+/* Section divider — soft gradient fade between sections */
+.section-divider {
+  height: 80px;
+  background: linear-gradient(
+    to bottom,
+    transparent 0%,
+    hsl(var(--section-bg) / 0.5) 50%,
+    hsl(var(--section-bg)) 100%
+  );
+  pointer-events: none;
+}
+
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
 }

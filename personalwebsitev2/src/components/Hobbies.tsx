@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
 import { Music, Play, Users, TrendingUp, Zap, Star, Trophy, Eye, Clock, BarChart3 } from 'lucide-react';
 
 interface SpotifyTrack {
@@ -391,30 +392,30 @@ const Hobbies = () => {
 
   if (loading) {
     return (
-      <section className="py-12" style={{ backgroundColor: "#effcf5" }}>
+      <section className="py-16" style={{ backgroundColor: "hsl(var(--section-bg))" }}>
         <div className="max-w-6xl mx-auto px-4">
           <div className="text-center mb-8">
-            <h2 className="text-3xl font-bold text-gray-800 mb-2">My Hobbies</h2>
+            <h2 className="text-3xl font-bold mb-2" style={{ color: "hsl(var(--slate))" }}>My Hobbies</h2>
             <div className="animate-pulse">
-              <div className="h-4 bg-gray-300 rounded w-1/4 mx-auto"></div>
+              <div className="h-4 rounded w-1/4 mx-auto" style={{ backgroundColor: "hsl(var(--border))" }}></div>
             </div>
           </div>
-          
+
           <div className="grid lg:grid-cols-2 gap-8">
-            <div className="bg-white rounded-xl p-6 shadow-md animate-pulse">
-              <div className="h-6 bg-gray-300 rounded w-3/4 mb-4"></div>
+            <div className="bg-white rounded-xl p-6 animate-pulse border border-border/50" style={{ boxShadow: "var(--shadow-card)" }}>
+              <div className="h-6 rounded w-3/4 mb-4" style={{ backgroundColor: "hsl(var(--border))" }}></div>
               <div className="space-y-3">
-                <div className="h-4 bg-gray-200 rounded"></div>
-                <div className="h-4 bg-gray-200 rounded w-5/6"></div>
-                <div className="h-32 bg-gray-200 rounded"></div>
+                <div className="h-4 rounded" style={{ backgroundColor: "hsl(var(--muted))" }}></div>
+                <div className="h-4 rounded w-5/6" style={{ backgroundColor: "hsl(var(--muted))" }}></div>
+                <div className="h-32 rounded" style={{ backgroundColor: "hsl(var(--muted))" }}></div>
               </div>
             </div>
-            
-            <div className="bg-white rounded-xl p-6 shadow-md animate-pulse">
-              <div className="h-6 bg-gray-300 rounded w-3/4 mb-4"></div>
+
+            <div className="bg-white rounded-xl p-6 animate-pulse border border-border/50" style={{ boxShadow: "var(--shadow-card)" }}>
+              <div className="h-6 rounded w-3/4 mb-4" style={{ backgroundColor: "hsl(var(--border))" }}></div>
               <div className="grid grid-cols-3 gap-3">
                 {[...Array(6)].map((_, i) => (
-                  <div key={i} className="aspect-[3/4] bg-gray-200 rounded-lg"></div>
+                  <div key={i} className="aspect-[3/4] rounded-lg" style={{ backgroundColor: "hsl(var(--muted))" }}></div>
                 ))}
               </div>
             </div>
@@ -425,11 +426,17 @@ const Hobbies = () => {
   }
 
   return (
-    <section id="hobbies" className="py-12" style={{ backgroundColor: "#effcf5" }}>
+    <section id="hobbies" className="py-16" style={{ backgroundColor: "hsl(var(--section-bg))" }}>
       <div className="max-w-6xl mx-auto px-4">
-        
-        <div className="text-center mb-8">
-          <div 
+
+        <motion.div
+          className="text-center mb-8"
+          initial={{ opacity: 0, y: 24 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-60px" }}
+          transition={{ duration: 0.5, ease: "easeOut" }}
+        >
+          <div
             className="inline-block px-4 py-2 mb-4 rounded-lg"
             style={{
               background: "linear-gradient(45deg, hsl(var(--sage)), hsl(var(--primary)))",
@@ -442,9 +449,9 @@ const Hobbies = () => {
               <span className="text-sm font-semibold">PERSONAL INTERESTS</span>
             </div>
           </div>
-          <h2 className="text-3xl font-bold text-gray-800 mb-2">Hobbies</h2>
-          <p className="text-gray-600">What's a man without a hobby?</p>
-        </div>
+          <h2 className="text-3xl font-bold mb-2" style={{ color: "hsl(var(--slate))" }}>Hobbies</h2>
+          <p style={{ color: "hsl(var(--muted-foreground))" }}>What's a man without a hobby?</p>
+        </motion.div>
 
         {error && (
           <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
@@ -455,9 +462,16 @@ const Hobbies = () => {
         )}
 
         <div className="grid lg:grid-cols-2 gap-8">
-          
+
           {/* Enhanced Spotify Section */}
-          <div className="bg-white rounded-xl shadow-md overflow-hidden" style={{ border: "1px solid hsl(var(--sage))" }}>
+          <motion.div
+            className="bg-white rounded-xl overflow-hidden border border-border/50"
+            style={{ boxShadow: "var(--shadow-card)" }}
+            initial={{ opacity: 0, x: -24 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true, margin: "-40px" }}
+            transition={{ duration: 0.5, ease: "easeOut" }}
+          >
             <div 
               className="px-6 py-4"
               style={{
@@ -573,17 +587,17 @@ const Hobbies = () => {
                       </h4>
                       
                       <div className="grid grid-cols-3 gap-4 mb-4">
-                        <div className="text-center p-3 bg-gray-50 rounded-lg">
-                          <div className="text-lg font-bold text-gray-800">{data.spotify.monthlyStats.totalTracks}</div>
-                          <div className="text-xs text-gray-500">Top Tracks</div>
+                        <div className="text-center p-3 rounded-lg" style={{ backgroundColor: "hsl(var(--muted))" }}>
+                          <div className="text-lg font-bold" style={{ color: "hsl(var(--slate))" }}>{data.spotify.monthlyStats.totalTracks}</div>
+                          <div className="text-xs" style={{ color: "hsl(var(--muted-foreground))" }}>Top Tracks</div>
                         </div>
-                        <div className="text-center p-3 bg-gray-50 rounded-lg">
-                          <div className="text-lg font-bold text-gray-800">{data.spotify.monthlyStats.totalArtists}</div>
-                          <div className="text-xs text-gray-500">Top Artists</div>
+                        <div className="text-center p-3 rounded-lg" style={{ backgroundColor: "hsl(var(--muted))" }}>
+                          <div className="text-lg font-bold" style={{ color: "hsl(var(--slate))" }}>{data.spotify.monthlyStats.totalArtists}</div>
+                          <div className="text-xs" style={{ color: "hsl(var(--muted-foreground))" }}>Top Artists</div>
                         </div>
-                        <div className="text-center p-3 bg-gray-50 rounded-lg">
-                          <div className="text-lg font-bold text-gray-800">{data.spotify.monthlyStats.averagePopularity.toFixed(0)}%</div>
-                          <div className="text-xs text-gray-500">Avg Popularity</div>
+                        <div className="text-center p-3 rounded-lg" style={{ backgroundColor: "hsl(var(--muted))" }}>
+                          <div className="text-lg font-bold" style={{ color: "hsl(var(--slate))" }}>{data.spotify.monthlyStats.averagePopularity.toFixed(0)}%</div>
+                          <div className="text-xs" style={{ color: "hsl(var(--muted-foreground))" }}>Avg Popularity</div>
                         </div>
                       </div>
 
@@ -633,7 +647,7 @@ const Hobbies = () => {
               )}
 
             </div>
-          </div>
+          </motion.div>
 
           {/* Pokemon Cards Section */}
           <div className="bg-white rounded-xl shadow-md overflow-hidden" style={{ border: "1px solid hsl(var(--sage))" }}>
@@ -661,23 +675,23 @@ const Hobbies = () => {
             <div className="p-6">
               {/* Collection Stats */}
               <div className="grid grid-cols-3 gap-4 mb-6">
-                <div className="text-center p-3 bg-gray-50 rounded-lg">
-                  <div className="text-xl font-bold text-gray-800">{data.pokemon.stats.totalCards}</div>
-                  <div className="text-xs text-gray-500">Total Cards</div>
+                <div className="text-center p-3 rounded-lg" style={{ backgroundColor: "hsl(var(--muted))" }}>
+                  <div className="text-xl font-bold" style={{ color: "hsl(var(--slate))" }}>{data.pokemon.stats.totalCards}</div>
+                  <div className="text-xs" style={{ color: "hsl(var(--muted-foreground))" }}>Total Cards</div>
                 </div>
-                <div className="text-center p-3 bg-gray-50 rounded-lg">
-                  <div className="text-xl font-bold text-gray-800">{data.pokemon.stats.uniqueCards}</div>
-                  <div className="text-xs text-gray-500">Unique Cards</div>
+                <div className="text-center p-3 rounded-lg" style={{ backgroundColor: "hsl(var(--muted))" }}>
+                  <div className="text-xl font-bold" style={{ color: "hsl(var(--slate))" }}>{data.pokemon.stats.uniqueCards}</div>
+                  <div className="text-xs" style={{ color: "hsl(var(--muted-foreground))" }}>Unique Cards</div>
                 </div>
-                <div className="text-center p-3 bg-gray-50 rounded-lg">
-                  <div className="text-xl font-bold text-gray-800">${data.pokemon.stats.totalValue.toFixed(0)}</div>
-                  <div className="text-xs text-gray-500">Est. Value</div>
+                <div className="text-center p-3 rounded-lg" style={{ backgroundColor: "hsl(var(--muted))" }}>
+                  <div className="text-xl font-bold" style={{ color: "hsl(var(--slate))" }}>${data.pokemon.stats.totalValue.toFixed(0)}</div>
+                  <div className="text-xs" style={{ color: "hsl(var(--muted-foreground))" }}>Est. Value</div>
                 </div>
               </div>
 
               {/* Featured Cards */}
               <div>
-                <h4 className="text-sm font-semibold text-gray-600 mb-3 uppercase tracking-wider flex items-center gap-2">
+                <h4 className="text-sm font-semibold mb-3 uppercase tracking-wider flex items-center gap-2" style={{ color: "hsl(var(--muted-foreground))" }}>
                   <Star className="w-3 h-3" /> Featured Cards
                 </h4>
                 
@@ -685,7 +699,7 @@ const Hobbies = () => {
                   <div className="grid grid-cols-3 gap-3">
                     {data.pokemon.featured.map((card, index) => (
                       <div key={card.id || index} className="group cursor-pointer">
-                        <div className="relative aspect-[3/4] bg-gray-100 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 group-hover:scale-105">
+                        <div className="relative aspect-[3/4] rounded-lg overflow-hidden hover:shadow-md transition-all duration-200 ease-out group-hover:scale-105" style={{ backgroundColor: "hsl(var(--muted))", boxShadow: "var(--shadow-card)" }}>
                           <img 
                             src={card.images?.small || ''} 
                             alt={card.name || 'Pokemon Card'}
@@ -721,7 +735,7 @@ const Hobbies = () => {
                     ))}
                   </div>
                 ) : (
-                  <div className="text-center py-8 text-gray-500">
+                  <div className="text-center py-8" style={{ color: "hsl(var(--muted-foreground))" }}>
                     <Trophy className="w-8 h-8 mx-auto mb-2 opacity-50" />
                     <p className="text-sm font-medium">No Pokemon cards found</p>
                     <p className="text-xs mt-1">The Pokemon TCG API might be temporarily unavailable</p>
@@ -738,7 +752,7 @@ const Hobbies = () => {
                 )}
               </div>
             </div>
-          </div>
+          </motion.div>
         </div>
       </div>
     </section>

@@ -1,8 +1,33 @@
 import React from 'react';
+import { motion } from 'framer-motion';
 import europeEnchantingLogo from '/src/assets/europeenchanting-logo.webp'
 import biotechFuturesLogo from '/src/assets/biotechfutures.jpg'
 import cathrxLogo from '/src/assets/cathrx.png'
-import { Calendar, ExternalLink, Code, Database, Zap, Users, CheckCircle, Github, Monitor, Brain, Gamepad2, Smartphone, Clock, MapPin } from 'lucide-react';
+import { Calendar, ExternalLink, Code, CheckCircle, Github, Monitor, Brain, Gamepad2, Clock, MapPin } from 'lucide-react';
+
+const fadeInUp = {
+  hidden: { opacity: 0, y: 24 },
+  visible: (i: number) => ({
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.5, delay: i * 0.1, ease: "easeOut" },
+  }),
+};
+
+const staggerContainer = {
+  hidden: {},
+  visible: { transition: { staggerChildren: 0.08 } },
+};
+
+const cardFadeIn = {
+  hidden: { opacity: 0, y: 16, scale: 0.97 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    transition: { duration: 0.4, ease: "easeOut" },
+  },
+};
 
 const ExperienceAndProjects = () => {
   const workExperience = [{
@@ -63,7 +88,15 @@ const ExperienceAndProjects = () => {
       highlight: "Redesigned with a working backend handled in a Node.js server and a reactive frontend.",
       githubUrl: "https://github.com/edbertswd/myprojects/personalwebsitev2",
       teamSize: "Solo Project"
-    },  
+    },
+    {
+      title: "Acknowledge Me - Game Development",
+      description: "A unity3d game with a unique ghost-themed concept.",
+      technologies: ["Unity3D", "C#", "Game Development"],
+      timeline: "In Progress",
+      highlight: "Adding my experience with 3d game development.",
+      teamSize: "Solo Project"
+    },
   ];
 
   const completedProjects = [
@@ -78,19 +111,20 @@ const ExperienceAndProjects = () => {
           "RESTful API with Nominatim address autocomplete",
         ],
         githubUrl: "https://github.com/edbertswd/myprojects/tree/main/CourtConnectWebsite/app",
-        color: "#a63d40",
+        color: "hsl(var(--destructive))",
       },
       {
-      title: "Social Mood Mobile App",
+      title: "OpenxAI Hackathon Mobile App",
       category: "Fullstack",
       icon: <Monitor className="w-3 h-3" />,
       technologies: ["React Native", "TensorFlow Lite", "Flask", "PostgreSQL"],
       highlight: [
         "Real-time facial emotion recognition",
         "Compact mobile TFLite model",
+        "Able to scan a user's face and determine their emotion in real-time",
       ],
       githubUrl: "https://github.com/edbertswd/openxai",
-      color: "#a63d40"
+      color: "hsl(var(--destructive))"
     },
     {
       title: "Personal Website (First Version)",
@@ -103,7 +137,7 @@ const ExperienceAndProjects = () => {
       ],
       githubUrl: "https://github.com/edbertswd/myprojects/tree/main/personalwebsite",
       liveUrl: "#",
-      color: "#5d576b"
+      color: "hsl(var(--muted-foreground))"
     },
     {
       title: "ML Cancer Model",
@@ -116,7 +150,7 @@ const ExperienceAndProjects = () => {
         "First dive into data science",
       ],
       githubUrl: "https://github.com/edbertswd/myprojects/tree/main/MLLungCancerPredictor",
-      color: "#5d576b",
+      color: "hsl(var(--muted-foreground))",
     },
     {
       title: "Pacman Game",
@@ -127,7 +161,7 @@ const ExperienceAndProjects = () => {
         "Game design with SOLID/GRASP principles",
       ],
       githubUrl: "https://github.com/edbertswd/myprojects/tree/main/PacmanGame",
-      color: "#5171a5"
+      color: "hsl(var(--soft-blue))"
     },
     {
       title: "Tower Defense",
@@ -139,17 +173,17 @@ const ExperienceAndProjects = () => {
         "Solidified OOP understanding",
       ],
       githubUrl: "https://github.com/edbertswd/myprojects/tree/main/TowerDefense",
-      color: "#5171a5"
+      color: "hsl(var(--soft-blue))"
     }
   ];
 
   return (
-    <section 
+    <section
       id="experience"
-      className="relative overflow-hidden py-12"
+      className="relative overflow-hidden py-16"
       style={{
         fontFamily: "'Inter', sans-serif",
-        backgroundColor: "#effcf5",
+        backgroundColor: "hsl(var(--section-bg))",
       }}
     >
       <div className="absolute inset-0 opacity-5">
@@ -160,11 +194,17 @@ const ExperienceAndProjects = () => {
       </div>
 
       <div className="max-w-5xl mx-auto px-4 relative">
-        
-        {/* Work Experience - Hero Section */}
-        <div className="mb-12">
-          <div className="text-center mb-8">
-            <div 
+
+        {/* Work Experience */}
+        <motion.div
+          className="mb-16"
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-60px" }}
+          variants={staggerContainer}
+        >
+          <motion.div className="text-center mb-10" variants={fadeInUp} custom={0}>
+            <div
               className="inline-block px-4 py-2 mb-4 rounded-lg"
               style={{
                 background: "linear-gradient(45deg, hsl(var(--sage)), hsl(var(--primary)))",
@@ -177,13 +217,21 @@ const ExperienceAndProjects = () => {
                 <span className="text-sm font-semibold">PROFESSIONAL EXPERIENCE</span>
               </div>
             </div>
-            <h1 className="text-3xl font-bold mb-2 text-gray-800">Work Experience</h1>
-            <p className="text-gray-600">My experiences in a professional setting.</p>
-          </div>
+            <h1 className="text-3xl font-bold mb-2" style={{ color: "hsl(var(--slate))" }}>Work Experience</h1>
+            <p style={{ color: "hsl(var(--muted-foreground))" }}>My experiences in a professional setting.</p>
+          </motion.div>
 
           <div className="space-y-16">
             {workExperience.map((experience, idx) => (
-            <div key={idx} className="relative">
+            <motion.div
+              key={idx}
+              className="relative"
+              variants={fadeInUp}
+              custom={idx + 1}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, margin: "-40px" }}
+            >
               {/* Faded index number */}
               <span
                 className="absolute top-8 right-0 text-8xl font-black leading-none select-none pointer-events-none"
@@ -243,30 +291,41 @@ const ExperienceAndProjects = () => {
                     key={index}
                     className="px-3 py-1 rounded-full text-sm font-medium"
                     style={{
-                      background: "hsl(var(--sage) / 0.2)",
+                      background: "hsl(var(--sage) / 0.15)",
                       color: "hsl(var(--primary-dark))",
-                      border: "1px solid hsl(var(--sage) / 0.5)"
+                      border: "1px solid hsl(var(--sage) / 0.4)"
                     }}
                   >
                     {skill}
                   </span>
                 ))}
               </div>
-            </div>
+            </motion.div>
             ))}
           </div>
-        </div>
+        </motion.div>
 
         {/* Current Projects */}
-        <div className="mb-10">
-          <div className="flex items-center gap-2 mb-4">
+        <motion.div
+          className="mb-12"
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-40px" }}
+          variants={staggerContainer}
+        >
+          <motion.div className="flex items-center gap-2 mb-4" variants={fadeInUp} custom={0}>
             <Clock className="w-4 h-4 text-orange-500" />
-            <h2 className="text-xl font-bold text-gray-800">In Development</h2>
-          </div>
+            <h2 className="text-xl font-bold" style={{ color: "hsl(var(--slate))" }}>In Development</h2>
+          </motion.div>
 
           <div className="space-y-4">
             {inDevProjects.map((project, index) => (
-              <div key={index} className="bg-white rounded-lg shadow-sm" style={{ border: "1px solid hsl(var(--sage))" }}>
+              <motion.div
+                key={index}
+                className="bg-white rounded-lg border border-border/50 hover:shadow-md transition-all duration-200 ease-out"
+                style={{ boxShadow: "var(--shadow-card)" }}
+                variants={cardFadeIn}
+              >
                 <div className="p-4">
                   <div className="flex flex-col xs:flex-row xs:items-start xs:justify-between mb-2 gap-1">
                     <div className="min-w-0">
@@ -275,13 +334,13 @@ const ExperienceAndProjects = () => {
                     </div>
                     <div className="xs:text-right flex-shrink-0 xs:ml-4">
                       <div className="text-xs text-orange-600 font-medium">{project.timeline}</div>
-                      <div className="text-xs text-gray-500">{project.teamSize}</div>
+                      <div className="text-xs" style={{ color: "hsl(var(--taupe))" }}>{project.teamSize}</div>
                     </div>
                   </div>
-                  
+
                   <div className="flex items-start gap-2 mb-3">
-                    <CheckCircle className="w-3 h-3 text-green-500 mt-0.5 flex-shrink-0" />
-                    <span className="text-xs text-gray-600">{project.highlight}</span>
+                    <CheckCircle className="w-3 h-3 mt-0.5 flex-shrink-0" style={{ color: "hsl(var(--sage))" }} />
+                    <span className="text-xs" style={{ color: "hsl(var(--muted-foreground))" }}>{project.highlight}</span>
                   </div>
 
                   <div className="flex flex-col xs:flex-row xs:items-center xs:justify-between gap-2">
@@ -307,30 +366,42 @@ const ExperienceAndProjects = () => {
                     </a>
                   </div>
                 </div>
-              </div>
+              </motion.div>
             ))}
           </div>
-        </div>
+        </motion.div>
 
         {/* Completed Projects */}
-        <div>
-          <h2 className="text-xl font-bold text-gray-800 mb-4">Completed Projects</h2>
-          
+        <motion.div
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-40px" }}
+          variants={staggerContainer}
+        >
+          <motion.h2
+            className="text-xl font-bold mb-6"
+            style={{ color: "hsl(var(--slate))" }}
+            variants={fadeInUp}
+            custom={0}
+          >
+            Completed Projects
+          </motion.h2>
+
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
             {completedProjects.map((project, index) => (
-              <div
+              <motion.div
                 key={index}
-                className="bg-white rounded-lg shadow-sm hover:shadow-md hover:-translate-y-1 transition-all flex flex-col h-full"
-                style={{ border: `1px solid ${project.color}` }}
+                className="bg-white rounded-lg border border-border/50 hover:shadow-lg hover:-translate-y-1 transition-all duration-200 ease-out flex flex-col h-full"
+                style={{ boxShadow: "var(--shadow-card)" }}
+                variants={cardFadeIn}
               >
-                <div 
+                <div
                   className="px-3 py-2"
-                  style={{ 
-                    backgroundColor: project.color, 
+                  style={{
+                    backgroundColor: project.color,
                     color: "white",
-                    borderBottom: `1px solid ${project.color}`,
-                    borderTopLeftRadius: "0.5rem",
-                    borderTopRightRadius: "0.5rem"
+                    borderTopLeftRadius: "calc(var(--radius) - 1px)",
+                    borderTopRightRadius: "calc(var(--radius) - 1px)"
                   }}
                 >
                   <div className="flex items-center gap-2">
@@ -340,20 +411,20 @@ const ExperienceAndProjects = () => {
                 </div>
 
                 <div className="p-4 flex flex-col flex-grow">
-                  <h3 className="font-semibold text-gray-800 mb-3 text-base leading-tight">{project.title}</h3>
-                  
+                  <h3 className="font-semibold mb-3 text-base leading-tight" style={{ color: "hsl(var(--slate))" }}>{project.title}</h3>
+
                   <div className="mb-4 flex-grow space-y-1">
                     {project.highlight.map((point, i) => (
                       <div key={i} className="flex items-start gap-2">
-                        <CheckCircle className="w-3 h-3 text-green-500 mt-0.5 flex-shrink-0" />
-                        <span className="text-sm text-gray-600 leading-relaxed">{point}</span>
+                        <CheckCircle className="w-3 h-3 mt-0.5 flex-shrink-0" style={{ color: "hsl(var(--sage))" }} />
+                        <span className="text-sm leading-relaxed" style={{ color: "hsl(var(--muted-foreground))" }}>{point}</span>
                       </div>
                     ))}
                   </div>
 
                   <div className="flex flex-wrap gap-1.5 mb-4">
                     {project.technologies.map((tech, idx) => (
-                      <span 
+                      <span
                         key={idx}
                         className="px-2 py-1 text-xs rounded-md font-medium"
                         style={{ backgroundColor: project.color, color: "white" }}
@@ -368,8 +439,8 @@ const ExperienceAndProjects = () => {
                       href={project.githubUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex-1 flex items-center justify-center gap-2 py-2 px-3 rounded-md text-sm font-medium transition-all hover:bg-gray-50"
-                      style={{ border: `1px solid ${project.color}`, color: project.color }}
+                      className="flex-1 flex items-center justify-center gap-2 py-2 px-3 rounded-md text-sm font-medium border border-border/50 hover:bg-muted transition-all duration-200 ease-out"
+                      style={{ color: "hsl(var(--slate))" }}
                     >
                       <Github className="w-4 h-4" /> View Code
                     </a>
@@ -378,7 +449,7 @@ const ExperienceAndProjects = () => {
                         href={project.liveUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex items-center justify-center gap-2 py-2 px-3 rounded-md text-sm font-medium text-white transition-all hover:opacity-90"
+                        className="flex items-center justify-center gap-2 py-2 px-3 rounded-md text-sm font-medium text-white transition-all duration-200 ease-out hover:opacity-90"
                         style={{ backgroundColor: project.color }}
                       >
                         <ExternalLink className="w-4 h-4" /> Live
@@ -386,10 +457,10 @@ const ExperienceAndProjects = () => {
                     )}
                   </div>
                 </div>
-              </div>
+              </motion.div>
             ))}
           </div>
-        </div>
+        </motion.div>
 
       </div>
     </section>
