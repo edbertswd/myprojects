@@ -81,6 +81,14 @@ Full-stack engineer with experience spanning web development, machine learning, 
 
 | Project | Stack | Highlights |
 |---|---|---|
+| **Biotech Futures** | React, Vite, Python Django backend, Microsoft Azure Cloud DB | Fully deployed cloud-based application powered by Microsoft Azure |
+
+| Project | Stack | Highlights |
+|---|---|---|
+| **Personal Website V2** | React, Vite, Typescript, Framer Motion, NodeJS backend | Fully web-deployed application with a nodeJS backend on a live server. |
+
+| Project | Stack | Highlights |
+|---|---|---|
 | **Personal Website V1** | React, Framer Motion | Accessibility-focused, animated transitions |
 
 ### Data Science & Machine Learning
