@@ -1,252 +1,135 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { motion } from 'framer-motion';
-import { Quote, ChevronLeft, ChevronRight, MessageCircle } from 'lucide-react';
+import { useCallback, useEffect, useRef, useState } from "react";
+import { AnimatePresence, motion } from "motion/react";
+import { ChevronLeft, ChevronRight, MessageCircle, Quote } from "lucide-react";
+import SectionHeader from "@/components/ui/SectionHeader";
+import GlassCard from "@/components/ui/GlassCard";
+import { testimonials } from "@/data/testimonials";
 
-interface Testimonial {
-  quote: string;
-  name: string;
-  role: string;
-  relationship: string;
-  avatarInitials: string;
-}
+const avatarColors = ["bg-sage", "bg-soft-blue", "bg-primary-dark", "bg-gold"];
+const AUTO_MS = 7000;
 
-const testimonials: Testimonial[] = [
-  {
-    quote: "Edbert consistently went above and beyond during our capstone project. He took the initiative to lead backend architecture decisions and kept the entire team aligned across 18 engineers. His ability to communicate technical trade-offs clearly made him an invaluable team lead.",
-    name: "Capstone Teammate",
-    role: "Software Engineer",
-    relationship: "Biotech Futures Capstone",
-    avatarInitials: "DT",
-  },
-  {
-    quote: "Working with Edbert on the product migration was a great experience. He automated what would have been weeks of manual work into a reliable script that handled 20,000+ SKUs without a single error. He's the kind of engineer who finds the efficient solution, not just a solution.",
-    name: "Project Supervisor",
-    role: "Software Engineer",
-    relationship: "Europe Enchanting",
-    avatarInitials: "OS",
-  },
-];
+export default function Testimonials() {
+  const [[index, dir], setState] = useState<[number, 1 | -1]>([0, 1]);
+  const timer = useRef<ReturnType<typeof setInterval> | null>(null);
+  const touchX = useRef<number | null>(null);
 
-const avatarColors = [
-  "hsl(var(--sage))",
-  "hsl(var(--soft-blue))",
-  "hsl(var(--primary-dark))",
-  "hsl(var(--accent))",
-];
+  const go = useCallback((next: number, d: 1 | -1) => {
+    setState([((next % testimonials.length) + testimonials.length) % testimonials.length, d]);
+  }, []);
 
-const Testimonials = () => {
-  const [activeIndex, setActiveIndex] = useState(0);
-  const [isAnimating, setIsAnimating] = useState(false);
-  const [direction, setDirection] = useState<'left' | 'right'>('right');
-  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  const touchStartX = useRef<number | null>(null);
-  const touchEndX = useRef<number | null>(null);
-
-  const goTo = useCallback((index: number, dir: 'left' | 'right') => {
-    if (isAnimating || index === activeIndex) return;
-    setDirection(dir);
-    setIsAnimating(true);
-    setTimeout(() => {
-      setActiveIndex(index);
-      setTimeout(() => setIsAnimating(false), 50);
-    }, 200);
-  }, [isAnimating, activeIndex]);
-
-  const next = useCallback(() => {
-    const nextIndex = (activeIndex + 1) % testimonials.length;
-    goTo(nextIndex, 'right');
-  }, [activeIndex, goTo]);
-
-  const prev = useCallback(() => {
-    const prevIndex = (activeIndex - 1 + testimonials.length) % testimonials.length;
-    goTo(prevIndex, 'left');
-  }, [activeIndex, goTo]);
+  const restart = useCallback(() => {
+    if (timer.current) clearInterval(timer.current);
+    timer.current = setInterval(() => setState(([i]) => [(i + 1) % testimonials.length, 1]), AUTO_MS);
+  }, []);
 
   useEffect(() => {
-    intervalRef.current = setInterval(next, 7000);
+    restart();
     return () => {
-      if (intervalRef.current) clearInterval(intervalRef.current);
+      if (timer.current) clearInterval(timer.current);
     };
-  }, [next]);
+  }, [restart]);
 
-  const resetAutoRotate = useCallback(() => {
-    if (intervalRef.current) clearInterval(intervalRef.current);
-    intervalRef.current = setInterval(next, 7000);
-  }, [next]);
-
-  const handleTouchStart = (e: React.TouchEvent) => {
-    touchStartX.current = e.targetTouches[0].clientX;
-    touchEndX.current = null;
+  const next = () => {
+    go(index + 1, 1);
+    restart();
+  };
+  const prev = () => {
+    go(index - 1, -1);
+    restart();
   };
 
-  const handleTouchMove = (e: React.TouchEvent) => {
-    touchEndX.current = e.targetTouches[0].clientX;
-  };
-
-  const handleTouchEnd = () => {
-    if (touchStartX.current === null || touchEndX.current === null) return;
-    const distance = touchStartX.current - touchEndX.current;
-    const minSwipe = 50;
-
-    if (distance > minSwipe) {
-      next();
-      resetAutoRotate();
-    } else if (distance < -minSwipe) {
-      prev();
-      resetAutoRotate();
-    }
-
-    touchStartX.current = null;
-    touchEndX.current = null;
-  };
-
-  const current = testimonials[activeIndex];
+  const t = testimonials[index];
 
   return (
-    <section
-      id="testimonials"
-      className="relative overflow-hidden py-16"
-      style={{
-        fontFamily: "'Inter', sans-serif",
-        backgroundColor: "hsl(var(--section-bg))",
-      }}
-    >
-      {/* Subtle dot pattern */}
-      <div className="absolute inset-0 opacity-5">
-        <div
-          style={{
-            backgroundImage: `radial-gradient(circle at 25% 25%, hsl(var(--sage)) 1px, transparent 1px)`,
-            backgroundSize: '40px 40px',
-          }}
-          className="absolute inset-0"
+    <section id="testimonials" className="relative scroll-mt-20 py-24 md:py-32">
+      <div className="absolute inset-0 -z-10 dot-grid opacity-40 [mask-image:radial-gradient(60%_60%_at_50%_50%,black,transparent)]" />
+      <div className="mx-auto max-w-4xl px-6">
+        <SectionHeader
+          badge="Testimonials"
+          icon={<MessageCircle />}
+          title="Listen to the glaze"
+          subtitle="Words from colleagues and project partners I've worked with."
         />
-      </div>
 
-      <div className="max-w-5xl mx-auto px-4 relative">
-        {/* Section header */}
-        <motion.div
-          className="text-center mb-8 md:mb-10"
-          initial={{ opacity: 0, y: 24 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-60px" }}
-          transition={{ duration: 0.5, ease: "easeOut" }}
+        <div
+          className="relative"
+          onTouchStart={(e) => (touchX.current = e.touches[0].clientX)}
+          onTouchEnd={(e) => {
+            if (touchX.current === null) return;
+            const d = touchX.current - e.changedTouches[0].clientX;
+            if (d > 50) next();
+            if (d < -50) prev();
+            touchX.current = null;
+          }}
         >
-          <div
-            className="inline-block px-4 py-2 mb-4 rounded-lg"
-            style={{
-              background: "linear-gradient(45deg, hsl(var(--sage)), hsl(var(--primary)))",
-              border: "1px solid hsl(var(--sage))",
-              color: "#fff",
-            }}
-          >
-            <div className="flex items-center gap-2">
-              <MessageCircle className="w-4 h-4" />
-              <span className="text-sm font-semibold">TESTIMONIALS</span>
-            </div>
-          </div>
-          <h1 className="text-3xl font-bold mb-2" style={{ color: "hsl(var(--slate))" }}>
-            Listen to the Glaze
-          </h1>
-          <p style={{ color: "hsl(var(--muted-foreground))" }}>
-            Words from colleagues and project partners I've worked with.
-          </p>
-        </motion.div>
-
-        {/* Testimonial card */}
-        <motion.div
-          className="relative px-6 md:px-0"
-          onTouchStart={handleTouchStart}
-          onTouchMove={handleTouchMove}
-          onTouchEnd={handleTouchEnd}
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-40px" }}
-          transition={{ duration: 0.5, delay: 0.15, ease: "easeOut" }}
-        >
-          <div
-            className="bg-white rounded-xl p-5 md:p-10 border border-border/50"
-            style={{
-              boxShadow: "var(--shadow-card)",
-              opacity: isAnimating ? 0 : 1,
-              transform: isAnimating
-                ? `translateX(${direction === 'right' ? '-24px' : '24px'})`
-                : 'translateX(0)',
-              transition: 'opacity 0.2s ease-out, transform 0.2s ease-out',
-            }}
-          >
-            {/* Quote icon */}
-            <Quote
-              className="w-7 h-7 md:w-10 md:h-10 mb-3 md:mb-4"
-              style={{ color: "hsl(var(--sage) / 0.4)" }}
-            />
-
-            {/* Quote text */}
-            <blockquote className="text-base md:text-xl leading-relaxed mb-5 md:mb-8 italic" style={{ color: "hsl(var(--foreground) / 0.75)" }}>
-              "{current.quote}"
-            </blockquote>
-
-            {/* Attribution */}
-            <div className="flex items-center gap-3 md:gap-4">
-              <div
-                className="w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center text-white font-bold text-xs md:text-sm flex-shrink-0"
-                style={{ backgroundColor: avatarColors[activeIndex % avatarColors.length] }}
+          <div className="relative overflow-hidden">
+            <AnimatePresence mode="wait" initial={false} custom={dir}>
+              <motion.div
+                key={index}
+                custom={dir}
+                initial={{ opacity: 0, x: dir * 40 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: dir * -40 }}
+                transition={{ duration: 0.35, ease: "easeOut" }}
               >
-                {current.avatarInitials}
-              </div>
-              <div className="min-w-0">
-                <p className="font-semibold text-sm md:text-base" style={{ color: "hsl(var(--slate))" }}>{current.name}</p>
-                <p className="text-xs md:text-sm truncate" style={{ color: "hsl(var(--muted-foreground))" }}>
-                  {current.role} &middot; {current.relationship}
-                </p>
-              </div>
-            </div>
+                <GlassCard className="p-7 md:p-11">
+                  <Quote className="h-8 w-8 text-sage/40 md:h-10 md:w-10" />
+                  <blockquote className="mt-4 font-raleway text-lg font-medium leading-relaxed text-slate md:text-2xl md:leading-relaxed">
+                    &ldquo;{t.quote}&rdquo;
+                  </blockquote>
+                  <div className="mt-7 flex items-center gap-4">
+                    <div
+                      className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-sm font-bold text-white ${
+                        avatarColors[index % avatarColors.length]
+                      }`}
+                    >
+                      {t.avatarInitials}
+                    </div>
+                    <div className="min-w-0">
+                      <p className="font-semibold text-slate">{t.name}</p>
+                      <p className="truncate text-sm text-muted-foreground">
+                        {t.role} · {t.relationship}
+                      </p>
+                    </div>
+                  </div>
+                </GlassCard>
+              </motion.div>
+            </AnimatePresence>
           </div>
 
-          {/* Navigation arrows */}
           <button
-            onClick={() => { prev(); resetAutoRotate(); }}
-            className="hidden md:flex absolute top-1/2 -translate-y-1/2 -left-5 w-10 h-10 rounded-full bg-white items-center justify-center border border-border/50 hover:shadow-lg hover:scale-105 transition-all duration-200 ease-out"
-            style={{ boxShadow: "var(--shadow-card)" }}
+            onClick={prev}
             aria-label="Previous testimonial"
+            className="absolute -left-4 top-1/2 hidden h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full glass-strong text-slate transition hover:scale-105 md:flex lg:-left-14"
           >
-            <ChevronLeft className="w-5 h-5" style={{ color: "hsl(var(--muted-foreground))" }} />
+            <ChevronLeft className="h-5 w-5" />
           </button>
           <button
-            onClick={() => { next(); resetAutoRotate(); }}
-            className="hidden md:flex absolute top-1/2 -translate-y-1/2 -right-5 w-10 h-10 rounded-full bg-white items-center justify-center border border-border/50 hover:shadow-lg hover:scale-105 transition-all duration-200 ease-out"
-            style={{ boxShadow: "var(--shadow-card)" }}
+            onClick={next}
             aria-label="Next testimonial"
+            className="absolute -right-4 top-1/2 hidden h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full glass-strong text-slate transition hover:scale-105 md:flex lg:-right-14"
           >
-            <ChevronRight className="w-5 h-5" style={{ color: "hsl(var(--muted-foreground))" }} />
+            <ChevronRight className="h-5 w-5" />
           </button>
-        </motion.div>
+        </div>
 
-        {/* Dots + swipe hint */}
-        <div className="flex flex-col items-center gap-3 mt-6 md:mt-8">
-          <div className="flex justify-center gap-2.5">
+        <div className="mt-7 flex flex-col items-center gap-3">
+          <div className="flex gap-2">
             {testimonials.map((_, i) => (
               <button
                 key={i}
                 onClick={() => {
-                  goTo(i, i > activeIndex ? 'right' : 'left');
-                  resetAutoRotate();
-                }}
-                className="rounded-full transition-all duration-200 ease-out"
-                style={{
-                  width: i === activeIndex ? '28px' : '8px',
-                  height: '8px',
-                  backgroundColor:
-                    i === activeIndex ? 'hsl(var(--sage))' : 'hsl(var(--border))',
+                  go(i, i > index ? 1 : -1);
+                  restart();
                 }}
                 aria-label={`Go to testimonial ${i + 1}`}
+                className={`h-2 rounded-full transition-all duration-300 ${i === index ? "w-7 bg-sage" : "w-2 bg-slate/20 hover:bg-slate/40"}`}
               />
             ))}
           </div>
-          <p className="text-xs md:hidden" style={{ color: "hsl(var(--taupe))" }}>Swipe to see more</p>
+          <p className="text-xs text-taupe md:hidden">Swipe to see more</p>
         </div>
       </div>
     </section>
   );
-};
-
-export default Testimonials;
+}

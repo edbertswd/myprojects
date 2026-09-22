@@ -1,80 +1,150 @@
-import logo from '/src/assets/edsuw-logo.png'
+import { useEffect, useState } from "react";
+import { motion, useMotionValueEvent, useScroll } from "motion/react";
+import { useAtomValue } from "jotai";
+import { Github, Linkedin, Menu } from "lucide-react";
+import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { heroPhaseAtom, isRevealed } from "@/three/hero/heroPhase";
+import { cn } from "@/lib/utils";
+import logo from "@/assets/edsuw-logo.png";
 
-const Navigation = () => {
+const links = [
+  { href: "#about", id: "about", label: "Journey" },
+  { href: "#experience", id: "experience", label: "Experience" },
+  { href: "#testimonials", id: "testimonials", label: "Testimonials" },
+  { href: "#hobbies", id: "hobbies", label: "Hobbies" },
+];
+
+export default function Navigation() {
+  const revealed = isRevealed(useAtomValue(heroPhaseAtom));
+  const { scrollY } = useScroll();
+  const [scrolled, setScrolled] = useState(false);
+  const [active, setActive] = useState<string | null>(null);
+  const [open, setOpen] = useState(false);
+
+  useMotionValueEvent(scrollY, "change", (y) => setScrolled(y > 40));
+
+  useEffect(() => {
+    const sections = links.map((l) => document.getElementById(l.id)).filter(Boolean) as HTMLElement[];
+    if (!sections.length) return;
+    const io = new IntersectionObserver(
+      (entries) => {
+        const visible = entries.filter((e) => e.isIntersecting).sort((a, b) => b.intersectionRatio - a.intersectionRatio);
+        if (visible[0]) setActive(visible[0].target.id);
+        else if (window.scrollY < 200) setActive(null);
+      },
+      { rootMargin: "-40% 0px -50% 0px", threshold: [0, 0.25, 0.5] }
+    );
+    sections.forEach((s) => io.observe(s));
+    return () => io.disconnect();
+  }, []);
+
+  const go = (id: string) => {
+    setOpen(false);
+    document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
+  };
+
   return (
-    <nav className="absolute top-0 left-0 right-0 z-50 bg-transparent">
-      <div className="mx-auto px-6 py-4 flex items-center justify-between">
-        {/* Logo */}
-        <div className="flex-shrink-0">
-          <img
-            src={logo}
-            alt="Logo"
-            className="h-16 w-auto scale-150 transform origin-left"
-          />
-        </div>
+    <motion.header
+      className="fixed inset-x-0 top-0 z-50"
+      initial={{ opacity: 0, y: -12 }}
+      animate={{ opacity: revealed ? 1 : 0, y: revealed ? 0 : -12 }}
+      transition={{ duration: 0.6, ease: "easeOut" }}
+      style={{ pointerEvents: revealed ? "auto" : "none" }}
+    >
+      <div className="mx-auto max-w-6xl px-4 pt-4 md:px-6">
+        <nav
+          className={cn(
+            "flex items-center justify-between rounded-full px-3 py-2 transition-all duration-300 md:px-4",
+            scrolled ? "glass-strong" : "bg-transparent"
+          )}
+          aria-label="Primary"
+        >
+          <a
+            href="#hero"
+            onClick={(e) => {
+              e.preventDefault();
+              window.scrollTo({ top: 0, behavior: "smooth" });
+            }}
+            className="flex items-center gap-2 pl-1"
+          >
+            <img src={logo} alt="Edbert Suwandi" className="-my-3 h-14 w-auto" />
+          </a>
 
-        {/* Navigation Links */}
-        <div className="hidden md:flex items-center space-x-8">
-          {[
-            { href: "#about", label: "About" },
-            { href: "#experience", label: "Experience" },
-            { href: "#hobbies", label: "Hobbies" },
-          ].map((link) => (
+          <ul className="hidden items-center gap-1 md:flex">
+            {links.map((l) => (
+              <li key={l.id}>
+                <a
+                  href={l.href}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    go(l.id);
+                  }}
+                  className={cn(
+                    "relative rounded-full px-3.5 py-1.5 text-sm font-semibold transition-colors",
+                    active === l.id ? "text-primary-dark" : "text-slate/75 hover:text-slate"
+                  )}
+                >
+                  {active === l.id && (
+                    <motion.span
+                      layoutId="nav-pill"
+                      className="absolute inset-0 -z-10 rounded-full bg-sage/15"
+                      transition={{ type: "spring", stiffness: 380, damping: 32 }}
+                    />
+                  )}
+                  {l.label}
+                </a>
+              </li>
+            ))}
+          </ul>
+
+          <div className="flex items-center gap-1">
             <a
-              key={link.href}
-              href={link.href}
-              className="relative text-slate-700 hover:text-sage transition-colors duration-200 ease-out font-montserrat font-semibold group"
-              onClick={(e) => {
-                e.preventDefault();
-                document.getElementById(link.href.slice(1))?.scrollIntoView({ behavior: 'smooth' });
-              }}
+              href="https://github.com/edbertswd"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="GitHub"
+              className="rounded-full p-2 text-slate/75 transition hover:bg-sage/15 hover:text-slate"
             >
-              {link.label}
-              <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-sage transition-all duration-200 ease-out group-hover:w-full rounded-full" />
+              <Github className="h-[18px] w-[18px]" />
             </a>
-          ))}
-        </div>
+            <a
+              href="https://www.linkedin.com/in/edbert-suwandi"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="LinkedIn"
+              className="rounded-full p-2 text-slate/75 transition hover:bg-sage/15 hover:text-slate"
+            >
+              <Linkedin className="h-[18px] w-[18px]" />
+            </a>
 
-        {/* Social Links */}
-        <div className="flex items-center space-x-3 text-slate-700">
-          <a href="http://github.com/edbertswd/myprojects" className="p-2 hover:text-sage hover:scale-110 transition-all duration-200 ease-out">
-            {/* GitHub Icon */}
-            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M12 .297c-6.63 0-12 5.373-12
-              12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577
-              0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61-.546-1.387-1.333-1.757-1.333-1.757-1.089-.744.083-.729.083-.729
-              1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305
-              3.495.998.108-.776.417-1.305.76-1.605-2.665-.305-5.466-1.332-5.466-5.93
-              0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.527.105-3.176
-              0 0 1.005-.322 3.3 1.23a11.48 11.48 0 013.003-.404c1.018.005
-              2.045.138 3.003.404 2.28-1.552 3.285-1.23
-              3.285-1.23.645 1.649.24 2.873.12 3.176.765.84
-              1.23 1.91 1.23 3.22 0 4.61-2.805 5.62-5.475
-              5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015
-              3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592
-              24 12.297c0-6.627-5.373-12-12-12"/>
-            </svg>
-          </a>
-
-          <a href="https://www.linkedin.com/in/edbert-suwandi" className="p-2 hover:text-sage hover:scale-110 transition-all duration-200 ease-out">
-            {/* LinkedIn Icon */}
-            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M20.447 20.452H16.89v-5.569c0-1.328-.028-3.037-1.852-3.037-1.853
-              0-2.136 1.445-2.136 2.939v5.667H9.345V9h3.41v1.561h.049c.476-.9
-              1.637-1.852 3.37-1.852 3.605 0 4.268 2.373 4.268
-              5.456v6.287zM5.337 7.433a1.986 1.986
-              0 110-3.972 1.986 1.986 0 010 3.972zM6.813
-              20.452H3.861V9h2.952v11.452zM22.225
-              0H1.771C.792 0 0 .774 0 1.729v20.542C0
-              23.227.792 24 1.771 24h20.451C23.2 24
-              24 23.227 24 22.271V1.729C24 .774 23.2
-              0 22.222 0z"/>
-            </svg>
-          </a>
-        </div>
+            <Sheet open={open} onOpenChange={setOpen}>
+              <SheetTrigger asChild>
+                <button className="rounded-full p-2 text-slate/75 transition hover:bg-sage/15 hover:text-slate md:hidden" aria-label="Open menu">
+                  <Menu className="h-5 w-5" />
+                </button>
+              </SheetTrigger>
+              <SheetContent side="right" className="glass-strong w-72 border-l-0">
+                <SheetTitle className="font-raleway text-lg font-extrabold text-slate">Menu</SheetTitle>
+                <ul className="mt-6 space-y-1">
+                  {links.map((l) => (
+                    <li key={l.id}>
+                      <button
+                        onClick={() => go(l.id)}
+                        className={cn(
+                          "w-full rounded-xl px-4 py-3 text-left text-base font-semibold transition",
+                          active === l.id ? "bg-sage/15 text-primary-dark" : "text-slate hover:bg-sage/10"
+                        )}
+                      >
+                        {l.label}
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              </SheetContent>
+            </Sheet>
+          </div>
+        </nav>
       </div>
-    </nav>
+    </motion.header>
   );
-};
-
-export default Navigation;
+}
