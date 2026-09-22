@@ -3,7 +3,7 @@
 # Edbert Suwandi
 ### Full-Stack Software Engineer · Sydney, Australia
 
-[![Portfolio](https://img.shields.io/badge/Portfolio-edbertsuwandi.com-4A9B8E?style=for-the-badge&logo=googlechrome&logoColor=white)](https://edbertsuwandi.com/)
+[![Portfolio](https://img.shields.io/badge/Portfolio-edbertsuwandi.com-4A9B8E?style=for-the-badge&logo=googlechrome&logoColor=white)](https://edsuw.com/)
 [![LinkedIn](https://img.shields.io/badge/LinkedIn-edbert--suwandi-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/edbert-suwandi/)
 [![Email](https://img.shields.io/badge/Email-edbertswd%40gmail.com-EA4335?style=for-the-badge&logo=gmail&logoColor=white)](mailto:edbertswd@gmail.com)
 
