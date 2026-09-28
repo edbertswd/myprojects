@@ -1,8 +1,6 @@
-# **THE MAIN BRANCH IS NOT DEPLOY READY. THE DEPLOYABLE BRANCH IS [`deploy-branch`](https://github.sydney.edu.au/2025S2-INTERNET-SOFTWARE-PLATFORM/Thu-13-16-13/tree/deploy-branch).**
-
-
 # CourtConnect - Sports Facility Booking Platform
-Thu 13:00-16:00 Group 13
+
+A full-stack sports facility booking platform with court search, real-time availability, bookings, payments, and an admin dashboard.
 
 ## Prerequisites
 
@@ -12,15 +10,6 @@ Before setting up the project, ensure you have the following installed:
 - **Node.js 18+** - [Download](https://nodejs.org/)
 - **PostgreSQL 14+** - [Download](https://www.postgresql.org/download/)
 - **Git** - [Download](https://git-scm.com/downloads)
-
-## IMPORTANT FOR TUTORS
-The current code has a SQL dump file along with all credentials needed to run the code.
-Path: 
-/Thu-13-16-13-1/submission/database_dump.sql (dump file)
-/Thu-13-16-13-1/submission/CREDENTIALS.md (credentials)
-
-**We have also provided an .env.example where we inputted all the details needed to run this program.**
-
 
 ## Project Structure
 
@@ -42,7 +31,7 @@ Path:
 
 ```bash
 git clone <repository-url>
-cd Thu-13-16-13-1
+cd CourtConnectWebsite/app
 ```
 
 ### 2. Backend Setup
@@ -309,10 +298,3 @@ npm install
 4. Commit changes: `git commit -m "Add my feature"`
 5. Push to branch: `git push origin feature/my-feature`
 6. Create a Pull Request
-
-# Admin Superuser (existing in db)
-user: admin@admin.com
-password: admin
-
-
-Group 13 - Thu 13:00-16:00

@@ -43,9 +43,6 @@ db.sqlite3
 # Database dumps (exclude local dumps)
 backend/database/dumps/
 
-# Submission folder SHOULD be tracked (contains database_dump.sql for tutors)
-# !submission/
-
 # Python bytecode
 __pycache__/
 *.py[cod]
