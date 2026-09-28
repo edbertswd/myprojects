@@ -71,8 +71,11 @@ app.use('*', (req, res) => {
   });
 });
 
+// Flush pokemon cache on startup so collection changes take effect immediately
+cache.keys().filter(k => k.startsWith('pokemon_')).forEach(k => cache.del(k));
+
 // Namecheap/cPanel optimized server start
-const PORT = process.env.PORT;
+const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
   console.log(`🚀 Server running on Namecheap`);
   console.log(`📊 Health: /health and /api/health`);

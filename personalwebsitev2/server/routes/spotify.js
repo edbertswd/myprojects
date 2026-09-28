@@ -212,6 +212,36 @@ router.get('/top-tracks', async (req, res) => {
   }
 });
 
+router.get('/recently-played', async (req, res) => {
+  try {
+    const limit = Math.min(parseInt(req.query.limit) || 20, 50);
+    const key = `spotify_recently_played_${limit}`;
+
+    const cached = getCache(req, key);
+    if (cached) return res.json({ ...cached, cached: true });
+
+    const recent = await spotifyService.getRecentlyPlayed(limit);
+    const response = {
+      ...recent,
+      cached: false,
+      success: !recent.error
+    };
+
+    // Short TTL: this list changes as songs are played
+    setCache(req, key, response, 120);
+    res.json(response);
+  } catch (err) {
+    res.json({
+      items: [],
+      total: 0,
+      limit: parseInt(req.query.limit) || 20,
+      error: err.message,
+      cached: false,
+      success: false
+    });
+  }
+});
+
 router.get('/top-artists', async (req, res) => {
   try {
     const limit = Math.min(parseInt(req.query.limit) || 20, 50);

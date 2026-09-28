@@ -1,762 +1,376 @@
-import React, { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
-import { Music, Play, Users, TrendingUp, Zap, Star, Trophy, Eye, Clock, BarChart3 } from 'lucide-react';
+import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { motion } from "motion/react";
+import { BarChart3, Clock, Music, Play, RefreshCw, Star, TrendingUp, Trophy, WifiOff, Zap } from "lucide-react";
+import SectionHeader from "@/components/ui/SectionHeader";
+import GlassCard from "@/components/ui/GlassCard";
+import { cn } from "@/lib/utils";
 
-interface SpotifyTrack {
+/* ---------------------------------------------------------------- types */
+
+type SpotifyTrack = {
   name: string;
   artist: string;
   album: string;
   albumArt?: string;
   spotifyUrl: string;
   popularity: number;
-  preview_url?: string;
-}
+  playedAt?: string;
+};
 
-interface SpotifyArtist {
-  name: string;
-  genres: string[];
-  popularity: number;
-  followers: { total: number };
-  images: { url: string }[];
-  external_urls: { spotify: string };
-}
+type SpotifyArtist = { name: string; genres: string[] };
 
-interface SpotifyPlaylist {
-  name: string;
-  description?: string;
-  image?: string;
-  trackCount: number;
-  spotifyUrl: string;
-  topTracks: {
-    name: string;
-    artist: string;
-    albumArt?: string;
-  }[];
-}
-
-interface RecentTrack {
-  track: SpotifyTrack & { played_at: string };
-}
-
-interface ListeningStats {
-  period: string;
-  totalTracks: number;
-  totalArtists: number;
-  topGenres: { genre: string; count: number }[];
-  averagePopularity: number;
-  diversityScore: number;
-}
-
-
-interface PokemonCard {
+type PokemonCard = {
   id: string;
   name: string;
   rarity?: string;
-  set: {
-    name: string;
-    series: string;
-  };
-  images: {
-    small: string;
-    large: string;
-  };
-  tcgplayer?: {
-    prices?: {
-      holofoil?: { market: number };
-      normal?: { market: number };
-    };
-  };
-  types?: string[];
+  set?: { name: string };
+  images?: { small: string; large: string };
+  tcgplayer?: { prices?: { holofoil?: { market: number }; normal?: { market: number } } };
   quantity?: number;
-}
-
-interface HobbiesData {
-  spotify: {
-    topTrack?: SpotifyTrack;
-    topPlaylist?: SpotifyPlaylist;
-    topTracks?: SpotifyTrack[];
-    topArtists?: SpotifyArtist[];
-    recentTracks?: RecentTrack[];
-    currentPlaying?: any;
-    weeklyStats?: ListeningStats;
-    monthlyStats?: ListeningStats;
-  };
-  pokemon: {
-    featured: PokemonCard[];
-    stats: {
-      totalCards: number;
-      uniqueCards: number;
-      totalValue: number;
-      rarityBreakdown: Record<string, number>;
-    };
-  };
-}
-
-// Cache utility for localStorage
-const CACHE_PREFIX = 'hobbies_cache_';
-const CACHE_DURATION = 60 * 60 * 1000; // 1 hour in milliseconds
-
-interface CacheEntry<T> {
-  data: T;
-  timestamp: number;
-}
-
-const getFromCache = <T,>(key: string): T | null => {
-  try {
-    const cached = localStorage.getItem(CACHE_PREFIX + key);
-    if (!cached) return null;
-
-    const entry: CacheEntry<T> = JSON.parse(cached);
-    const age = Date.now() - entry.timestamp;
-
-    if (age > CACHE_DURATION) {
-      localStorage.removeItem(CACHE_PREFIX + key);
-      return null;
-    }
-
-    return entry.data;
-  } catch {
-    return null;
-  }
 };
 
-const saveToCache = <T,>(key: string, data: T): void => {
-  try {
-    const entry: CacheEntry<T> = {
-      data,
-      timestamp: Date.now()
-    };
-    localStorage.setItem(CACHE_PREFIX + key, JSON.stringify(entry));
-  } catch {
-    // Silently fail if localStorage is full or unavailable
-  }
-};
+type PokemonStats = { totalCards: number; uniqueCards: number; totalValue: number };
 
-const Hobbies = () => {
-  const [data, setData] = useState<HobbiesData>({
-    spotify: {},
-    pokemon: { featured: [], stats: { totalCards: 0, uniqueCards: 0, totalValue: 0, rarityBreakdown: {} } }
+/* ------------------------------------------------------------ fetching */
+
+const API = "/api";
+
+async function getJson<T>(path: string, signal?: AbortSignal): Promise<T> {
+  const res = await fetch(`${API}${path}`, { signal });
+  if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
+  return res.json() as Promise<T>;
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const toTrack = (t: any, playedAt?: string): SpotifyTrack => ({
+  name: t?.name ?? "Unknown track",
+  artist: t?.artists?.[0]?.name ?? "Unknown artist",
+  album: t?.album?.name ?? "Unknown album",
+  albumArt: t?.album?.images?.[0]?.url,
+  spotifyUrl: t?.external_urls?.spotify ?? "#",
+  popularity: t?.popularity ?? 0,
+  playedAt,
+});
+
+function useHobbiesData() {
+  const health = useQuery({
+    queryKey: ["health"],
+    queryFn: ({ signal }) => getJson<{ status: string }>("/health", AbortSignal.any([signal, AbortSignal.timeout(2500)])),
+    retry: 0,
+    staleTime: 60_000,
   });
-  const [loading, setLoading] = useState(true);
-  const [spotifyLoading, setSpotifyLoading] = useState(true);
-  const [pokemonLoading, setPokemonLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [spotifyTab, setSpotifyTab] = useState<'overview' | 'stats'>('overview');
-  const [pokemonFromCache, setPokemonFromCache] = useState(false);
+  const online = health.isSuccess;
 
-  const fetchHobbiesData = async () => {
-    try {
-      setLoading(true);
-      
-      const getApiBase = () => {
-        if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-          return 'http://localhost:3001/api';
-        }
-        return '/api';
-      };
+  const dashboard = useQuery({
+    queryKey: ["spotify", "dashboard"],
+    queryFn: ({ signal }) => getJson<any>("/spotify/dashboard", signal), // eslint-disable-line @typescript-eslint/no-explicit-any
+    enabled: online,
+    select: (d) => ({
+      topTrack: d?.topTrack?.track && !d.topTrack.error ? toTrack(d.topTrack.track) : undefined,
+    }),
+  });
+  const topTracks = useQuery({
+    queryKey: ["spotify", "top-tracks"],
+    queryFn: ({ signal }) => getJson<any>("/spotify/top-tracks?limit=10", signal), // eslint-disable-line @typescript-eslint/no-explicit-any
+    enabled: online,
+    select: (d): SpotifyTrack[] => (Array.isArray(d?.items) ? d.items.map((t: unknown) => toTrack(t)) : []),
+  });
+  const topArtists = useQuery({
+    queryKey: ["spotify", "top-artists"],
+    queryFn: ({ signal }) => getJson<any>("/spotify/top-artists?limit=10", signal), // eslint-disable-line @typescript-eslint/no-explicit-any
+    enabled: online,
+    select: (d): SpotifyArtist[] =>
+      Array.isArray(d?.items) ? d.items.map((a: any) => ({ name: a.name, genres: a.genres ?? [] })) : [], // eslint-disable-line @typescript-eslint/no-explicit-any
+  });
+  const recent = useQuery({
+    queryKey: ["spotify", "recent"],
+    queryFn: ({ signal }) => getJson<any>("/spotify/recently-played?limit=20", signal), // eslint-disable-line @typescript-eslint/no-explicit-any
+    enabled: online,
+    staleTime: 2 * 60_000,
+    select: (d): SpotifyTrack[] => (Array.isArray(d?.items) ? d.items.map((i: any) => toTrack(i.track, i.played_at)) : []), // eslint-disable-line @typescript-eslint/no-explicit-any
+  });
+  const featured = useQuery({
+    queryKey: ["pokemon", "featured"],
+    queryFn: ({ signal }) => getJson<{ cards?: PokemonCard[] }>("/pokemon/featured?limit=6", signal),
+    enabled: online,
+    staleTime: 60 * 60_000,
+    select: (d) => (Array.isArray(d?.cards) ? d.cards : []),
+  });
+  const stats = useQuery({
+    queryKey: ["pokemon", "stats"],
+    queryFn: ({ signal }) => getJson<PokemonStats>("/pokemon/stats", signal),
+    enabled: online,
+    staleTime: 60 * 60_000,
+  });
 
-      const API_BASE = getApiBase();
+  const genres = (() => {
+    const count: Record<string, number> = {};
+    for (const a of topArtists.data ?? []) for (const g of a.genres) count[g] = (count[g] ?? 0) + 1;
+    return Object.entries(count)
+      .map(([genre, n]) => ({ genre, n }))
+      .sort((a, b) => b.n - a.n)
+      .slice(0, 6);
+  })();
 
-      // Check if backend is available
-      const checkBackendHealth = async () => {
-        try {
-          const controller = new AbortController();
-          const timeoutId = setTimeout(() => controller.abort(), 1000);
-          const response = await fetch(`${API_BASE}/health`, { signal: controller.signal });
-          clearTimeout(timeoutId);
-          return response.ok;
-        } catch {
-          return false;
-        }
-      };
+  const avgPopularity = topTracks.data?.length
+    ? topTracks.data.reduce((s, t) => s + t.popularity, 0) / topTracks.data.length
+    : 0;
 
-      const backendAvailable = await checkBackendHealth();
+  return { health, online, dashboard, topTracks, topArtists, recent, featured, stats, genres, avgPopularity };
+}
 
-      let spotifyResponse = { ok: false } as Response;
-      let spotifyTopTracksResponse = { ok: false } as Response;
-      let spotifyTopArtistsResponse = { ok: false } as Response;
-      let spotifyRecentResponse = { ok: false } as Response;
-      let pokemonResponse = { ok: false } as Response;
-      let pokemonStatsResponse = { ok: false } as Response;
+/* ------------------------------------------------------------------- ui */
 
-      // Only fetch if backend is available to avoid console errors
-      if (backendAvailable) {
-        [
-          spotifyResponse,
-          spotifyTopTracksResponse,
-          spotifyTopArtistsResponse,
-          spotifyRecentResponse,
-          pokemonResponse,
-          pokemonStatsResponse
-        ] = await Promise.all([
-          fetch(`${API_BASE}/spotify/dashboard`).catch(() => ({ ok: false } as Response)),
-          fetch(`${API_BASE}/spotify/top-tracks?limit=10`).catch(() => ({ ok: false } as Response)),
-          fetch(`${API_BASE}/spotify/top-artists?limit=10`).catch(() => ({ ok: false } as Response)),
-          fetch(`${API_BASE}/spotify/recently-played?limit=20`).catch(() => ({ ok: false } as Response)),
-          fetch(`${API_BASE}/pokemon/featured?limit=6`).catch(() => ({ ok: false } as Response)),
-          fetch(`${API_BASE}/pokemon/stats`).catch(() => ({ ok: false } as Response))
-        ]);
-      }
-
-      const newData: HobbiesData = {
-        spotify: {},
-        pokemon: { featured: [], stats: { totalCards: 0, uniqueCards: 0, totalValue: 0, rarityBreakdown: {} } }
-      };
-
-      // Process Spotify dashboard
-      if (spotifyResponse.ok) {
-        try {
-          const spotifyData = await spotifyResponse.json();
-          
-          newData.spotify = {
-            topTrack: (spotifyData?.topTrack?.track && !spotifyData.topTrack.error) ? {
-              name: spotifyData.topTrack.track.name,
-              artist: spotifyData.topTrack.track.artists?.[0]?.name || 'Unknown Artist',
-              album: spotifyData.topTrack.track.album?.name || 'Unknown Album',
-              albumArt: spotifyData.topTrack.track.album?.images?.[0]?.url,
-              spotifyUrl: spotifyData.topTrack.track.external_urls?.spotify || '#',
-              popularity: spotifyData.topTrack.track.popularity || 0,
-              preview_url: spotifyData.topTrack.track.preview_url
-            } : undefined,
-            topPlaylist: (spotifyData?.topPlaylist?.playlist && !spotifyData.topPlaylist.error) ? {
-              name: spotifyData.topPlaylist.playlist.name,
-              description: spotifyData.topPlaylist.playlist.description,
-              image: spotifyData.topPlaylist.playlist.images?.[0]?.url,
-              trackCount: spotifyData.topPlaylist.playlist.tracks?.total || 0,
-              spotifyUrl: spotifyData.topPlaylist.playlist.external_urls?.spotify || '#',
-              topTracks: []
-            } : undefined
-          };
-        } catch (jsonError) {
-          // Silently handle JSON parse error
-        }
-      }
-
-      // Process top tracks
-      if (spotifyTopTracksResponse.ok) {
-        try {
-          const topTracksData = await spotifyTopTracksResponse.json();
-          if (Array.isArray(topTracksData.items)) {
-            newData.spotify.topTracks = topTracksData.items.map((track: any) => ({
-              name: track.name,
-              artist: track.artists?.[0]?.name || 'Unknown Artist',
-              album: track.album?.name || 'Unknown Album',
-              albumArt: track.album?.images?.[0]?.url,
-              spotifyUrl: track.external_urls?.spotify || '#',
-              popularity: track.popularity || 0
-            }));
-          }
-        } catch (jsonError) {
-          // Silently handle JSON parse error
-        }
-      }
-
-      // Process top artists
-      if (spotifyTopArtistsResponse.ok) {
-        try {
-          const topArtistsData = await spotifyTopArtistsResponse.json();
-          if (Array.isArray(topArtistsData.items)) {
-            newData.spotify.topArtists = topArtistsData.items.map((artist: any) => ({
-              name: artist.name,
-              genres: artist.genres || [],
-              popularity: artist.popularity || 0,
-              followers: artist.followers || { total: 0 },
-              images: artist.images || [],
-              external_urls: artist.external_urls || { spotify: '#' }
-            }));
-
-            // Generate listening stats from available data
-            const genres = newData.spotify.topArtists.flatMap(artist => artist.genres);
-            const genreCount = genres.reduce((acc: Record<string, number>, genre) => {
-              acc[genre] = (acc[genre] || 0) + 1;
-              return acc;
-            }, {});
-
-            newData.spotify.monthlyStats = {
-              period: 'Monthly',
-              totalTracks: newData.spotify.topTracks?.length || 0,
-              totalArtists: newData.spotify.topArtists.length,
-              topGenres: Object.entries(genreCount).map(([genre, count]) => ({ genre, count }))
-                .sort((a, b) => b.count - a.count).slice(0, 5),
-              averagePopularity: newData.spotify.topTracks ? 
-                newData.spotify.topTracks.reduce((sum, track) => sum + track.popularity, 0) / newData.spotify.topTracks.length : 0,
-              diversityScore: Math.min(100, Object.keys(genreCount).length * 5)
-            };
-          }
-        } catch (jsonError) {
-          // Silently handle JSON parse error
-        }
-      }
-
-      // Process recent tracks
-      if (spotifyRecentResponse.ok) {
-        try {
-          const recentData = await spotifyRecentResponse.json();
-          if (Array.isArray(recentData.items)) {
-            newData.spotify.recentTracks = recentData.items.map((item: any) => ({
-              track: {
-                name: item.track?.name || 'Unknown Track',
-                artist: item.track?.artists?.[0]?.name || 'Unknown Artist',
-                album: item.track?.album?.name || 'Unknown Album',
-                albumArt: item.track?.album?.images?.[0]?.url,
-                spotifyUrl: item.track?.external_urls?.spotify || '#',
-                popularity: item.track?.popularity || 0,
-                played_at: item.played_at
-              }
-            }));
-
-          }
-        } catch (jsonError) {
-          // Silently handle JSON parse error
-        }
-      }
-
-      // Process Pokemon data - Check cache first
-      const cachedPokemon = getFromCache<{ featured: PokemonCard[]; stats: any }>('pokemon_data');
-
-      if (cachedPokemon) {
-        // Use cached data immediately
-        newData.pokemon = cachedPokemon;
-        setPokemonFromCache(true);
-      }
-
-      // Try to fetch fresh data
-      let freshPokemonData = false;
-      if (pokemonResponse.ok) {
-        try {
-          const pokemonData = await pokemonResponse.json();
-          if (Array.isArray(pokemonData?.cards) && pokemonData.cards.length > 0) {
-            newData.pokemon.featured = pokemonData.cards;
-            freshPokemonData = true;
-          }
-        } catch (jsonError) {
-          // Keep cached data if fresh fetch fails
-        }
-      }
-
-      if (pokemonStatsResponse.ok) {
-        try {
-          const statsData = await pokemonStatsResponse.json();
-          if (statsData?.totalCards > 0) {
-            newData.pokemon.stats = {
-              totalCards: statsData.totalCards,
-              uniqueCards: statsData.uniqueCards,
-              totalValue: statsData.totalValue,
-              rarityBreakdown: statsData.rarityBreakdown || {}
-            };
-            freshPokemonData = true;
-          }
-        } catch (jsonError) {
-          // Keep cached data if fresh fetch fails
-        }
-      }
-
-      // Save to cache if we got fresh data
-      if (freshPokemonData && newData.pokemon.featured.length > 0) {
-        saveToCache('pokemon_data', newData.pokemon);
-        setPokemonFromCache(false);
-      } else if (!cachedPokemon) {
-        // No cache and no fresh data - set empty state
-        newData.pokemon = { featured: [], stats: { totalCards: 0, uniqueCards: 0, totalValue: 0, rarityBreakdown: {} } };
-      }
-
-      setData(newData);
-      setError(null);
-    } catch (err) {
-      // Silently handle error - backend may not be running
-      setError(err instanceof Error ? err.message : 'Failed to fetch hobbies data');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchHobbiesData();
-    // Refetch every 5 minutes instead of 30 seconds (less aggressive, more API-friendly)
-    const interval = setInterval(fetchHobbiesData, 5 * 60 * 1000);
-    return () => clearInterval(interval);
-  }, []);
-
-  const getRarityColor = (rarity?: string) => {
-    switch (rarity?.toLowerCase()) {
-      case 'common': return 'bg-gray-500';
-      case 'uncommon': return 'bg-green-500';
-      case 'rare': return 'bg-blue-500';
-      case 'ultra rare': return 'bg-purple-500';
-      case 'secret rare': return 'bg-yellow-500';
-      case 'rainbow rare': return 'bg-gradient-to-r from-red-500 to-purple-500';
-      default: return 'bg-gray-400';
-    }
-  };
-
-
-  if (loading) {
-    return (
-      <section className="py-16" style={{ backgroundColor: "hsl(var(--section-bg))" }}>
-        <div className="max-w-6xl mx-auto px-4">
-          <div className="text-center mb-8">
-            <h2 className="text-3xl font-bold mb-2" style={{ color: "hsl(var(--slate))" }}>My Hobbies</h2>
-            <div className="animate-pulse">
-              <div className="h-4 rounded w-1/4 mx-auto" style={{ backgroundColor: "hsl(var(--border))" }}></div>
-            </div>
-          </div>
-
-          <div className="grid lg:grid-cols-2 gap-8">
-            <div className="bg-white rounded-xl p-6 animate-pulse border border-border/50" style={{ boxShadow: "var(--shadow-card)" }}>
-              <div className="h-6 rounded w-3/4 mb-4" style={{ backgroundColor: "hsl(var(--border))" }}></div>
-              <div className="space-y-3">
-                <div className="h-4 rounded" style={{ backgroundColor: "hsl(var(--muted))" }}></div>
-                <div className="h-4 rounded w-5/6" style={{ backgroundColor: "hsl(var(--muted))" }}></div>
-                <div className="h-32 rounded" style={{ backgroundColor: "hsl(var(--muted))" }}></div>
-              </div>
-            </div>
-
-            <div className="bg-white rounded-xl p-6 animate-pulse border border-border/50" style={{ boxShadow: "var(--shadow-card)" }}>
-              <div className="h-6 rounded w-3/4 mb-4" style={{ backgroundColor: "hsl(var(--border))" }}></div>
-              <div className="grid grid-cols-3 gap-3">
-                {[...Array(6)].map((_, i) => (
-                  <div key={i} className="aspect-[3/4] rounded-lg" style={{ backgroundColor: "hsl(var(--muted))" }}></div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-    );
+const rarityColor = (rarity?: string) => {
+  switch (rarity?.toLowerCase()) {
+    case "common":
+      return "bg-slate/70";
+    case "uncommon":
+      return "bg-sage";
+    case "rare":
+      return "bg-soft-blue text-slate";
+    case "ultra rare":
+      return "bg-purple-500";
+    case "secret rare":
+      return "bg-gold text-slate";
+    case "rainbow rare":
+      return "bg-linear-to-r from-red-500 to-purple-500";
+    default:
+      return "bg-taupe";
   }
+};
+
+const Skeleton = ({ className }: { className?: string }) => <div className={cn("animate-pulse rounded-lg bg-slate/10", className)} />;
+
+export default function Hobbies() {
+  const d = useHobbiesData();
+  const [tab, setTab] = useState<"overview" | "stats">("overview");
+  const checking = d.health.isPending;
 
   return (
-    <section id="hobbies" className="py-16" style={{ backgroundColor: "hsl(var(--section-bg))" }}>
-      <div className="max-w-6xl mx-auto px-4">
+    <section id="hobbies" className="relative scroll-mt-20 py-24 md:py-32">
+      <div className="absolute inset-0 -z-10 bg-mesh-section" />
+      <div className="mx-auto max-w-6xl px-6">
+        <SectionHeader badge="Personal interests" icon={<Zap />} title="Hobbies" subtitle="What's a man without a hobby? Live from Spotify and my card binder." />
 
-        <motion.div
-          className="text-center mb-8"
-          initial={{ opacity: 0, y: 24 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-60px" }}
-          transition={{ duration: 0.5, ease: "easeOut" }}
-        >
-          <div
-            className="inline-block px-4 py-2 mb-4 rounded-lg"
-            style={{
-              background: "linear-gradient(45deg, hsl(var(--sage)), hsl(var(--primary)))",
-              border: "1px solid hsl(var(--sage))",
-              color: "#fff"
-            }}
+        {!checking && !d.online && (
+          <motion.div
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mx-auto mb-8 flex max-w-xl items-center justify-center gap-3 rounded-2xl glass px-4 py-3 text-sm text-muted-foreground"
           >
-            <div className="flex items-center gap-2">
-              <Zap className="w-4 h-4" />
-              <span className="text-sm font-semibold">PERSONAL INTERESTS</span>
-            </div>
-          </div>
-          <h2 className="text-3xl font-bold mb-2" style={{ color: "hsl(var(--slate))" }}>Hobbies</h2>
-          <p style={{ color: "hsl(var(--muted-foreground))" }}>What's a man without a hobby?</p>
-        </motion.div>
-
-        {error && (
-          <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
-            <p className="text-red-800 text-center">
-              {error} - Backend may not be running
-            </p>
-          </div>
+            <WifiOff className="h-4 w-4 shrink-0 text-taupe" />
+            Live data is offline right now. Start the backend to see real numbers.
+            <button onClick={() => d.health.refetch()} className="ml-auto inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-semibold text-sage hover:bg-sage/10">
+              <RefreshCw className="h-3 w-3" /> Retry
+            </button>
+          </motion.div>
         )}
 
-        <div className="grid lg:grid-cols-2 gap-8">
-
-          {/* Enhanced Spotify Section */}
-          <motion.div
-            className="bg-white rounded-xl overflow-hidden border border-border/50"
-            style={{ boxShadow: "var(--shadow-card)" }}
-            initial={{ opacity: 0, x: -24 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true, margin: "-40px" }}
-            transition={{ duration: 0.5, ease: "easeOut" }}
-          >
-            <div 
-              className="px-6 py-4"
-              style={{
-                background: "linear-gradient(135deg, #1db954 0%, #1ed760 100%)",
-                color: "white"
-              }}
-            >
-              <div className="flex items-center justify-between">
+        <div className="grid gap-6 lg:grid-cols-2 lg:gap-8">
+          {/* Spotify */}
+          <motion.div initial={{ opacity: 0, x: -24 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true, margin: "-40px" }} transition={{ duration: 0.5, ease: "easeOut" }}>
+            <GlassCard className="overflow-hidden">
+              <div className="flex items-center justify-between bg-linear-to-r from-[#1db954] to-[#1ed760] px-6 py-4 text-white">
                 <div className="flex items-center gap-3">
-                  <Music className="w-5 h-5" />
-                  <h3 className="text-lg font-bold">Spotify Analytics</h3>
+                  <Music className="h-5 w-5" />
+                  <h3 className="font-raleway text-lg font-extrabold">Spotify</h3>
                 </div>
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => setSpotifyTab('overview')}
-                    className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
-                      spotifyTab === 'overview' ? 'bg-white bg-opacity-30' : 'bg-white bg-opacity-10 hover:bg-opacity-20'
-                    }`}
-                  >
-                    Overview
-                  </button>
-                  <button
-                    onClick={() => setSpotifyTab('stats')}
-                    className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
-                      spotifyTab === 'stats' ? 'bg-white bg-opacity-30' : 'bg-white bg-opacity-10 hover:bg-opacity-20'
-                    }`}
-                  >
-                    Stats
-                  </button>
+                <div className="flex gap-1 rounded-full bg-white/15 p-1">
+                  {(["overview", "stats"] as const).map((t) => (
+                    <button
+                      key={t}
+                      onClick={() => setTab(t)}
+                      className={cn("rounded-full px-3 py-1 text-xs font-semibold capitalize transition", tab === t ? "bg-white text-[#178a40]" : "text-white/85 hover:bg-white/15")}
+                    >
+                      {t}
+                    </button>
+                  ))}
                 </div>
               </div>
-            </div>
 
-            <div className="p-6">
-              {spotifyTab === 'overview' && (
-                <div className="space-y-6">
-                  {data.spotify.topTrack ? (
+              <div className="space-y-6 p-6">
+                {tab === "overview" ? (
+                  <>
                     <div>
-                      <h4 className="text-sm font-semibold text-gray-600 mb-3 uppercase tracking-wider">Most Played Song</h4>
-                      <div className="flex items-center gap-4 p-4 bg-gray-50 rounded-lg">
-                        {data.spotify.topTrack.albumArt && (
-                          <img 
-                            src={data.spotify.topTrack.albumArt} 
-                            alt={data.spotify.topTrack.album}
-                            className="w-16 h-16 rounded-lg shadow-md"
-                          />
-                        )}
-                        <div className="flex-1">
-                          <h5 className="font-semibold text-gray-800">{data.spotify.topTrack.name}</h5>
-                          <p className="text-gray-600 text-sm">{data.spotify.topTrack.artist}</p>
-                          <p className="text-gray-500 text-xs">{data.spotify.topTrack.album}</p>
-                          <div className="flex items-center gap-2 mt-2">
-                            <TrendingUp className="w-3 h-3 text-green-500" />
-                            <span className="text-xs text-gray-500">{data.spotify.topTrack.popularity}% popularity</span>
-                          </div>
+                      <h4 className="mb-3 text-xs font-bold uppercase tracking-[0.18em] text-muted-foreground">Most played</h4>
+                      {checking || (d.online && d.dashboard.isPending) ? (
+                        <Skeleton className="h-24" />
+                      ) : d.dashboard.data?.topTrack ? (
+                        <TrackRow track={d.dashboard.data.topTrack} big />
+                      ) : (
+                        <Empty icon={<Music className="h-7 w-7" />} text="Spotify data not available" />
+                      )}
+                    </div>
+
+                    {(d.recent.data?.length ?? 0) > 0 && (
+                      <div>
+                        <h4 className="mb-3 flex items-center gap-2 text-xs font-bold uppercase tracking-[0.18em] text-muted-foreground">
+                          <Clock className="h-3.5 w-3.5" /> Recently played
+                        </h4>
+                        <div className="max-h-64 space-y-1 overflow-y-auto pr-1">
+                          {d.recent.data!.slice(0, 8).map((t, i) => (
+                            <TrackRow key={i} track={t} right={t.playedAt ? new Date(t.playedAt).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" }) : undefined} />
+                          ))}
                         </div>
-                        <a 
-                          href={data.spotify.topTrack.spotifyUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="flex items-center gap-1 px-3 py-1 bg-green-500 text-white rounded-full text-xs font-medium hover:bg-green-600 transition-colors"
-                        >
-                          <Play className="w-3 h-3" /> Play
-                        </a>
                       </div>
-                    </div>
-                  ) : (
-                    <div className="p-4 bg-gray-50 rounded-lg text-center text-gray-500">
-                      <Music className="w-8 h-8 mx-auto mb-2 opacity-50" />
-                      <p className="text-sm">Spotify data not available</p>
-                    </div>
-                  )}
-
-                  {data.spotify.recentTracks && data.spotify.recentTracks.length > 0 && (
+                    )}
+                  </>
+                ) : (
+                  <>
                     <div>
-                      <h4 className="text-sm font-semibold text-gray-600 mb-3 uppercase tracking-wider flex items-center gap-2">
-                        <Clock className="w-3 h-3" /> Recently Played
+                      <h4 className="mb-3 flex items-center gap-2 text-xs font-bold uppercase tracking-[0.18em] text-muted-foreground">
+                        <BarChart3 className="h-3.5 w-3.5" /> This month
                       </h4>
-                      <div className="space-y-2 max-h-64 overflow-y-auto">
-                        {data.spotify.recentTracks.slice(0, 8).map((item, index) => (
-                          <div key={index} className="flex items-center gap-3 p-2 hover:bg-gray-50 rounded">
-                            {item.track.albumArt && (
-                              <img 
-                                src={item.track.albumArt} 
-                                alt={item.track.album}
-                                className="w-8 h-8 rounded"
-                              />
-                            )}
-                            <div className="flex-1 min-w-0">
-                              <p className="text-sm font-medium text-gray-800 truncate">{item.track.name}</p>
-                              <p className="text-xs text-gray-500 truncate">{item.track.artist}</p>
-                            </div>
-                            <span className="text-xs text-gray-400">
-                              {new Date(item.track.played_at).toLocaleTimeString('en-US', { 
-                                hour: 'numeric', 
-                                minute: '2-digit' 
-                              })}
+                      <div className="grid grid-cols-3 gap-3">
+                        <Stat label="Top tracks" value={d.online ? d.topTracks.data?.length ?? 0 : "—"} />
+                        <Stat label="Top artists" value={d.online ? d.topArtists.data?.length ?? 0 : "—"} />
+                        <Stat label="Avg popularity" value={d.online ? `${d.avgPopularity.toFixed(0)}%` : "—"} />
+                      </div>
+                      {d.genres.length > 0 && (
+                        <div className="mt-4 flex flex-wrap gap-2">
+                          {d.genres.map((g) => (
+                            <span key={g.genre} className="rounded-full bg-[#1db954]/15 px-2.5 py-1 text-xs font-medium text-[#137a3a]">
+                              {g.genre} · {g.n}
                             </span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {spotifyTab === 'stats' && (
-                <div className="space-y-6">
-                  {data.spotify.monthlyStats && (
-                    <div>
-                      <h4 className="text-sm font-semibold text-gray-600 mb-4 uppercase tracking-wider flex items-center gap-2">
-                        <BarChart3 className="w-3 h-3" /> Monthly Stats
-                      </h4>
-                      
-                      <div className="grid grid-cols-3 gap-4 mb-4">
-                        <div className="text-center p-3 rounded-lg" style={{ backgroundColor: "hsl(var(--muted))" }}>
-                          <div className="text-lg font-bold" style={{ color: "hsl(var(--slate))" }}>{data.spotify.monthlyStats.totalTracks}</div>
-                          <div className="text-xs" style={{ color: "hsl(var(--muted-foreground))" }}>Top Tracks</div>
-                        </div>
-                        <div className="text-center p-3 rounded-lg" style={{ backgroundColor: "hsl(var(--muted))" }}>
-                          <div className="text-lg font-bold" style={{ color: "hsl(var(--slate))" }}>{data.spotify.monthlyStats.totalArtists}</div>
-                          <div className="text-xs" style={{ color: "hsl(var(--muted-foreground))" }}>Top Artists</div>
-                        </div>
-                        <div className="text-center p-3 rounded-lg" style={{ backgroundColor: "hsl(var(--muted))" }}>
-                          <div className="text-lg font-bold" style={{ color: "hsl(var(--slate))" }}>{data.spotify.monthlyStats.averagePopularity.toFixed(0)}%</div>
-                          <div className="text-xs" style={{ color: "hsl(var(--muted-foreground))" }}>Avg Popularity</div>
-                        </div>
-                      </div>
-
-                      {data.spotify.monthlyStats.topGenres.length > 0 && (
-                        <div>
-                          <p className="text-xs font-medium text-gray-600 mb-2">Top Genres:</p>
-                          <div className="flex flex-wrap gap-2">
-                            {data.spotify.monthlyStats.topGenres.map((genre, index) => (
-                              <span 
-                                key={index}
-                                className="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs"
-                              >
-                                {genre.genre} ({genre.count})
-                              </span>
-                            ))}
-                          </div>
+                          ))}
                         </div>
                       )}
                     </div>
-                  )}
-
-                  {data.spotify.topTracks && data.spotify.topTracks.length > 0 && (
-                    <div>
-                      <h4 className="text-sm font-semibold text-gray-600 mb-3 uppercase tracking-wider">Top Tracks</h4>
-                      <div className="space-y-2 max-h-64 overflow-y-auto">
-                        {data.spotify.topTracks.slice(0, 8).map((track, index) => (
-                          <div key={index} className="flex items-center gap-3 p-2 hover:bg-gray-50 rounded">
-                            <span className="w-6 text-center text-xs text-gray-400">#{index + 1}</span>
-                            {track.albumArt && (
-                              <img 
-                                src={track.albumArt} 
-                                alt={track.album}
-                                className="w-8 h-8 rounded"
-                              />
-                            )}
-                            <div className="flex-1 min-w-0">
-                              <p className="text-sm font-medium text-gray-800 truncate">{track.name}</p>
-                              <p className="text-xs text-gray-500 truncate">{track.artist}</p>
-                            </div>
-                            <span className="text-xs text-gray-400">{track.popularity}%</span>
-                          </div>
-                        ))}
+                    {(d.topTracks.data?.length ?? 0) > 0 && (
+                      <div>
+                        <h4 className="mb-3 text-xs font-bold uppercase tracking-[0.18em] text-muted-foreground">Top tracks</h4>
+                        <div className="max-h-64 space-y-1 overflow-y-auto pr-1">
+                          {d.topTracks.data!.slice(0, 8).map((t, i) => (
+                            <TrackRow key={i} track={t} index={i + 1} right={`${t.popularity}%`} />
+                          ))}
+                        </div>
                       </div>
-                    </div>
-                  )}
-                </div>
-              )}
-
-            </div>
-          </motion.div>
-
-          {/* Pokemon Cards Section */}
-          <div className="bg-white rounded-xl shadow-md overflow-hidden" style={{ border: "1px solid hsl(var(--sage))" }}>
-            <div
-              className="px-6 py-4"
-              style={{
-                background: "linear-gradient(135deg, hsl(var(--sage)) 0%, hsl(var(--primary)) 100%)",
-                color: "white"
-              }}
-            >
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <Trophy className="w-5 h-5" />
-                  <h3 className="text-lg font-bold">Pokémon Card Collection</h3>
-                </div>
-                {pokemonFromCache && (
-                  <div className="flex items-center gap-1 bg-white bg-opacity-20 px-2 py-1 rounded-full text-xs">
-                    <Clock className="w-3 h-3" />
-                    <span>Cached</span>
-                  </div>
+                    )}
+                    {!checking && !(d.topTracks.data?.length) && <Empty icon={<BarChart3 className="h-7 w-7" />} text="No stats yet" />}
+                  </>
                 )}
               </div>
-            </div>
+            </GlassCard>
+          </motion.div>
 
-            <div className="p-6">
-              {/* Collection Stats */}
-              <div className="grid grid-cols-3 gap-4 mb-6">
-                <div className="text-center p-3 rounded-lg" style={{ backgroundColor: "hsl(var(--muted))" }}>
-                  <div className="text-xl font-bold" style={{ color: "hsl(var(--slate))" }}>{data.pokemon.stats.totalCards}</div>
-                  <div className="text-xs" style={{ color: "hsl(var(--muted-foreground))" }}>Total Cards</div>
-                </div>
-                <div className="text-center p-3 rounded-lg" style={{ backgroundColor: "hsl(var(--muted))" }}>
-                  <div className="text-xl font-bold" style={{ color: "hsl(var(--slate))" }}>{data.pokemon.stats.uniqueCards}</div>
-                  <div className="text-xs" style={{ color: "hsl(var(--muted-foreground))" }}>Unique Cards</div>
-                </div>
-                <div className="text-center p-3 rounded-lg" style={{ backgroundColor: "hsl(var(--muted))" }}>
-                  <div className="text-xl font-bold" style={{ color: "hsl(var(--slate))" }}>${data.pokemon.stats.totalValue.toFixed(0)}</div>
-                  <div className="text-xs" style={{ color: "hsl(var(--muted-foreground))" }}>Est. Value</div>
+          {/* Pokémon */}
+          <motion.div initial={{ opacity: 0, x: 24 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true, margin: "-40px" }} transition={{ duration: 0.5, ease: "easeOut" }}>
+            <GlassCard className="overflow-hidden">
+              <div className="flex items-center justify-between bg-linear-to-r from-sage to-primary px-6 py-4 text-white">
+                <div className="flex items-center gap-3">
+                  <Trophy className="h-5 w-5" />
+                  <h3 className="font-raleway text-lg font-extrabold">Pokémon card collection</h3>
                 </div>
               </div>
 
-              {/* Featured Cards */}
-              <div>
-                <h4 className="text-sm font-semibold mb-3 uppercase tracking-wider flex items-center gap-2" style={{ color: "hsl(var(--muted-foreground))" }}>
-                  <Star className="w-3 h-3" /> Featured Cards
+              <div className="p-6">
+                <div className="mb-6 grid grid-cols-3 gap-3">
+                  <Stat label="Total cards" value={d.online ? d.stats.data?.totalCards ?? 0 : "—"} loading={checking || (d.online && d.stats.isPending)} />
+                  <Stat label="Unique" value={d.online ? d.stats.data?.uniqueCards ?? 0 : "—"} loading={checking || (d.online && d.stats.isPending)} />
+                  <Stat label="Est. value" value={d.online ? `$${(d.stats.data?.totalValue ?? 0).toFixed(0)}` : "—"} loading={checking || (d.online && d.stats.isPending)} />
+                </div>
+
+                <h4 className="mb-3 flex items-center gap-2 text-xs font-bold uppercase tracking-[0.18em] text-muted-foreground">
+                  <Star className="h-3.5 w-3.5" /> Featured cards
                 </h4>
-                
-                {Array.isArray(data.pokemon.featured) && data.pokemon.featured.length > 0 ? (
+                {checking || (d.online && d.featured.isPending) ? (
                   <div className="grid grid-cols-3 gap-3">
-                    {data.pokemon.featured.map((card, index) => (
-                      <div key={card.id || index} className="group cursor-pointer">
-                        <div className="relative aspect-[3/4] rounded-lg overflow-hidden hover:shadow-md transition-all duration-200 ease-out group-hover:scale-105" style={{ backgroundColor: "hsl(var(--muted))", boxShadow: "var(--shadow-card)" }}>
-                          <img 
-                            src={card.images?.small || ''} 
-                            alt={card.name || 'Pokemon Card'}
-                            className="w-full h-full object-cover"
-                            loading="lazy"
-                            onError={(e) => {
-                              e.currentTarget.src = '/placeholder-card.png';
-                            }}
-                          />
-                          {card.rarity && (
-                            <div className={`absolute top-2 left-2 px-2 py-1 rounded-full text-xs font-medium text-white ${getRarityColor(card.rarity)}`}>
-                              {card.rarity}
-                            </div>
-                          )}
-                          {card.quantity && card.quantity > 1 && (
-                            <div className="absolute top-2 right-2 bg-black bg-opacity-70 text-white px-2 py-1 rounded-full text-xs font-bold">
-                              ×{card.quantity}
-                            </div>
-                          )}
-                          <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-70 transition-all duration-300 flex items-end">
-                            <div className="p-3 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                              <h5 className="font-semibold text-sm">{card.name || 'Unknown Card'}</h5>
-                              <p className="text-xs opacity-90">{card.set?.name || 'Unknown Set'}</p>
-                              {card.tcgplayer?.prices && (
-                                <p className="text-xs font-medium mt-1">
-                                  ${(card.tcgplayer.prices.holofoil?.market || card.tcgplayer.prices.normal?.market || 0).toFixed(2)}
-                                </p>
-                              )}
-                            </div>
+                    {Array.from({ length: 6 }).map((_, i) => (
+                      <Skeleton key={i} className="aspect-3/4" />
+                    ))}
+                  </div>
+                ) : (d.featured.data?.length ?? 0) > 0 ? (
+                  <div className="grid grid-cols-3 gap-3">
+                    {d.featured.data!.map((card, i) => (
+                      <div key={card.id ?? i} className="group relative aspect-3/4 overflow-hidden rounded-lg bg-slate/5 shadow-card transition-transform duration-300 hover:scale-[1.04]">
+                        <img
+                          src={card.images?.small ?? "/placeholder.svg"}
+                          alt={card.name ?? "Pokémon card"}
+                          loading="lazy"
+                          className="h-full w-full object-cover"
+                          onError={(e) => {
+                            e.currentTarget.src = "/placeholder.svg";
+                          }}
+                        />
+                        {card.rarity && (
+                          <span className={cn("absolute left-2 top-2 rounded-full px-2 py-0.5 text-[10px] font-semibold text-white", rarityColor(card.rarity))}>{card.rarity}</span>
+                        )}
+                        {card.quantity && card.quantity > 1 && (
+                          <span className="absolute right-2 top-2 rounded-full bg-black/70 px-2 py-0.5 text-[10px] font-bold text-white">×{card.quantity}</span>
+                        )}
+                        <div className="absolute inset-0 flex items-end bg-linear-to-t from-black/80 to-transparent p-3 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+                          <div className="text-white">
+                            <p className="text-sm font-semibold">{card.name}</p>
+                            <p className="text-xs opacity-90">{card.set?.name}</p>
+                            {card.tcgplayer?.prices && (
+                              <p className="mt-1 text-xs font-medium">${(card.tcgplayer.prices.holofoil?.market ?? card.tcgplayer.prices.normal?.market ?? 0).toFixed(2)}</p>
+                            )}
                           </div>
                         </div>
                       </div>
                     ))}
                   </div>
                 ) : (
-                  <div className="text-center py-8" style={{ color: "hsl(var(--muted-foreground))" }}>
-                    <Trophy className="w-8 h-8 mx-auto mb-2 opacity-50" />
-                    <p className="text-sm font-medium">No Pokemon cards found</p>
-                    <p className="text-xs mt-1">The Pokemon TCG API might be temporarily unavailable</p>
-                    <button
-                      onClick={() => {
-                        setLoading(true);
-                        fetchHobbiesData();
-                      }}
-                      className="mt-4 px-4 py-2 bg-gradient-to-r from-green-500 to-blue-500 text-white text-xs rounded-lg hover:from-green-600 hover:to-blue-600 transition-all"
-                    >
-                      Retry Loading
-                    </button>
-                  </div>
+                  <Empty icon={<Trophy className="h-7 w-7" />} text="No cards to show right now" />
                 )}
               </div>
-            </div>
+            </GlassCard>
           </motion.div>
         </div>
       </div>
     </section>
   );
-};
+}
 
-export default Hobbies;
+function TrackRow({ track, big, index, right }: { track: SpotifyTrack; big?: boolean; index?: number; right?: string }) {
+  return (
+    <div className={cn("flex items-center gap-3 rounded-lg transition hover:bg-white/50", big ? "bg-white/45 p-4" : "p-2")}>
+      {index !== undefined && <span className="w-5 text-center text-xs text-taupe">#{index}</span>}
+      {track.albumArt && <img src={track.albumArt} alt="" className={cn("rounded-md shadow-card", big ? "h-16 w-16" : "h-9 w-9")} loading="lazy" />}
+      <div className="min-w-0 flex-1">
+        <p className={cn("truncate font-semibold text-slate", big ? "text-base" : "text-sm")}>{track.name}</p>
+        <p className="truncate text-xs text-muted-foreground">
+          {track.artist}
+          {big && ` · ${track.album}`}
+        </p>
+        {big && (
+          <p className="mt-1.5 flex items-center gap-1 text-xs text-muted-foreground">
+            <TrendingUp className="h-3 w-3 text-[#1db954]" /> {track.popularity}% popularity
+          </p>
+        )}
+      </div>
+      {big ? (
+        <a
+          href={track.spotifyUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-1 rounded-full bg-[#1db954] px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-[#169c47]"
+        >
+          <Play className="h-3 w-3" /> Play
+        </a>
+      ) : (
+        right && <span className="text-xs text-taupe">{right}</span>
+      )}
+    </div>
+  );
+}
+
+function Stat({ label, value, loading }: { label: string; value: string | number; loading?: boolean }) {
+  return (
+    <div className="rounded-xl bg-white/45 p-3 text-center">
+      {loading ? <Skeleton className="mx-auto mb-1 h-6 w-12" /> : <div className="font-raleway text-xl font-extrabold text-slate">{value}</div>}
+      <div className="text-[11px] text-muted-foreground">{label}</div>
+    </div>
+  );
+}
+
+function Empty({ icon, text }: { icon: React.ReactNode; text: string }) {
+  return (
+    <div className="flex flex-col items-center gap-2 rounded-xl bg-white/40 py-8 text-center text-sm text-muted-foreground">
+      <span className="opacity-50">{icon}</span>
+      {text}
+    </div>
+  );
+}
